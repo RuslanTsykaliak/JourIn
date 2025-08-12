@@ -1,5 +1,7 @@
 # JourIn: AI-Powered Journaling to LinkedIn
 
+**Live Demo: [https://jour-in.vercel.app/](https://jour-in.vercel.app/)**
+
 JourIn is an AI-powered journaling app that helps you reflect on your day and transforms your entries into professional LinkedIn posts. Built with Next.js, TypeScript, and Tailwind CSS, it's designed to help you build your personal brand by turning daily reflections into engaging content.
 
 
