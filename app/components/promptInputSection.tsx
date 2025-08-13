@@ -17,7 +17,7 @@ export default function PromptInputSection({ onPromptGenerated }: PromptInputSec
     whatWentWell: '',
     whatILearned: '',
     whatWouldDoDifferently: '',
-    mySuccesses: '',
+    nextStep: '',
   });
 
   // --- Local Storage: Load on Mount ---
@@ -33,15 +33,12 @@ export default function PromptInputSection({ onPromptGenerated }: PromptInputSec
     }
   }, []);
 
-  // Define the save function outside of useCallback to make its dependencies clear
-  const saveJournalEntriesToLocalStorage = (entries: JournalEntries) => {
-    localStorage.setItem('jourin_current_draft', JSON.stringify(entries));
-  };
-
   // --- Local Storage: Debounced Save Current Draft ---
   const debouncedSaveDraft = useCallback(
-    debounce(saveJournalEntriesToLocalStorage, 500),
-    [] // No dependencies needed here as saveJournalEntriesToLocalStorage is stable
+    debounce((entries: JournalEntries) => {
+      localStorage.setItem('jourin_current_draft', JSON.stringify(entries));
+    }, 500),
+    [] // No dependencies needed here as the function is inline
   );
 
   useEffect(() => {
@@ -62,7 +59,7 @@ export default function PromptInputSection({ onPromptGenerated }: PromptInputSec
       whatWentWell: '',
       whatILearned: '',
       whatWouldDoDifferently: '',
-      mySuccesses: '',
+      nextStep: '',
     });
     localStorage.removeItem('jourin_current_draft');
   };

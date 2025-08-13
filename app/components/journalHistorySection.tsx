@@ -54,8 +54,8 @@ ${entry.whatILearned}
 What I would do differently today:
 ${entry.whatWouldDoDifferently}
 
-My successes today:
-${entry.mySuccesses}
+My next step:
+${entry.nextStep}
 `).join('\n\n');
 
     try {
@@ -69,7 +69,7 @@ ${entry.mySuccesses}
   };
 
   const copyPastEntryPromptToClipboard = async (entry: JournalEntryWithTimestamp) => {
-    const promptToCopy = generatePromptText(entry);
+    const promptToCopy = generatePromptText(entry,);
     try {
       await navigator.clipboard.writeText(promptToCopy);
       setCopyPastEntryPromptSuccess(entry.timestamp);
@@ -91,8 +91,8 @@ ${entry.whatILearned}
 What I would do differently today:
 ${entry.whatWouldDoDifferently}
 
-My successes today:
-${entry.mySuccesses}
+My next step:
+${entry.nextStep}
 `;
     try {
       await navigator.clipboard.writeText(textToCopy);
@@ -147,7 +147,7 @@ ${entry.mySuccesses}
                 <span className="font-medium">What I would do differently today:</span> {entry.whatWouldDoDifferently}
               </p>
               <p className="text-sm text-gray-300">
-                <span className="font-medium">My successes today:</span> {entry.mySuccesses}
+                <span className="font-medium">My next step:</span> {entry.nextStep}
               </p>
             </div>
           ))}

@@ -7,7 +7,7 @@ interface JournalEntries {
   whatWentWell: string;
   whatILearned: string;
   whatWouldDoDifferently: string;
-  mySuccesses: string;
+  nextStep: string;
 }
 
 interface JournalingFormProps {
@@ -30,7 +30,7 @@ export default function JournalingForm({ journalEntries, onJournalEntriesChange 
       <form className="space-y-6">
         <div>
           <label htmlFor="whatWentWell" className="block text-sm font-medium text-gray-300">
-            What went well this day?
+            What went well today?
           </label>
           <div className="mt-1">
             <textarea
@@ -47,7 +47,7 @@ export default function JournalingForm({ journalEntries, onJournalEntriesChange 
 
         <div>
           <label htmlFor="whatILearned" className="block text-sm font-medium text-gray-300">
-            What did I learn?
+            What did I learn today?
           </label>
           <div className="mt-1">
             <textarea
@@ -80,17 +80,17 @@ export default function JournalingForm({ journalEntries, onJournalEntriesChange 
         </div>
 
         <div>
-          <label htmlFor="mySuccesses" className="block text-sm font-medium text-gray-300">
-            What are my successes?
+          <label htmlFor="nextStep" className="block text-sm font-medium text-gray-300">
+            What’s my next step?
           </label>
           <div className="mt-1">
             <textarea
-              id="mySuccesses"
-              name="mySuccesses"
+              id="nextStep"
+              name="nextStep"
               rows={4}
               className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 mt-1 block w-full sm:text-sm border border-gray-600 rounded-md p-2 bg-gray-700 text-gray-100"
-              placeholder="List your accomplishments, big or small, that you're proud of..."
-              value={journalEntries.mySuccesses}
+              placeholder="Outline the specific actions you’ll take tomorrow or in the near future based on today’s experiences..."
+              value={journalEntries.nextStep}
               onChange={handleChange}
             ></textarea>
           </div>

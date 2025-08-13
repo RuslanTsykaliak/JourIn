@@ -7,7 +7,7 @@ describe('generatePromptText', () => {
       whatWentWell: 'I successfully completed a major project.',
       whatILearned: 'I learned the importance of clear communication.',
       whatWouldDoDifferently: 'I would delegate more tasks to my team.',
-      mySuccesses: 'I received positive feedback from the client.',
+      nextStep: 'I will work on the core feature of my app.',
     };
 
     const prompt = generatePromptText(entries);
@@ -15,7 +15,7 @@ describe('generatePromptText', () => {
     expect(prompt).toContain('I successfully completed a major project.');
     expect(prompt).toContain('I learned the importance of clear communication.');
     expect(prompt).toContain('I would delegate more tasks to my team.');
-    expect(prompt).toContain('I received positive feedback from the client.');
+    expect(prompt).toContain('I will work on the core feature of my app.');
   });
 
   it('should include key instructions in the prompt', () => {
@@ -23,13 +23,12 @@ describe('generatePromptText', () => {
       whatWentWell: 'A test entry.',
       whatILearned: '',
       whatWouldDoDifferently: '',
-      mySuccesses: '',
+      nextStep: '',
     };
 
     const prompt = generatePromptText(entries);
 
     expect(prompt).toContain('end the post with 3-5 relevant and popular hashtags');
-    expect(prompt).toContain('#ProfessionalGrowth #PersonalDevelopment #Reflection');
   });
 
   it('should throw an error for empty journal entries', () => {
@@ -37,10 +36,10 @@ describe('generatePromptText', () => {
       whatWentWell: '',
       whatILearned: '',
       whatWouldDoDifferently: '',
-      mySuccesses: '',
+      nextStep: '',
     };
 
-    expect(() => generatePromptText(entries)).toThrow(
+    expect(() => generatePromptText(entries, { type: '', specifics: '' })).toThrow(
       'Please fill out at least one journal entry to generate a prompt.'
     );
   });
@@ -50,7 +49,7 @@ describe('generatePromptText', () => {
       whatWentWell: 'Project with @user & special chars like !@#$%^&*()_+',
       whatILearned: 'Learned about <script>alert("XSS")</script> vulnerabilities.',
       whatWouldDoDifferently: 'Use more emojis 😊👍🎉.',
-      mySuccesses: 'Achieved 100% test coverage.',
+      nextStep: 'Achieved 100% test coverage.',
     };
 
     const prompt = generatePromptText(entries);

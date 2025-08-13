@@ -1,8 +1,8 @@
 // app/components/generatePostPromptButton.tsx
 "use client";
 
-import React from 'react';
-import { generatePromptText } from '../utils/generatePromptText';
+import React from "react";
+import { generatePromptText } from "../utils/generatePromptText";
 import { JournalEntries } from '../types';
 
 interface GeneratePostPromptButtonProps {
@@ -11,7 +11,6 @@ interface GeneratePostPromptButtonProps {
 }
 
 export default function GeneratePostPromptButton({ journalEntries, onGeneratePrompt }: GeneratePostPromptButtonProps) {
-
   const handleGenerateClick = () => {
     try {
       const prompt = generatePromptText(journalEntries);
