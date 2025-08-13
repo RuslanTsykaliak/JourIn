@@ -14,3 +14,10 @@ export interface JournalEntryWithTimestamp extends JournalEntries {
   timestamp: number; // Unix timestamp for sorting and display
 }
 
+export interface CustomTitles {
+  whatWentWell: string;
+  whatILearned: string;
+  whatWouldDoDifferently: string;
+  nextStep: string;
+}
+

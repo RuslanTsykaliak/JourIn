@@ -2,6 +2,8 @@
 "use client";
 
 import React from 'react';
+import { CustomTitles } from '../types';
+import EditableTitle from './editableTitle';
 
 interface JournalEntries {
   whatWentWell: string;
@@ -13,9 +15,16 @@ interface JournalEntries {
 interface JournalingFormProps {
   journalEntries: JournalEntries;
   onJournalEntriesChange: (entries: JournalEntries) => void;
+  customTitles: CustomTitles;
+  onCustomTitleChange: (key: keyof CustomTitles, value: string) => void;
 }
 
-export default function JournalingForm({ journalEntries, onJournalEntriesChange }: JournalingFormProps) {
+export default function JournalingForm({
+  journalEntries,
+  onJournalEntriesChange,
+  customTitles,
+  onCustomTitleChange,
+}: JournalingFormProps) {
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -29,8 +38,12 @@ export default function JournalingForm({ journalEntries, onJournalEntriesChange 
     <div className="mt-8">
       <form className="space-y-6">
         <div>
-          <label htmlFor="whatWentWell" className="block text-sm font-medium text-gray-300">
-            What went well today?
+          <label htmlFor="whatWentWell" className="block text-sm font-medium text-gray-300 text-center">
+            <EditableTitle
+              initialValue={customTitles.whatWentWell}
+              onSave={(newValue) => onCustomTitleChange('whatWentWell', newValue)}
+              fieldKey="whatWentWell"
+            />
           </label>
           <div className="mt-1">
             <textarea
@@ -46,8 +59,12 @@ export default function JournalingForm({ journalEntries, onJournalEntriesChange 
         </div>
 
         <div>
-          <label htmlFor="whatILearned" className="block text-sm font-medium text-gray-300">
-            What did I learn today?
+          <label htmlFor="whatILearned" className="block text-sm font-medium text-gray-300 text-center">
+            <EditableTitle
+              initialValue={customTitles.whatILearned}
+              onSave={(newValue) => onCustomTitleChange('whatILearned', newValue)}
+              fieldKey="whatILearned"
+            />
           </label>
           <div className="mt-1">
             <textarea
@@ -63,8 +80,12 @@ export default function JournalingForm({ journalEntries, onJournalEntriesChange 
         </div>
 
         <div>
-          <label htmlFor="whatWouldDoDifferently" className="block text-sm font-medium text-gray-300">
-            What would I do differently?
+          <label htmlFor="whatWouldDoDifferently" className="block text-sm font-medium text-gray-300 text-center">
+            <EditableTitle
+              initialValue={customTitles.whatWouldDoDifferently}
+              onSave={(newValue) => onCustomTitleChange('whatWouldDoDifferently', newValue)}
+              fieldKey="whatWouldDoDifferently"
+            />
           </label>
           <div className="mt-1">
             <textarea
@@ -80,8 +101,12 @@ export default function JournalingForm({ journalEntries, onJournalEntriesChange 
         </div>
 
         <div>
-          <label htmlFor="nextStep" className="block text-sm font-medium text-gray-300">
-            What’s my next step?
+          <label htmlFor="nextStep" className="block text-sm font-medium text-gray-300 text-center">
+            <EditableTitle
+              initialValue={customTitles.nextStep}
+              onSave={(newValue) => onCustomTitleChange('nextStep', newValue)}
+              fieldKey="nextStep"
+            />
           </label>
           <div className="mt-1">
             <textarea

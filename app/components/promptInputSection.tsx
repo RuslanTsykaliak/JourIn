@@ -4,9 +4,16 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import JournalingForm from './journalingForm';
 import GeneratePostPromptButton from './generatePostPromptButton';
-import { JournalEntries, UserGoal } from '../types';
+import { JournalEntries, UserGoal, CustomTitles } from '../types';
 import { debounce } from '../utils/debounce';
 import { generatePromptText } from '../utils/generatePromptText';
+
+const DEFAULT_CUSTOM_TITLES: CustomTitles = {
+  whatWentWell: 'What went well today?',
+  whatILearned: 'What did I learn today?',
+  whatWouldDoDifferently: 'What would I do differently?',
+  nextStep: 'What’s my next step?',
+};
 
 interface PromptInputSectionProps {
   onPromptGenerated: (prompt: string, entry: JournalEntries) => void;
@@ -21,6 +28,7 @@ export default function PromptInputSection({ onPromptGenerated }: PromptInputSec
   });
 
   const [userGoal, setUserGoal] = useState<string>('');
+  const [customTitles, setCustomTitles] = useState<CustomTitles>(DEFAULT_CUSTOM_TITLES);
 
   // --- Local Storage: Load on Mount ---
   useEffect(() => {
@@ -43,6 +51,16 @@ export default function PromptInputSection({ onPromptGenerated }: PromptInputSec
         localStorage.removeItem('jourin_user_goal');
       }
     }
+
+    const savedCustomTitles = localStorage.getItem('jourin_custom_titles');
+    if (savedCustomTitles) {
+      try {
+        setCustomTitles(JSON.parse(savedCustomTitles));
+      } catch (e) {
+        console.error("Failed to parse saved custom titles from localStorage", e);
+        localStorage.removeItem('jourin_custom_titles');
+      }
+    }
   }, []);
 
   // --- Local Storage: Debounced Save Current Draft ---
@@ -61,6 +79,14 @@ export default function PromptInputSection({ onPromptGenerated }: PromptInputSec
     []
   );
 
+  // --- Local Storage: Debounced Save Custom Titles ---
+  const debouncedSaveCustomTitles = useCallback(
+    debounce((titles: CustomTitles) => {
+      localStorage.setItem('jourin_custom_titles', JSON.stringify(titles));
+    }, 500),
+    []
+  );
+
   useEffect(() => {
     debouncedSaveDraft(journalEntries);
   }, [journalEntries, debouncedSaveDraft]);
@@ -69,12 +95,23 @@ export default function PromptInputSection({ onPromptGenerated }: PromptInputSec
     debouncedSaveUserGoal(userGoal);
   }, [userGoal, debouncedSaveUserGoal]);
 
+  useEffect(() => {
+    debouncedSaveCustomTitles(customTitles);
+  }, [customTitles, debouncedSaveCustomTitles]);
+
   const handleJournalEntriesChange = (entries: JournalEntries) => {
     setJournalEntries(entries);
   };
 
   const handleGoalInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setUserGoal(e.target.value);
+  };
+
+  const handleCustomTitleChange = (key: keyof CustomTitles, value: string) => {
+    setCustomTitles(prevTitles => ({
+      ...prevTitles,
+      [key]: value,
+    }));
   };
 
   const handleGenerateClick = () => {
@@ -96,6 +133,8 @@ export default function PromptInputSection({ onPromptGenerated }: PromptInputSec
       <JournalingForm
         journalEntries={journalEntries}
         onJournalEntriesChange={handleJournalEntriesChange}
+        customTitles={customTitles}
+        onCustomTitleChange={handleCustomTitleChange}
       />
 
       <div className="mt-8">
