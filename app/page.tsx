@@ -6,7 +6,7 @@ import Header from './components/header';
 import PromptInputSection from './components/promptInputSection';
 import GeneratedPromptDisplay from './components/generatedPromptDisplay';
 import JournalHistorySection from './components/journalHistorySection';
-import { JournalEntries, JournalEntryWithTimestamp } from './types'; // Import types
+import { CustomTitles, JournalEntries, JournalEntryWithTimestamp } from './types'; // Import types
 
 export default function Home() {
   const [generatedPrompt, setGeneratedPrompt] = useState<string>('');

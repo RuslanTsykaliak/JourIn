@@ -58,6 +58,7 @@ export default function PromptInputSection({ onPromptGenerated }: PromptInputSec
         setCustomTitles(JSON.parse(savedCustomTitles));
       } catch (e) {
         console.error("Failed to parse saved custom titles from localStorage", e);
+        localStorage.removeItem('jourin_custom_titles');
       }
     }
   }, []);
@@ -125,8 +126,6 @@ export default function PromptInputSection({ onPromptGenerated }: PromptInputSec
       nextStep: '',
     });
     localStorage.removeItem('jourin_current_draft');
-    setCustomTitles(DEFAULT_CUSTOM_TITLES);
-    localStorage.removeItem('jourin_custom_titles');
   };
 
   return (
