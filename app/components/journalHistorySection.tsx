@@ -43,20 +43,30 @@ export default function JournalHistorySection({ newEntryToHistory }: JournalHist
   }, [newEntryToHistory]);
 
   const copyAllHistoryToClipboard = async () => {
-    const formattedHistory = pastEntries.map(entry => `
+    const defaultTitles = {
+      whatWentWell: "What went well today",
+      whatILearned: "What I learned today",
+      whatWouldDoDifferently: "What I would do differently",
+      nextStep: "My next step",
+    };
+
+    const formattedHistory = pastEntries.map(entry => {
+      const title = entry.customTitles || defaultTitles;
+      return `
 --- Journal Entry (${new Date(entry.timestamp).toLocaleString()}) ---
-What went well today:
+${title.whatWentWell}:
 ${entry.whatWentWell}
 
-What I learned today:
+${title.whatILearned}:
 ${entry.whatILearned}
 
-What I would do differently today:
+${title.whatWouldDoDifferently}:
 ${entry.whatWouldDoDifferently}
 
-My next step:
+${title.nextStep}:
 ${entry.nextStep}
-`).join('\n\n');
+`;
+    }).join('\n\n');
 
     try {
       await navigator.clipboard.writeText(formattedHistory);
@@ -69,7 +79,7 @@ ${entry.nextStep}
   };
 
   const copyPastEntryPromptToClipboard = async (entry: JournalEntryWithTimestamp) => {
-    const promptToCopy = generatePromptText(entry,);
+    const promptToCopy = generatePromptText(entry, entry.customTitles);
     try {
       await navigator.clipboard.writeText(promptToCopy);
       setCopyPastEntryPromptSuccess(entry.timestamp);
@@ -80,18 +90,27 @@ ${entry.nextStep}
   };
 
   const copyPastEntryTextToClipboard = async (entry: JournalEntryWithTimestamp) => {
+    const defaultTitles = {
+      whatWentWell: "What went well today",
+      whatILearned: "What I learned today",
+      whatWouldDoDifferently: "What I would do differently",
+      nextStep: "My next step",
+    };
+
+    const title = entry.customTitles || defaultTitles;
+
     const textToCopy = `
 --- Journal Entry (${new Date(entry.timestamp).toLocaleString()}) ---
-What went well today:
+${title.whatWentWell}:
 ${entry.whatWentWell}
 
-What I learned today:
+${title.whatILearned}:
 ${entry.whatILearned}
 
-What I would do differently today:
+${title.whatWouldDoDifferently}:
 ${entry.whatWouldDoDifferently}
 
-My next step:
+${title.nextStep}:
 ${entry.nextStep}
 `;
     try {
@@ -116,41 +135,51 @@ ${entry.nextStep}
       <div className="mt-12 w-full max-w-md text-left">
         <h2 className="text-2xl font-extrabold text-gray-100 mb-4">Your Past Entries</h2>
         <div className="space-y-6">
-          {pastEntries.slice(0, displayCount).map((entry) => (
-            <div key={entry.timestamp} className="p-4 bg-gray-700 rounded-md shadow-md">
-              <div className="flex justify-between items-center mb-2">
-                <h3 className="text-md font-semibold text-gray-100">
-                  Entry from {new Date(entry.timestamp).toLocaleString()}
-                </h3>
-                <div className="flex space-x-2">
-                  <button
-                    onClick={() => copyPastEntryPromptToClipboard(entry)}
-                    className="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
-                  >
-                    {copyPastEntryPromptSuccess === entry.timestamp ? 'Copied!' : 'Copy Prompt'}
-                  </button>
-                  <button
-                    onClick={() => copyPastEntryTextToClipboard(entry)}
-                    className="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                  >
-                    {copyPastEntryTextSuccess === entry.timestamp ? 'Copied!' : 'Copy Text'}
-                  </button>
+          {pastEntries.slice(0, displayCount).map((entry) => {
+            const defaultTitles = {
+              whatWentWell: "What went well today",
+              whatILearned: "What I learned today",
+              whatWouldDoDifferently: "What I would do differently",
+              nextStep: "My next step",
+            };
+            const title = entry.customTitles || defaultTitles;
+
+            return (
+              <div key={entry.timestamp} className="p-4 bg-gray-700 rounded-md shadow-md">
+                <div className="flex justify-between items-center mb-2">
+                  <h3 className="text-md font-semibold text-gray-100">
+                    Entry from {new Date(entry.timestamp).toLocaleString()}
+                  </h3>
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={() => copyPastEntryPromptToClipboard(entry)}
+                      className="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
+                    >
+                      {copyPastEntryPromptSuccess === entry.timestamp ? 'Copied!' : 'Copy Prompt'}
+                    </button>
+                    <button
+                      onClick={() => copyPastEntryTextToClipboard(entry)}
+                      className="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                    >
+                      {copyPastEntryTextSuccess === entry.timestamp ? 'Copied!' : 'Copy Text'}
+                    </button>
+                  </div>
                 </div>
+                <p className="text-sm text-gray-300">
+                  <span className="font-medium">{title.whatWentWell}:</span> {entry.whatWentWell}
+                </p>
+                <p className="text-sm text-gray-300">
+                  <span className="font-medium">{title.whatILearned}:</span> {entry.whatILearned}
+                </p>
+                <p className="text-sm text-gray-300">
+                  <span className="font-medium">{title.whatWouldDoDifferently}:</span> {entry.whatWouldDoDifferently}
+                </p>
+                <p className="text-sm text-gray-300">
+                  <span className="font-medium">{title.nextStep}:</span> {entry.nextStep}
+                </p>
               </div>
-              <p className="text-sm text-gray-300">
-                <span className="font-medium">What went well today:</span> {entry.whatWentWell}
-              </p>
-              <p className="text-sm text-gray-300">
-                <span className="font-medium">What I learned today:</span> {entry.whatILearned}
-              </p>
-              <p className="text-sm text-gray-300">
-                <span className="font-medium">What I would do differently today:</span> {entry.whatWouldDoDifferently}
-              </p>
-              <p className="text-sm text-gray-300">
-                <span className="font-medium">My next step:</span> {entry.nextStep}
-              </p>
-            </div>
-          ))}
+            );
+          })}
         </div>
         <div className="mt-6 flex items-center justify-between">
           <button

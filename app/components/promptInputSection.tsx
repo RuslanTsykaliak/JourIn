@@ -16,7 +16,7 @@ const DEFAULT_CUSTOM_TITLES: CustomTitles = {
 };
 
 interface PromptInputSectionProps {
-  onPromptGenerated: (prompt: string, entry: JournalEntries) => void;
+  onPromptGenerated: (prompt: string, entry: JournalEntries, customTitles: CustomTitles) => void;
 }
 
 export default function PromptInputSection({ onPromptGenerated }: PromptInputSectionProps) {
@@ -116,7 +116,7 @@ export default function PromptInputSection({ onPromptGenerated }: PromptInputSec
 
   const handleGenerateClick = () => {
     const prompt = generatePromptText({ ...journalEntries, userGoal }, customTitles);
-    onPromptGenerated(prompt, { ...journalEntries, userGoal });
+    onPromptGenerated(prompt, { ...journalEntries, userGoal }, customTitles);
 
     // Clear current draft after submission, but keep user goal
     setJournalEntries({

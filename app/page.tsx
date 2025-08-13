@@ -13,10 +13,10 @@ export default function Home() {
   const [copyPromptSuccess, setCopyPromptSuccess] = useState<string>('');
   const [newEntryForHistory, setNewEntryForHistory] = useState<JournalEntryWithTimestamp | null>(null);
 
-  const handlePromptGenerated = (prompt: string, entry: JournalEntries) => {
+  const handlePromptGenerated = (prompt: string, entry: JournalEntries, customTitles: CustomTitles) => {
     setGeneratedPrompt(prompt);
     setCopyPromptSuccess(''); // Clear previous copy success message
-    setNewEntryForHistory({ ...entry, timestamp: Date.now() }); // Prepare entry for history
+    setNewEntryForHistory({ ...entry, timestamp: Date.now(), customTitles }); // Prepare entry for history
   };
 
   const copyGeneratedPromptToClipboard = async () => {
