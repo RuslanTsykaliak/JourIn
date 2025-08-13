@@ -8,6 +8,7 @@ export interface JournalEntries {
   whatWouldDoDifferently: string;
   nextStep: string;
   userGoal?: string; // Optional user goal
+  customTitles?: CustomTitles; // Optional custom titles for the entries
 }
 
 export interface JournalEntryWithTimestamp extends JournalEntries {

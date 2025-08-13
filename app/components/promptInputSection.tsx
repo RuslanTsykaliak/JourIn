@@ -115,7 +115,7 @@ export default function PromptInputSection({ onPromptGenerated }: PromptInputSec
   };
 
   const handleGenerateClick = () => {
-    const prompt = generatePromptText({ ...journalEntries, userGoal });
+    const prompt = generatePromptText({ ...journalEntries, userGoal }, customTitles);
     onPromptGenerated(prompt, { ...journalEntries, userGoal });
 
     // Clear current draft after submission, but keep user goal

@@ -1,8 +1,17 @@
 // app/utils/generatePromptText.ts
 
-import { JournalEntries } from "../types";
+import { JournalEntries, CustomTitles } from "../types";
 
-export const generatePromptText = (entries: JournalEntries): string => {
+export const generatePromptText = (entries: JournalEntries, customTitles?: CustomTitles): string => {
+  const defaultTitles: CustomTitles = {
+    whatWentWell: "What went well today",
+    whatILearned: "What I learned today",
+    whatWouldDoDifferently: "What I would do differently",
+    nextStep: "My next step",
+  };
+
+  const titles = customTitles || defaultTitles;
+
   if (!entries.whatWentWell && !entries.whatILearned && !entries.whatWouldDoDifferently && !entries.nextStep) {
     throw new Error("Please fill out at least one journal entry to generate a prompt.");
   }
@@ -33,13 +42,13 @@ User's Goal for this post: ${entries.userGoal}. Please tailor the tone and conte
 
     Here are my journal entries for today:
 
-    What went well today: ${entries.whatWentWell}
+    ${titles.whatWentWell}: ${entries.whatWentWell}
 
-    What I learned today: ${entries.whatILearned}
+    ${titles.whatILearned}: ${entries.whatILearned}
 
-    What I would do differently: ${entries.whatWouldDoDifferently}
+    ${titles.whatWouldDoDifferently}: ${entries.whatWouldDoDifferently}
 
-    My next step: ${entries.nextStep}
+    ${titles.nextStep}: ${entries.nextStep}
 ${goalSection}
     ---
     LinkedIn Post Structure Guidelines:
@@ -47,7 +56,7 @@ ${goalSection}
     - Re-hook: A question or strong statement that encourages further reading.
     - Body/Value: Specific insights, lessons learned, or details of success.
     - CTA: End with an invitation for comments, shares, or discussion.
-    ---
+    ----
 
     Please generate the LinkedIn post now.
   `;
