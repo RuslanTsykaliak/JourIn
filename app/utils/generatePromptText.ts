@@ -7,10 +7,17 @@ export const generatePromptText = (entries: JournalEntries): string => {
     throw new Error("Please fill out at least one journal entry to generate a prompt.");
   }
 
+  let goalSection = '';
+  if (entries.userGoal) {
+    goalSection = `
+
+User's Goal for this post: ${entries.userGoal}. Please tailor the tone and content of the LinkedIn post to align with this goal, making it relevant and appealing to an audience that can help achieve it.`;
+  }
+
   return `
     Based on my daily journal entries below, please generate a professional and engaging LinkedIn post.
 
-    The post should be a complete, seamless text, ready to be published. It should implicitly follow a "Hook → Body → CTA" structure, but do not label the sections.
+    The post should be a complete, seamless text, ready to be published. It should implicitly follow a "Hook → Re-hook → Body → CTA" structure, but do not label the sections.
 
     Tone: Reflective, inspiring, and professional. Write as if sharing a personal growth moment with fellow professionals.
 
@@ -33,7 +40,7 @@ export const generatePromptText = (entries: JournalEntries): string => {
     What I would do differently: ${entries.whatWouldDoDifferently}
 
     My next step: ${entries.nextStep}
-
+${goalSection}
     ---
     LinkedIn Post Structure Guidelines:
     - Hook: A bold, emotional, or thought-provoking first line.

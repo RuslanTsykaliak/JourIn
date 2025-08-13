@@ -1,10 +1,13 @@
 // app/types.ts
 
+export type UserGoal = string;
+
 export interface JournalEntries {
   whatWentWell: string;
   whatILearned: string;
   whatWouldDoDifferently: string;
   nextStep: string;
+  userGoal?: string; // Optional user goal
 }
 
 export interface JournalEntryWithTimestamp extends JournalEntries {

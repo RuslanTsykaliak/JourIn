@@ -4,7 +4,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import JournalingForm from './journalingForm';
 import GeneratePostPromptButton from './generatePostPromptButton';
-import { JournalEntries } from '../types';
+import { JournalEntries, UserGoal } from '../types';
 import { debounce } from '../utils/debounce';
 import { generatePromptText } from '../utils/generatePromptText';
 
@@ -20,6 +20,8 @@ export default function PromptInputSection({ onPromptGenerated }: PromptInputSec
     nextStep: '',
   });
 
+  const [userGoal, setUserGoal] = useState<string>('');
+
   // --- Local Storage: Load on Mount ---
   useEffect(() => {
     const savedDraft = localStorage.getItem('jourin_current_draft');
@@ -31,6 +33,16 @@ export default function PromptInputSection({ onPromptGenerated }: PromptInputSec
         localStorage.removeItem('jourin_current_draft');
       }
     }
+
+    const savedGoal = localStorage.getItem('jourin_user_goal');
+    if (savedGoal) {
+      try {
+        setUserGoal(JSON.parse(savedGoal));
+      } catch (e) {
+        console.error("Failed to parse saved user goal from localStorage", e);
+        localStorage.removeItem('jourin_user_goal');
+      }
+    }
   }, []);
 
   // --- Local Storage: Debounced Save Current Draft ---
@@ -38,23 +50,38 @@ export default function PromptInputSection({ onPromptGenerated }: PromptInputSec
     debounce((entries: JournalEntries) => {
       localStorage.setItem('jourin_current_draft', JSON.stringify(entries));
     }, 500),
-    [] // No dependencies needed here as the function is inline
+    []
+  );
+
+  // --- Local Storage: Debounced Save User Goal ---
+  const debouncedSaveUserGoal = useCallback(
+    debounce((goal: string) => {
+      localStorage.setItem('jourin_user_goal', JSON.stringify(goal));
+    }, 500),
+    []
   );
 
   useEffect(() => {
-    // This effect runs when journalEntries changes, triggering the debounced save
     debouncedSaveDraft(journalEntries);
-  }, [journalEntries, debouncedSaveDraft]); // debouncedSaveDraft is a stable reference from useCallback
+  }, [journalEntries, debouncedSaveDraft]);
+
+  useEffect(() => {
+    debouncedSaveUserGoal(userGoal);
+  }, [userGoal, debouncedSaveUserGoal]);
 
   const handleJournalEntriesChange = (entries: JournalEntries) => {
     setJournalEntries(entries);
   };
 
-  const handleGenerateClick = () => {
-    const prompt = generatePromptText(journalEntries);
-    onPromptGenerated(prompt, journalEntries);
+  const handleGoalInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setUserGoal(e.target.value);
+  };
 
-    // Clear current draft after submission
+  const handleGenerateClick = () => {
+    const prompt = generatePromptText({ ...journalEntries, userGoal });
+    onPromptGenerated(prompt, { ...journalEntries, userGoal });
+
+    // Clear current draft after submission, but keep user goal
     setJournalEntries({
       whatWentWell: '',
       whatILearned: '',
@@ -70,6 +97,23 @@ export default function PromptInputSection({ onPromptGenerated }: PromptInputSec
         journalEntries={journalEntries}
         onJournalEntriesChange={handleJournalEntriesChange}
       />
+
+      <div className="mt-8">
+        <div className="mt-4 space-y-4">
+          <div>
+            <input
+              type="text"
+              id="userGoal"
+              name="userGoal"
+              className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 mt-1 block w-full sm:text-sm border border-gray-600 rounded-md p-2 bg-gray-700 text-gray-100"
+              placeholder="Your goal (e.g., 'Find a fullstack position', 'Build followers for my tech blog')"
+              value={userGoal}
+              onChange={handleGoalInputChange}
+            />
+          </div>
+        </div>
+      </div>
+
       <GeneratePostPromptButton
         journalEntries={journalEntries}
         onGeneratePrompt={handleGenerateClick}
