@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import JournalingForm from './journalingForm';
-import GeneratePostPromptButton from './generatePostPromptButton';
+import GeneratePostPromptButton from '././generatePostPromptButton';
 import { JournalEntries, UserGoal, CustomTitles } from '../types';
 import { debounce } from '../utils/debounce';
 import { generatePromptText } from '../utils/generatePromptText';
@@ -29,6 +29,7 @@ export default function PromptInputSection({ onPromptGenerated }: PromptInputSec
 
   const [userGoal, setUserGoal] = useState<string>('');
   const [customTitles, setCustomTitles] = useState<CustomTitles>(DEFAULT_CUSTOM_TITLES);
+  const [hasHydrated, setHasHydrated] = useState(false); // ADDED
 
   // --- Local Storage: Load on Mount ---
   useEffect(() => {
@@ -61,6 +62,7 @@ export default function PromptInputSection({ onPromptGenerated }: PromptInputSec
         localStorage.removeItem('jourin_custom_titles');
       }
     }
+    setHasHydrated(true); // ADDED
   }, []);
 
   // --- Local Storage: Debounced Save Current Draft ---
@@ -79,25 +81,17 @@ export default function PromptInputSection({ onPromptGenerated }: PromptInputSec
     []
   );
 
-  // --- Local Storage: Debounced Save Custom Titles ---
-  const debouncedSaveCustomTitles = useCallback(
-    debounce((titles: CustomTitles) => {
+  // --- Local Storage: Save Custom Titles ---
+  const saveCustomTitles = useCallback(
+    (titles: CustomTitles) => {
       localStorage.setItem('jourin_custom_titles', JSON.stringify(titles));
-    }, 500),
+    },
     []
   );
 
   useEffect(() => {
-    debouncedSaveDraft(journalEntries);
-  }, [journalEntries, debouncedSaveDraft]);
-
-  useEffect(() => {
-    debouncedSaveUserGoal(userGoal);
-  }, [userGoal, debouncedSaveUserGoal]);
-
-  useEffect(() => {
-    debouncedSaveCustomTitles(customTitles);
-  }, [customTitles, debouncedSaveCustomTitles]);
+    saveCustomTitles(customTitles);
+  }, [customTitles, saveCustomTitles]);
 
   const handleJournalEntriesChange = (entries: JournalEntries) => {
     setJournalEntries(entries);
@@ -108,10 +102,13 @@ export default function PromptInputSection({ onPromptGenerated }: PromptInputSec
   };
 
   const handleCustomTitleChange = (key: keyof CustomTitles, value: string) => {
-    setCustomTitles(prevTitles => ({
-      ...prevTitles,
-      [key]: value,
-    }));
+    setCustomTitles(prevTitles => {
+      const newTitles = {
+        ...prevTitles,
+        [key]: value,
+      };
+      return newTitles;
+    });
   };
 
   const handleGenerateClick = () => {
@@ -130,33 +127,38 @@ export default function PromptInputSection({ onPromptGenerated }: PromptInputSec
 
   return (
     <>
-      <JournalingForm
-        journalEntries={journalEntries}
-        onJournalEntriesChange={handleJournalEntriesChange}
-        customTitles={customTitles}
-        onCustomTitleChange={handleCustomTitleChange}
-      />
+      {!hasHydrated && <div>Loading...</div>} {/* ADDED */}
+      {hasHydrated && (
+        <>
+          <JournalingForm
+            journalEntries={journalEntries}
+            onJournalEntriesChange={handleJournalEntriesChange}
+            customTitles={customTitles}
+            onCustomTitleChange={handleCustomTitleChange}
+          />
 
-      <div className="mt-8">
-        <div className="mt-4 space-y-4">
-          <div>
-            <input
-              type="text"
-              id="userGoal"
-              name="userGoal"
-              className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 mt-1 block w-full sm:text-sm border border-gray-600 rounded-md p-2 bg-gray-700 text-gray-100"
-              placeholder="Your goal (e.g., 'Find a fullstack position', 'Build followers for my tech blog')"
-              value={userGoal}
-              onChange={handleGoalInputChange}
-            />
+          <div className="mt-8">
+            <div className="mt-4 space-y-4">
+              <div>
+                <input
+                  type="text"
+                  id="userGoal"
+                  name="userGoal"
+                  className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 mt-1 block w-full sm:text-sm border border-gray-600 rounded-md p-2 bg-gray-700 text-gray-100"
+                  placeholder="Your goal (e.g., 'Find a fullstack position', 'Build followers for my tech blog')"
+                  value={userGoal}
+                  onChange={handleGoalInputChange}
+                />
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
 
-      <GeneratePostPromptButton
-        journalEntries={journalEntries}
-        onGeneratePrompt={handleGenerateClick}
-      />
+          <GeneratePostPromptButton
+            journalEntries={journalEntries}
+            onGeneratePrompt={handleGenerateClick}
+          />
+        </>
+      )}
     </>
   );
 }
