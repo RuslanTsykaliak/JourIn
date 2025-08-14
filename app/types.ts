@@ -9,6 +9,7 @@ export interface JournalEntries {
   nextStep: string;
   userGoal?: string; // Optional user goal
   customTitles?: CustomTitles; // Optional custom titles for the entries
+  promptTemplate?: string; // ✅ Optional custom prompt template
 }
 
 export interface JournalEntryWithTimestamp extends JournalEntries {
@@ -21,4 +22,3 @@ export interface CustomTitles {
   whatWouldDoDifferently: string;
   nextStep: string;
 }
-

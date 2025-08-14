@@ -79,7 +79,7 @@ ${entry.nextStep}
   };
 
   const copyPastEntryPromptToClipboard = async (entry: JournalEntryWithTimestamp) => {
-    const promptToCopy = generatePromptText(entry, entry.customTitles);
+    const promptToCopy = generatePromptText(entry, entry.customTitles, entry.promptTemplate);
     try {
       await navigator.clipboard.writeText(promptToCopy);
       setCopyPastEntryPromptSuccess(entry.timestamp);

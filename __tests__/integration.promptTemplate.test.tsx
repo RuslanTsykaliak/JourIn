@@ -16,7 +16,7 @@ describe('PromptInputSection with custom prompt template', () => {
     const customizeButton = screen.getByRole('button', { name: /customize prompt/i });
     fireEvent.click(customizeButton);
 
-    const newTemplate = 'My custom template: {whatWentWell}';
+    const newTemplate = 'My custom template: {{whatWentWell}}';
     const textarea = screen.getByRole('textbox', { name: /prompt template/i });
     fireEvent.change(textarea, { target: { value: newTemplate } });
 

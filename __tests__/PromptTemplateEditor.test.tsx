@@ -2,62 +2,99 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import PromptTemplateEditor from '../app/components/promptTemplateEditor';
 import '@testing-library/jest-dom';
-
-const DEFAULT_PROMPT_TEMPLATE = `This is a default prompt template.`;
+import { defaultPromptTemplate } from '../app/lib/promptTemplate';
 
 describe('PromptTemplateEditor', () => {
-  it('should render with the default prompt template', () => {
+  it('should render with the initial template', () => {
     const handleSave = jest.fn();
-    const handleReset = jest.fn();
+    const handleClose = jest.fn();
 
     render(
       <PromptTemplateEditor
-        template={DEFAULT_PROMPT_TEMPLATE}
+        initialTemplate={defaultPromptTemplate}
         onSave={handleSave}
-        onReset={handleReset}
+        onClose={handleClose}
       />
     );
 
-    expect(screen.getByRole('textbox')).toHaveValue(DEFAULT_PROMPT_TEMPLATE);
+    expect(screen.getByRole('textbox')).toHaveValue(defaultPromptTemplate);
   });
 
   it('should allow the user to edit and save the template', () => {
     const handleSave = jest.fn();
-    const handleReset = jest.fn();
+    const handleClose = jest.fn();
     const newTemplate = 'This is a new prompt template.';
 
     render(
       <PromptTemplateEditor
-        template={DEFAULT_PROMPT_TEMPLATE}
+        initialTemplate={defaultPromptTemplate}
         onSave={handleSave}
-        onReset={handleReset}
+        onClose={handleClose}
       />
     );
 
     const textarea = screen.getByRole('textbox');
     fireEvent.change(textarea, { target: { value: newTemplate } });
 
-    const saveButton = screen.getByRole('button', { name: /save/i });
+    const saveButton = screen.getByRole('button', { name: /save template/i });
     fireEvent.click(saveButton);
 
     expect(handleSave).toHaveBeenCalledWith(newTemplate);
+    expect(handleClose).toHaveBeenCalled();
   });
 
-  it('should call the onReset handler when the reset button is clicked', () => {
+  it('should reset the template to the default', () => {
     const handleSave = jest.fn();
-    const handleReset = jest.fn();
+    const handleClose = jest.fn();
 
     render(
       <PromptTemplateEditor
-        template={DEFAULT_PROMPT_TEMPLATE}
+        initialTemplate="A custom template"
         onSave={handleSave}
-        onReset={handleReset}
+        onClose={handleClose}
       />
     );
 
-    const resetButton = screen.getByRole('button', { name: /reset/i });
+    const resetButton = screen.getByRole('button', { name: /reset to default/i });
     fireEvent.click(resetButton);
 
-    expect(handleReset).toHaveBeenCalled();
+    const textarea = screen.getByRole('textbox');
+    expect(textarea).toHaveValue(defaultPromptTemplate);
+  });
+
+  it('should call onClose when the close button is clicked', () => {
+    const handleSave = jest.fn();
+    const handleClose = jest.fn();
+
+    render(
+      <PromptTemplateEditor
+        initialTemplate={defaultPromptTemplate}
+        onSave={handleSave}
+        onClose={handleClose}
+      />
+    );
+
+    const closeButton = screen.getByText('×');
+    fireEvent.click(closeButton);
+
+    expect(handleClose).toHaveBeenCalled();
+  });
+
+  it('should call onClose when the cancel button is clicked', () => {
+    const handleSave = jest.fn();
+    const handleClose = jest.fn();
+
+    render(
+      <PromptTemplateEditor
+        initialTemplate={defaultPromptTemplate}
+        onSave={handleSave}
+        onClose={handleClose}
+      />
+    );
+
+    const cancelButton = screen.getByRole('button', { name: /cancel/i });
+    fireEvent.click(cancelButton);
+
+    expect(handleClose).toHaveBeenCalled();
   });
 });

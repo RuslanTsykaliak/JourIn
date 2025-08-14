@@ -29,15 +29,15 @@ User's Goal for this post: ${entries.userGoal}. Please tailor the tone and conte
   }
 
   const populatedTemplate = promptTemplate
-    .replace('{{whatWentWellTitle}}', titles.whatWentWell)
-    .replace('{{whatWentWell}}', entries.whatWentWell)
-    .replace('{{whatILearnedTitle}}', titles.whatILearned)
-    .replace('{{whatILearned}}', entries.whatILearned)
-    .replace('{{whatWouldDoDifferentlyTitle}}', titles.whatWouldDoDifferently)
-    .replace('{{whatWouldDoDifferently}}', entries.whatWouldDoDifferently)
-    .replace('{{nextStepTitle}}', titles.nextStep)
-    .replace('{{nextStep}}', entries.nextStep)
-    .replace('{{goalSection}}', goalSection);
+    .replace(/{{whatWentWellTitle}}/g, titles.whatWentWell)
+    .replace(/{{whatWentWell}}/g, entries.whatWentWell)
+    .replace(/{{whatILearnedTitle}}/g, titles.whatILearned)
+    .replace(/{{whatILearned}}/g, entries.whatILearned)
+    .replace(/{{whatWouldDoDifferentlyTitle}}/g, titles.whatWouldDoDifferently)
+    .replace(/{{whatWouldDoDifferently}}/g, entries.whatWouldDoDifferently)
+    .replace(/{{nextStepTitle}}/g, titles.nextStep)
+    .replace(/{{nextStep}}/g, entries.nextStep)
+    .replace(/{{goalSection}}/g, goalSection);
 
   return populatedTemplate;
 };

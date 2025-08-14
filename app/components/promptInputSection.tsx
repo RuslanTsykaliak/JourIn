@@ -3,10 +3,12 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import JournalingForm from './journalingForm';
-import GeneratePostPromptButton from '././generatePostPromptButton';
+import GeneratePostPromptButton from './generatePostPromptButton';
+import PromptTemplateEditor from './promptTemplateEditor';
 import { JournalEntries, CustomTitles } from '../types';
 import { debounce } from '../utils/debounce';
 import { generatePromptText } from '../utils/generatePromptText';
+import { defaultPromptTemplate } from '../lib/promptTemplate';
 
 const DEFAULT_CUSTOM_TITLES: CustomTitles = {
   whatWentWell: 'What went well today?',
@@ -29,7 +31,9 @@ export default function PromptInputSection({ onPromptGenerated }: PromptInputSec
 
   const [userGoal, setUserGoal] = useState<string>('');
   const [customTitles, setCustomTitles] = useState<CustomTitles>(DEFAULT_CUSTOM_TITLES);
-  const [hasHydrated, setHasHydrated] = useState(false); // ADDED
+  const [promptTemplate, setPromptTemplate] = useState<string>(defaultPromptTemplate);
+  const [isEditorOpen, setIsEditorOpen] = useState(false);
+  const [hasHydrated, setHasHydrated] = useState(false);
 
   // --- Local Storage: Load on Mount ---
   useEffect(() => {
@@ -39,7 +43,6 @@ export default function PromptInputSection({ onPromptGenerated }: PromptInputSec
         setJournalEntries(JSON.parse(savedDraft));
       } catch (e) {
         console.error("Failed to parse saved draft from localStorage", e);
-        localStorage.removeItem('jourin_current_draft');
       }
     }
 
@@ -49,7 +52,6 @@ export default function PromptInputSection({ onPromptGenerated }: PromptInputSec
         setUserGoal(JSON.parse(savedGoal));
       } catch (e) {
         console.error("Failed to parse saved user goal from localStorage", e);
-        localStorage.removeItem('jourin_user_goal');
       }
     }
 
@@ -59,13 +61,18 @@ export default function PromptInputSection({ onPromptGenerated }: PromptInputSec
         setCustomTitles(JSON.parse(savedCustomTitles));
       } catch (e) {
         console.error("Failed to parse saved custom titles from localStorage", e);
-        localStorage.removeItem('jourin_custom_titles');
       }
     }
-    setHasHydrated(true); // ADDED
+
+    const savedTemplate = localStorage.getItem('jourin_prompt_template');
+    if (savedTemplate) {
+      setPromptTemplate(savedTemplate);
+    }
+
+    setHasHydrated(true);
   }, []);
 
-  // --- Local Storage: Debounced Save Current Draft ---
+  // --- Local Storage: Debounced Save ---
   const debouncedSaveDraft = useCallback(
     debounce((entries: JournalEntries) => {
       localStorage.setItem('jourin_current_draft', JSON.stringify(entries));
@@ -73,7 +80,6 @@ export default function PromptInputSection({ onPromptGenerated }: PromptInputSec
     []
   );
 
-  // --- Local Storage: Debounced Save User Goal ---
   const debouncedSaveUserGoal = useCallback(
     debounce((goal: string) => {
       localStorage.setItem('jourin_user_goal', JSON.stringify(goal));
@@ -81,7 +87,6 @@ export default function PromptInputSection({ onPromptGenerated }: PromptInputSec
     []
   );
 
-  // --- Local Storage: Save Custom Titles ---
   const saveCustomTitles = useCallback(
     (titles: CustomTitles) => {
       localStorage.setItem('jourin_custom_titles', JSON.stringify(titles));
@@ -90,9 +95,12 @@ export default function PromptInputSection({ onPromptGenerated }: PromptInputSec
   );
 
   useEffect(() => {
-    saveCustomTitles(customTitles);
-  }, [customTitles, saveCustomTitles]);
+    if (hasHydrated) {
+      saveCustomTitles(customTitles);
+    }
+  }, [customTitles, saveCustomTitles, hasHydrated]);
 
+  // --- Event Handlers ---
   const handleJournalEntriesChange = (entries: JournalEntries) => {
     setJournalEntries(entries);
     debouncedSaveDraft(entries);
@@ -105,20 +113,23 @@ export default function PromptInputSection({ onPromptGenerated }: PromptInputSec
   };
 
   const handleCustomTitleChange = (key: keyof CustomTitles, value: string) => {
-    setCustomTitles(prevTitles => {
-      const newTitles = {
-        ...prevTitles,
-        [key]: value,
-      };
-      return newTitles;
-    });
+    setCustomTitles(prevTitles => ({ ...prevTitles, [key]: value }));
+  };
+
+  const handleSaveTemplate = (newTemplate: string) => {
+    setPromptTemplate(newTemplate);
+    localStorage.setItem('jourin_prompt_template', newTemplate);
+    setIsEditorOpen(false);
   };
 
   const handleGenerateClick = () => {
-    const prompt = generatePromptText({ ...journalEntries, userGoal }, customTitles);
+    const prompt = generatePromptText(
+      { ...journalEntries, userGoal },
+      customTitles,
+      promptTemplate
+    );
     onPromptGenerated(prompt, { ...journalEntries, userGoal }, customTitles);
 
-    // Clear current draft after submission, but keep user goal
     setJournalEntries({
       whatWentWell: '',
       whatILearned: '',
@@ -128,39 +139,54 @@ export default function PromptInputSection({ onPromptGenerated }: PromptInputSec
     localStorage.removeItem('jourin_current_draft');
   };
 
+  if (!hasHydrated) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <>
-      {!hasHydrated && <div>Loading...</div>} {/* ADDED */}
-      {hasHydrated && (
-        <>
-          <JournalingForm
-            journalEntries={journalEntries}
-            onJournalEntriesChange={handleJournalEntriesChange}
-            customTitles={customTitles}
-            onCustomTitleChange={handleCustomTitleChange}
-          />
+      <JournalingForm
+        journalEntries={journalEntries}
+        onJournalEntriesChange={handleJournalEntriesChange}
+        customTitles={customTitles}
+        onCustomTitleChange={handleCustomTitleChange}
+      />
 
-          <div className="mt-8">
-            <div className="mt-4 space-y-4">
-              <div>
-                <input
-                  type="text"
-                  id="userGoal"
-                  name="userGoal"
-                  className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 mt-1 block w-full sm:text-sm border border-gray-600 rounded-md p-2 bg-gray-700 text-gray-100"
-                  placeholder="Your goal (e.g., 'Find a fullstack position', 'Build followers for my tech blog')"
-                  value={userGoal}
-                  onChange={handleGoalInputChange}
-                />
-              </div>
-            </div>
+      <div className="mt-8">
+        <div className="mt-4 space-y-4">
+          <div>
+            <input
+              type="text"
+              id="userGoal"
+              name="userGoal"
+              className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 mt-1 block w-full sm:text-sm border border-gray-600 rounded-md p-2 bg-gray-700 text-gray-100"
+              placeholder="Your goal (e.g., 'Find a fullstack position', 'Build followers for my tech blog')"
+              value={userGoal}
+              onChange={handleGoalInputChange}
+            />
           </div>
+        </div>
+      </div>
 
-          <GeneratePostPromptButton
-            journalEntries={journalEntries}
-            onGeneratePrompt={handleGenerateClick}
-          />
-        </>
+      <div className="mt-6 flex flex-col items-center">
+        <GeneratePostPromptButton
+          journalEntries={journalEntries}
+          onGeneratePrompt={handleGenerateClick}
+        />
+        <button
+          onClick={() => setIsEditorOpen(true)}
+          className="mt-2 text-sm text-blue-500 hover:underline"
+        >
+          Customize Prompt
+        </button>
+      </div>
+
+      {isEditorOpen && (
+        <PromptTemplateEditor
+          initialTemplate={promptTemplate}
+          onSave={handleSaveTemplate}
+          onClose={() => setIsEditorOpen(false)}
+        />
       )}
     </>
   );
