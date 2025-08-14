@@ -4,7 +4,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import JournalingForm from './journalingForm';
 import GeneratePostPromptButton from '././generatePostPromptButton';
-import { JournalEntries, UserGoal, CustomTitles } from '../types';
+import { JournalEntries, CustomTitles } from '../types';
 import { debounce } from '../utils/debounce';
 import { generatePromptText } from '../utils/generatePromptText';
 
@@ -95,10 +95,13 @@ export default function PromptInputSection({ onPromptGenerated }: PromptInputSec
 
   const handleJournalEntriesChange = (entries: JournalEntries) => {
     setJournalEntries(entries);
+    debouncedSaveDraft(entries);
   };
 
   const handleGoalInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setUserGoal(e.target.value);
+    const newGoal = e.target.value;
+    setUserGoal(newGoal);
+    debouncedSaveUserGoal(newGoal);
   };
 
   const handleCustomTitleChange = (key: keyof CustomTitles, value: string) => {
