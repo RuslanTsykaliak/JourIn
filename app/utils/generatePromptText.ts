@@ -1,8 +1,13 @@
 // app/utils/generatePromptText.ts
 
 import { JournalEntries, CustomTitles } from "../types";
+import { defaultPromptTemplate } from '../lib/promptTemplate';
 
-export const generatePromptText = (entries: JournalEntries, customTitles?: CustomTitles): string => {
+export const generatePromptText = (
+  entries: JournalEntries,
+  customTitles?: CustomTitles,
+  promptTemplate: string = defaultPromptTemplate
+): string => {
   const defaultTitles: CustomTitles = {
     whatWentWell: "What went well today",
     whatILearned: "What I learned today",
@@ -23,41 +28,16 @@ export const generatePromptText = (entries: JournalEntries, customTitles?: Custo
 User's Goal for this post: ${entries.userGoal}. Please tailor the tone and content of the LinkedIn post to align with this goal, making it relevant and appealing to an audience that can help achieve it.`;
   }
 
-  return `
-    Based on my daily journal entries below, please generate a professional and engaging LinkedIn post.
+  const populatedTemplate = promptTemplate
+    .replace('{{whatWentWellTitle}}', titles.whatWentWell)
+    .replace('{{whatWentWell}}', entries.whatWentWell)
+    .replace('{{whatILearnedTitle}}', titles.whatILearned)
+    .replace('{{whatILearned}}', entries.whatILearned)
+    .replace('{{whatWouldDoDifferentlyTitle}}', titles.whatWouldDoDifferently)
+    .replace('{{whatWouldDoDifferently}}', entries.whatWouldDoDifferently)
+    .replace('{{nextStepTitle}}', titles.nextStep)
+    .replace('{{nextStep}}', entries.nextStep)
+    .replace('{{goalSection}}', goalSection);
 
-    The post should be a complete, seamless text, ready to be published. It should implicitly follow a "Hook → Re-hook → Body → CTA" structure, but do not label the sections.
-
-    Tone: Reflective, inspiring, and professional. Write as if sharing a personal growth moment with fellow professionals.
-
-    Crucially, end the post with 3-5 relevant and popular hashtags related to professional growth, reflection, or the topics in the journal entries.
-
-    Ensure:
-    - The post flows naturally as a single piece of text.
-    - No confidential or sensitive information is included.
-    - Avoid providing private details.
-    - Insights are actionable and relatable to a wide professional audience.
-    - The post is clear and engaging, with short paragraphs and line breaks.
-    - Length: Around 40–120 words (excluding hashtags).
-
-    Here are my journal entries for today:
-
-    ${titles.whatWentWell}: ${entries.whatWentWell}
-
-    ${titles.whatILearned}: ${entries.whatILearned}
-
-    ${titles.whatWouldDoDifferently}: ${entries.whatWouldDoDifferently}
-
-    ${titles.nextStep}: ${entries.nextStep}
-${goalSection}
-    ---
-    LinkedIn Post Structure Guidelines:
-    - Hook: A bold, emotional, or thought-provoking first line.
-    - Re-hook: A question or strong statement that encourages further reading.
-    - Body/Value: Specific insights, lessons learned, or details of success.
-    - CTA: End with an invitation for comments, shares, or discussion.
-    ----
-
-    Please generate the LinkedIn post now.
-  `;
+  return populatedTemplate;
 };
