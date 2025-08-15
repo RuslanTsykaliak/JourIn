@@ -4,6 +4,7 @@
 import React from "react";
 import { generatePromptText } from "../utils/generatePromptText";
 import { JournalEntries } from '../types';
+import { updateStreak } from '../lib/fireUp'; // Import updateStreak
 
 interface GeneratePostPromptButtonProps {
   journalEntries: JournalEntries;
@@ -15,6 +16,7 @@ export default function GeneratePostPromptButton({ journalEntries, onGeneratePro
     try {
       const prompt = generatePromptText(journalEntries);
       onGeneratePrompt(prompt);
+      updateStreak(); // Call updateStreak here
     } catch (error) {
       if (error instanceof Error) {
         alert(error.message);

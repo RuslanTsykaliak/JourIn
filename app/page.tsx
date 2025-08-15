@@ -1,22 +1,66 @@
 // app/page.tsx
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Header from './components/header';
 import PromptInputSection from './components/promptInputSection';
 import GeneratedPromptDisplay from './components/generatedPromptDisplay';
 import JournalHistorySection from './components/journalHistorySection';
-import { CustomTitles, JournalEntries, JournalEntryWithTimestamp } from './types'; // Import types
+import RewardPopup from './components/rewardPopup';
+import { getStreakData } from './lib/fireUp';
+import { CustomTitles, JournalEntries, JournalEntryWithTimestamp } from './types';
 
 export default function Home() {
   const [generatedPrompt, setGeneratedPrompt] = useState<string>('');
   const [copyPromptSuccess, setCopyPromptSuccess] = useState<string>('');
   const [newEntryForHistory, setNewEntryForHistory] = useState<JournalEntryWithTimestamp | null>(null);
+  const [showRewardPopup, setShowRewardPopup] = useState(false);
+  const [currentStreak, setCurrentStreak] = useState(0);
+
+  const MILESTONES = [7, 30, 365, 1461];
+
+  useEffect(() => {
+    const checkStreakAndShowPopup = () => {
+      const data = getStreakData();
+      setCurrentStreak(data.currentStreak);
+
+      if (MILESTONES.includes(data.currentStreak)) {
+        const lastShownMilestone = localStorage.getItem('jourin_last_shown_milestone');
+        if (lastShownMilestone !== `${data.currentStreak}-${data.lastPostDate}`) {
+          setShowRewardPopup(true);
+          localStorage.setItem('jourin_last_shown_milestone', `${data.currentStreak}-${data.lastPostDate}`);
+        }
+      }
+    };
+
+    checkStreakAndShowPopup();
+
+    window.addEventListener('storage', checkStreakAndShowPopup);
+
+    return () => {
+      window.removeEventListener('storage', checkStreakAndShowPopup);
+    };
+  }, []);
 
   const handlePromptGenerated = (prompt: string, entry: JournalEntries, customTitles: CustomTitles) => {
     setGeneratedPrompt(prompt);
-    setCopyPromptSuccess(''); // Clear previous copy success message
-    setNewEntryForHistory({ ...entry, timestamp: Date.now(), customTitles }); // Prepare entry for history
+    setCopyPromptSuccess('');
+    setNewEntryForHistory({ ...entry, timestamp: Date.now(), customTitles });
+
+    // Re-check streak immediately
+    const data = getStreakData();
+    setCurrentStreak(data.currentStreak);
+
+    // 🔹 Dispatch custom event so StreakCounter updates immediately
+    window.dispatchEvent(new Event("streakUpdated"));
+
+    if (MILESTONES.includes(data.currentStreak)) {
+      const lastShownMilestone = localStorage.getItem('jourin_last_shown_milestone');
+      if (lastShownMilestone !== `${data.currentStreak}-${data.lastPostDate}`) {
+        setShowRewardPopup(true);
+        localStorage.setItem('jourin_last_shown_milestone', `${data.currentStreak}-${data.lastPostDate}`);
+      }
+    }
   };
 
   const copyGeneratedPromptToClipboard = async () => {
@@ -32,7 +76,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gray-900 flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8 text-center bg-gray-800 p-8 rounded-lg shadow-lg text-gray-100"> {/* Changed to dark mode colors */}
+      <div className="max-w-md w-full space-y-8 text-center bg-gray-800 p-8 rounded-lg shadow-lg text-gray-100">
         <Header />
         <PromptInputSection onPromptGenerated={handlePromptGenerated} />
         {generatedPrompt && (
@@ -44,6 +88,13 @@ export default function Home() {
         )}
         <JournalHistorySection newEntryToHistory={newEntryForHistory} />
       </div>
+
+      {showRewardPopup && (
+        <RewardPopup
+          streak={currentStreak}
+          onClose={() => setShowRewardPopup(false)}
+        />
+      )}
     </div>
   );
 }
