@@ -17,6 +17,73 @@ export default function JournalHistorySection({ newEntryToHistory }: JournalHist
   const [copyPastEntryPromptSuccess, setCopyPastEntryPromptSuccess] = useState<number | null>(null);
   const [copyPastEntryTextSuccess, setCopyPastEntryTextSuccess] = useState<number | null>(null);
   const [displayCount, setDisplayCount] = useState(INITIAL_DISPLAY_COUNT);
+  const [selectedWeekStart, setSelectedWeekStart] = useState<Date>(getStartOfWeek(new Date()));
+  const [selectedWeekEnd, setSelectedWeekEnd] = useState<Date>(getEndOfWeek(new Date()));
+  const [showSummaryModal, setShowSummaryModal] = useState<boolean>(false);
+  const [weeklySummaryText, setWeeklySummaryText] = useState<string>('');
+
+  // Helper to get the start of the week (Sunday)
+  function getStartOfWeek(date: Date): Date {
+    const d = new Date(date);
+    const day = d.getDay(); // Sunday - Saturday : 0 - 6
+    const diff = d.getDate() - day; // adjust when day is sunday
+    d.setDate(diff);
+    d.setHours(0, 0, 0, 0);
+    return d;
+  }
+
+  // Helper to get the end of the week (Saturday)
+  function getEndOfWeek(date: Date): Date {
+    const d = new Date(getStartOfWeek(date));
+    d.setDate(d.getDate() + 6);
+    d.setHours(23, 59, 59, 999);
+    return d;
+  }
+
+  const handlePreviousWeek = () => {
+    const newDate = new Date(selectedWeekStart);
+    newDate.setDate(newDate.getDate() - 7);
+    setSelectedWeekStart(getStartOfWeek(newDate));
+    setSelectedWeekEnd(getEndOfWeek(newDate));
+  };
+
+  const handleNextWeek = () => {
+    const newDate = new Date(selectedWeekStart);
+    newDate.setDate(newDate.getDate() + 7);
+    setSelectedWeekStart(getStartOfWeek(newDate));
+    setSelectedWeekEnd(getEndOfWeek(newDate));
+  };
+
+  const generateWeeklySummary = () => {
+    const entriesInWeek = pastEntries.filter(entry => {
+      const entryDate = new Date(entry.timestamp);
+      return entryDate >= selectedWeekStart && entryDate <= selectedWeekEnd;
+    });
+
+    if (entriesInWeek.length === 0) {
+      setWeeklySummaryText('No journal entries found for this week.');
+    } else {
+      const summary = entriesInWeek.map(entry => {
+        const defaultTitles = {
+          whatWentWell: "What went well today",
+          whatILearned: "What I learned today",
+          whatWouldDoDifferently: "What I would do differently",
+          nextStep: "My next step",
+        };
+        const title = entry.customTitles || defaultTitles;
+        return `
+---
+Journal Entry (${new Date(entry.timestamp).toLocaleDateString()}) ---
+${title.whatWentWell}: ${entry.whatWentWell}
+${title.whatILearned}: ${entry.whatILearned}
+${title.whatWouldDoDifferently}: ${entry.whatWouldDoDifferently}
+${title.nextStep}: ${entry.nextStep}
+`;
+      }).join('\n\n');
+      setWeeklySummaryText(summary);
+    }
+    setShowSummaryModal(true);
+  };
 
   // Load past entries on mount
   useEffect(() => {
@@ -133,6 +200,34 @@ ${entry.nextStep}
   return (
     pastEntries.length > 0 && (
       <div className="mt-12 w-full max-w-md text-left">
+        {/* Weekly Summary Section */}
+        <div className="mb-8 p-4 bg-gray-800 rounded-md shadow-lg">
+          <h2 className="text-2xl font-extrabold text-gray-100 mb-4">Weekly Summary</h2>
+          <div className="flex items-center justify-between mb-4">
+            <button
+              onClick={handlePreviousWeek}
+              className="px-1 py-1 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            >
+              Previous Week
+            </button>
+            <span className="text-gray-100 font-semibold">
+              {selectedWeekStart.toLocaleDateString()} - {selectedWeekEnd.toLocaleDateString()}
+            </span>
+            <button
+              onClick={handleNextWeek}
+              className="px-1 py-1 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            >
+              Next Week
+            </button>
+          </div>
+          <button
+            onClick={generateWeeklySummary}
+            className="w-full px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+          >
+            Generate Weekly Summary
+          </button>
+        </div>
+
         <h2 className="text-2xl font-extrabold text-gray-100 mb-4">Your Past Entries</h2>
         <div className="space-y-6">
           {pastEntries.slice(0, displayCount).map((entry) => {
@@ -216,6 +311,41 @@ ${entry.nextStep}
           <p className="mt-4 text-sm text-gray-300">
             Showing {Math.min(displayCount, pastEntries.length)} of {pastEntries.length} entries.
           </p>
+        )}
+
+        {/* Summary Modal */}
+        {showSummaryModal && (
+          <div
+            className="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50"
+            role="dialog"
+            aria-label="Weekly Summary"
+          >
+            <div className="bg-gray-700 p-6 rounded-lg shadow-xl max-w-lg w-full m-4">
+              <h3 className="text-xl font-bold text-gray-100 mb-4">Weekly Summary</h3>
+              <textarea
+                className="w-full h-64 p-3 bg-gray-800 text-gray-200 rounded-md border border-gray-600 focus:outline-none focus:border-blue-500"
+                value={weeklySummaryText}
+                onChange={(e) => setWeeklySummaryText(e.target.value)}
+              />
+              <div className="mt-4 flex justify-end space-x-3">
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(weeklySummaryText);
+                    alert('Summary copied to clipboard!');
+                  }}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                >
+                  Copy to Clipboard
+                </button>
+                <button
+                  onClick={() => setShowSummaryModal(false)}
+                  className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
         )}
       </div>
     )
