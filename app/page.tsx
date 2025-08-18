@@ -7,7 +7,7 @@ import PromptInputSection from './components/promptInputSection';
 import GeneratedPromptDisplay from './components/generatedPromptDisplay';
 import JournalHistorySection from './components/journalHistorySection';
 import RewardPopup from './components/rewardPopup';
-import { getStreakData } from './lib/fireUp';
+import { getStreakData, updateStreak } from './lib/fireUp';
 import { CustomTitles, JournalEntries, JournalEntryWithTimestamp } from './types';
 
 export default function Home() {
@@ -42,16 +42,16 @@ export default function Home() {
     };
   }, []);
 
-  const handlePromptGenerated = (prompt: string, entry: JournalEntries, customTitles: CustomTitles) => {
+  const handlePromptGenerated = async (prompt: string, entry: JournalEntries, customTitles: CustomTitles) => {
     setGeneratedPrompt(prompt);
     setCopyPromptSuccess('');
     setNewEntryForHistory({ ...entry, timestamp: Date.now(), customTitles });
 
-    // Re-check streak immediately
+    await updateStreak(); // 🔹 Wait for streak update
+
     const data = getStreakData();
     setCurrentStreak(data.currentStreak);
 
-    // 🔹 Dispatch custom event so StreakCounter updates immediately
     window.dispatchEvent(new Event("streakUpdated"));
 
     if (MILESTONES.includes(data.currentStreak)) {
@@ -62,6 +62,7 @@ export default function Home() {
       }
     }
   };
+
 
   const copyGeneratedPromptToClipboard = async () => {
     try {

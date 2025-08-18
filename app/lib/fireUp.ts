@@ -24,11 +24,11 @@ export const getStreakData = (): StreakData => {
   return { currentStreak: 0, lastPostDate: null };
 };
 
-export const updateStreak = () => {
+export async function updateStreak(): Promise<void> {
   if (typeof window === 'undefined') {
     return;
   }
-  
+
   const today = getTodayISO();
   const data = getStreakData();
 
@@ -46,7 +46,7 @@ export const updateStreak = () => {
     // Parse dates as UTC to avoid timezone issues
     const lastDate = new Date(data.lastPostDate + 'T00:00:00Z');
     const todayDate = new Date(today + 'T00:00:00Z');
-    
+
     const diffTime = todayDate.getTime() - lastDate.getTime();
     const diffDays = diffTime / (1000 * 60 * 60 * 24);
 

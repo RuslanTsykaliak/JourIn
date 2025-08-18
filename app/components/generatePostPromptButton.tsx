@@ -15,14 +15,14 @@ export default function GeneratePostPromptButton({ journalEntries, onGeneratePro
   const handleGenerateClick = () => {
     try {
       const prompt = generatePromptText(journalEntries);
-      onGeneratePrompt(prompt);
-      updateStreak(); // Call updateStreak here
+      onGeneratePrompt(prompt); // Let parent handle streak update
     } catch (error) {
       if (error instanceof Error) {
         alert(error.message);
       }
     }
   };
+
 
 
   return (
