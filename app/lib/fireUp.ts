@@ -13,15 +13,48 @@ const getTodayISO = () => {
   return new Date().toISOString().split('T')[0];
 };
 
+// Helper to calculate days between two dates
+const calculateDaysDiff = (dateStr1: string, dateStr2: string): number => {
+  const date1 = new Date(dateStr1 + 'T00:00:00Z');
+  const date2 = new Date(dateStr2 + 'T00:00:00Z');
+  const diffTime = date2.getTime() - date1.getTime();
+  return diffTime / (1000 * 60 * 60 * 24);
+};
+
 export const getStreakData = (): StreakData => {
   if (typeof window === 'undefined') {
     return { currentStreak: 0, lastPostDate: null };
   }
+
   const data = localStorage.getItem(FIRE_UP_DATA_KEY);
-  if (data) {
-    return JSON.parse(data);
+  if (!data) {
+    return { currentStreak: 0, lastPostDate: null };
   }
-  return { currentStreak: 0, lastPostDate: null };
+
+  const parsedData: StreakData = JSON.parse(data);
+
+  // If no last post date, return as is
+  if (!parsedData.lastPostDate) {
+    return parsedData;
+  }
+
+  const today = getTodayISO();
+  const daysSinceLastPost = calculateDaysDiff(parsedData.lastPostDate, today);
+
+  // If more than 1 day has passed since last post, reset streak to 0
+  if (daysSinceLastPost > 1) {
+    const resetData: StreakData = {
+      currentStreak: 0,
+      lastPostDate: parsedData.lastPostDate, // Keep the original last post date for reference
+    };
+
+    // Update localStorage with the reset streak
+    localStorage.setItem(FIRE_UP_DATA_KEY, JSON.stringify(resetData));
+    return resetData;
+  }
+
+  // Return the current data if streak is still valid
+  return parsedData;
 };
 
 export async function updateStreak(): Promise<void> {
@@ -30,9 +63,11 @@ export async function updateStreak(): Promise<void> {
   }
 
   const today = getTodayISO();
+
+  // Get current streak data (this will auto-reset if needed)
   const data = getStreakData();
 
-  // If the last post was today, do nothing to prevent multiple increments.
+  // If the last post was today, do nothing to prevent multiple increments
   if (data.lastPostDate === today) {
     return;
   }
@@ -42,21 +77,22 @@ export async function updateStreak(): Promise<void> {
     lastPostDate: today,
   };
 
-  if (data.lastPostDate) {
-    // Parse dates as UTC to avoid timezone issues
-    const lastDate = new Date(data.lastPostDate + 'T00:00:00Z');
-    const todayDate = new Date(today + 'T00:00:00Z');
+  if (data.lastPostDate && data.currentStreak > 0) {
+    const daysSinceLastPost = calculateDaysDiff(data.lastPostDate, today);
 
-    const diffTime = todayDate.getTime() - lastDate.getTime();
-    const diffDays = diffTime / (1000 * 60 * 60 * 24);
-
-    if (diffDays === 1) {
-      // Consecutive day
+    if (daysSinceLastPost === 1) {
+      // Consecutive day - increment the streak
       newStreakData.currentStreak = data.currentStreak + 1;
     }
-    // If diffDays > 1, streak is broken, so it resets to 1 (the default)
-    // If diffDays <= 0, something is weird, reset to 1
+    // If daysSinceLastPost > 1, streak was already reset to 0 by getStreakData()
+    // so we start fresh with 1
+    // If daysSinceLastPost <= 0, something is wrong, reset to 1
   }
 
   localStorage.setItem(FIRE_UP_DATA_KEY, JSON.stringify(newStreakData));
+
+  // Dispatch custom event to notify components of the update
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('streakUpdated'));
+  }
 };
