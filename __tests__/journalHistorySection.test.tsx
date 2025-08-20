@@ -117,6 +117,11 @@ describe('JournalHistorySection', () => {
     localStorage.setItem('jourin_past_entries', JSON.stringify(weeklyEntries));
     render(<JournalHistorySection newEntryToHistory={null} />);
 
+    // The component initializes to the current week. The test data is for a previous week.
+    // We need to click the "Previous Week" button to navigate to the correct week.
+    const previousWeekButton = screen.getByRole('button', { name: /previous week/i });
+    fireEvent.click(previousWeekButton);
+
     // Wait for entries to load from localStorage first
     await waitFor(() => {
       expect(screen.getByText(/Monday entry/)).toBeInTheDocument();
@@ -132,11 +137,10 @@ describe('JournalHistorySection', () => {
       expect(screen.getByRole('dialog', { name: /weekly summary/i })).toBeInTheDocument();
 
       // Assert that the textarea contains the consolidated text
-      const summaryTextarea = screen.getByDisplayValue(/Monday entry/i);
-      expect(summaryTextarea).toBeInTheDocument();
-      expect(summaryTextarea).toHaveValue(expect.stringContaining('Monday entry'));
-      expect(summaryTextarea).toHaveValue(expect.stringContaining('Wednesday entry'));
-      expect(summaryTextarea).toHaveValue(expect.stringContaining('Friday entry'));
+      const summaryTextarea = screen.getByRole('textbox');
+      expect(summaryTextarea.value).toContain('Monday entry');
+      expect(summaryTextarea.value).toContain('Wednesday entry');
+      expect(summaryTextarea.value).toContain('Friday entry');
     });
   });
 });

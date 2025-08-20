@@ -21,6 +21,7 @@ export default function JournalHistorySection({ newEntryToHistory }: JournalHist
   const [selectedWeekEnd, setSelectedWeekEnd] = useState<Date>(getEndOfWeek(new Date()));
   const [showSummaryModal, setShowSummaryModal] = useState<boolean>(false);
   const [weeklySummaryText, setWeeklySummaryText] = useState<string>('');
+  const [copySummarySuccess, setCopySummarySuccess] = useState<boolean>(false);
 
   // Helper to get the start of the week (Sunday)
   function getStartOfWeek(date: Date): Date {
@@ -331,11 +332,12 @@ ${entry.nextStep}
                 <button
                   onClick={() => {
                     navigator.clipboard.writeText(weeklySummaryText);
-                    alert('Summary copied to clipboard!');
+                    setCopySummarySuccess(true);
+                    setTimeout(() => setCopySummarySuccess(false), 2000);
                   }}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  className="px-4 py-2 bg-blue-600 text-white rounded-.md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                 >
-                  Copy to Clipboard
+                  {copySummarySuccess ? 'Copied!' : 'Copy to Clipboard'}
                 </button>
                 <button
                   onClick={() => setShowSummaryModal(false)}
