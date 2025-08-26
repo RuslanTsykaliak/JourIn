@@ -9,7 +9,6 @@ interface EditableTitleProps {
 export default function EditableTitle({
   initialValue,
   onSave,
-  fieldKey,
 }: EditableTitleProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [currentValue, setCurrentValue] = useState(initialValue);
