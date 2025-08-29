@@ -73,19 +73,13 @@ export default function PromptInputSection({ onPromptGenerated }: PromptInputSec
   }, []);
 
   // --- Local Storage: Debounced Save ---
-  const debouncedSaveDraft = useCallback(
-    debounce((entries: JournalEntries) => {
+  const debouncedSaveDraft = debounce((entries: JournalEntries) => {
       localStorage.setItem('jourin_current_draft', JSON.stringify(entries));
-    }, 500),
-    []
-  );
+    }, 500);
 
-  const debouncedSaveUserGoal = useCallback(
-    debounce((goal: string) => {
+  const debouncedSaveUserGoal = debounce((goal: string) => {
       localStorage.setItem('jourin_user_goal', JSON.stringify(goal));
-    }, 500),
-    []
-  );
+    }, 500);
 
   const saveCustomTitles = useCallback(
     (titles: CustomTitles) => {

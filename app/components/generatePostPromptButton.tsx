@@ -4,7 +4,6 @@
 import React from "react";
 import { generatePromptText } from "../utils/generatePromptText";
 import { JournalEntries } from '../types';
-import { updateStreak } from '../lib/fireUp'; // Import updateStreak
 
 interface GeneratePostPromptButtonProps {
   journalEntries: JournalEntries;

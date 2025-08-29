@@ -8,7 +8,7 @@ export default function Header() {
     <div className="max-w-md w-full space-y-8 text-center">
       {/* <h1 className="flex items-center justify-center gap-2 font-extrabold text-gray-100 text-fluid text-center w-full px-2">
         JourIn: Journal Your Way to Impact */}
-      <StreakCounter size="text-lg" />
+      <StreakCounter />
       {/* </h1> */}
 
 

@@ -1,7 +1,7 @@
 // app/page.tsx
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Header from './components/header';
 import PromptInputSection from './components/promptInputSection';
 import GeneratedPromptDisplay from './components/generatedPromptDisplay';
@@ -17,7 +17,7 @@ export default function Home() {
   const [showRewardPopup, setShowRewardPopup] = useState(false);
   const [currentStreak, setCurrentStreak] = useState(0);
 
-  const MILESTONES = [7, 30, 365, 1461];
+  const MILESTONES = useMemo(() => [7, 30, 365, 1461], []);
 
   useEffect(() => {
     const checkStreakAndShowPopup = () => {
@@ -40,7 +40,7 @@ export default function Home() {
     return () => {
       window.removeEventListener('storage', checkStreakAndShowPopup);
     };
-  }, []);
+  }, [MILESTONES]);
 
   const handlePromptGenerated = async (prompt: string, entry: JournalEntries, customTitles: CustomTitles) => {
     setGeneratedPrompt(prompt);

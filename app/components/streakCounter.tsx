@@ -4,31 +4,23 @@
 import React, { useState, useEffect } from "react";
 import { getStreakData } from "../lib/fireUp";
 
-interface StreakCounterProps {
-  size?: string; // Optional override for icon/number size
-}
-
-export default function StreakCounter({ size = "text-xl" }: StreakCounterProps) {
+export default function StreakCounter() {
   const [streak, setStreak] = useState(0);
-  const [lastPostDate, setLastPostDate] = useState<string | null>(null);
 
   // 🔹 New: central refresh method
   const refreshStreak = () => {
     const data = getStreakData();
     setStreak(data.currentStreak);
-    setLastPostDate(data.lastPostDate);
   };
 
   useEffect(() => {
     const data = getStreakData();
     setStreak(data.currentStreak);
-    setLastPostDate(data.lastPostDate);
 
     // Listen for changes in localStorage to update streak dynamically
     const handleStorageChange = () => {
       const updatedData = getStreakData();
       setStreak(updatedData.currentStreak);
-      setLastPostDate(updatedData.lastPostDate);
     };
 
     // 🔹 Listen for custom refresh events in same tab
