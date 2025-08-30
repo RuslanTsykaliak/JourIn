@@ -61,6 +61,7 @@ export default function Home() {
         localStorage.setItem('jourin_last_shown_milestone', `${data.currentStreak}-${data.lastPostDate}`);
       }
     }
+    setNewEntryForHistory(null); // Reset after processing
   };
 
 
