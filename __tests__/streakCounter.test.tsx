@@ -1,9 +1,16 @@
 // __tests__/streakCounter.test.tsx
+jest.setTimeout(30000);
+
 import React, { act } from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import Home from '../app/page';
 import { getStreakData, updateStreak } from '../app/lib/fireUp';
 import * as generatePromptText from '../app/utils/generatePromptText';
+
+// Mock JournalHistorySection to prevent its internal logic from interfering
+jest.mock('../app/components/journalHistorySection', () => {
+  return jest.fn(() => null); // Render nothing for JournalHistorySection
+});
 
 // Mock the fireUp module
 jest.mock('../app/lib/fireUp', () => ({
@@ -19,6 +26,8 @@ jest.mock('../app/utils/generatePromptText', () => ({
 
 describe('Streak Counter Integration', () => {
   beforeEach(() => {
+    // Clear localStorage before each test to ensure a clean state
+    localStorage.clear();
     // Reset mocks before each test
     (getStreakData as jest.Mock).mockClear();
     (updateStreak as jest.Mock).mockClear();

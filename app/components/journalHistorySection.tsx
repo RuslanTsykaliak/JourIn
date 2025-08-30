@@ -3,7 +3,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { JournalEntryWithTimestamp } from '../types';
-import { generatePromptText } from '../utils/generatePromptText';
+import { useJournalEntriesStorage } from '../hooks/useJournalEntriesStorage';
+import { getStartOfWeek, getEndOfWeek, generateWeeklySummary as generateWeeklySummaryUtil } from '../utils/weeklySummaryUtils';
+import JournalEntryItem from './journalEntryItem';
 
 interface JournalHistorySectionProps {
   newEntryToHistory: JournalEntryWithTimestamp | null;
@@ -12,10 +14,8 @@ interface JournalHistorySectionProps {
 const INITIAL_DISPLAY_COUNT = 5;
 
 export default function JournalHistorySection({ newEntryToHistory }: JournalHistorySectionProps) {
-  const [pastEntries, setPastEntries] = useState<JournalEntryWithTimestamp[]>([]);
+  
   const [copyHistorySuccess, setCopyHistorySuccess] = useState<string>('');
-  const [copyPastEntryPromptSuccess, setCopyPastEntryPromptSuccess] = useState<number | null>(null);
-  const [copyPastEntryTextSuccess, setCopyPastEntryTextSuccess] = useState<number | null>(null);
   const [displayCount, setDisplayCount] = useState(INITIAL_DISPLAY_COUNT);
   const [selectedWeekStart, setSelectedWeekStart] = useState<Date>(getStartOfWeek(new Date()));
   const [selectedWeekEnd, setSelectedWeekEnd] = useState<Date>(getEndOfWeek(new Date()));
@@ -23,23 +23,9 @@ export default function JournalHistorySection({ newEntryToHistory }: JournalHist
   const [weeklySummaryText, setWeeklySummaryText] = useState<string>('');
   const [copySummarySuccess, setCopySummarySuccess] = useState<boolean>(false);
 
-  // Helper to get the start of the week (Sunday)
-  function getStartOfWeek(date: Date): Date {
-    const d = new Date(date);
-    const day = d.getDay(); // Sunday - Saturday : 0 - 6
-    const diff = d.getDate() - day; // adjust when day is sunday
-    d.setDate(diff);
-    d.setHours(0, 0, 0, 0);
-    return d;
-  }
+  const { pastEntries, addJournalEntry } = useJournalEntriesStorage();
 
-  // Helper to get the end of the week (Saturday)
-  function getEndOfWeek(date: Date): Date {
-    const d = new Date(getStartOfWeek(date));
-    d.setDate(d.getDate() + 6);
-    d.setHours(23, 59, 59, 999);
-    return d;
-  }
+  
 
   const handlePreviousWeek = () => {
     const newDate = new Date(selectedWeekStart);
@@ -56,59 +42,18 @@ export default function JournalHistorySection({ newEntryToHistory }: JournalHist
   };
 
   const generateWeeklySummary = () => {
-    const entriesInWeek = pastEntries.filter(entry => {
-      const entryDate = new Date(entry.timestamp);
-      return entryDate >= selectedWeekStart && entryDate <= selectedWeekEnd;
-    });
-
-    if (entriesInWeek.length === 0) {
-      setWeeklySummaryText('No journal entries found for this week.');
-    } else {
-      const summary = entriesInWeek.map(entry => {
-        const defaultTitles = {
-          whatWentWell: "What went well today",
-          whatILearned: "What I learned today",
-          whatWouldDoDifferently: "What I would do differently",
-          nextStep: "My next step",
-        };
-        const title = entry.customTitles || defaultTitles;
-        return `
----
-Journal Entry (${new Date(entry.timestamp).toLocaleDateString()}) ---
-${title.whatWentWell}: ${entry.whatWentWell}
-${title.whatILearned}: ${entry.whatILearned}
-${title.whatWouldDoDifferently}: ${entry.whatWouldDoDifferently}
-${title.nextStep}: ${entry.nextStep}
-`;
-      }).join('\n\n');
-      setWeeklySummaryText(summary);
-    }
+    setWeeklySummaryText(generateWeeklySummaryUtil(pastEntries, selectedWeekStart, selectedWeekEnd));
     setShowSummaryModal(true);
   };
 
-  // Load past entries on mount
-  useEffect(() => {
-    const savedPastEntries = localStorage.getItem('jourin_past_entries');
-    if (savedPastEntries) {
-      try {
-        setPastEntries(JSON.parse(savedPastEntries));
-      } catch (e) {
-        console.error("Failed to parse past entries from localStorage", e);
-        localStorage.removeItem('jourin_past_entries');
-      }
-    }
-  }, []);
+  
 
   // Add new entry to history when received from parent
   useEffect(() => {
     if (newEntryToHistory) {
-      setPastEntries(prevEntries => {
-        const updatedEntries = [newEntryToHistory, ...prevEntries].slice(0, 100); // Keep up to 100 entries
-        localStorage.setItem('jourin_past_entries', JSON.stringify(updatedEntries));
-        return updatedEntries;
-      });
+      addJournalEntry(newEntryToHistory);
     }
-  }, [newEntryToHistory]);
+  }, [newEntryToHistory, addJournalEntry]);
 
   const copyAllHistoryToClipboard = async () => {
     const defaultTitles = {
@@ -146,49 +91,7 @@ ${entry.nextStep}
     }
   };
 
-  const copyPastEntryPromptToClipboard = async (entry: JournalEntryWithTimestamp) => {
-    const promptToCopy = generatePromptText(entry, entry.customTitles, entry.promptTemplate);
-    try {
-      await navigator.clipboard.writeText(promptToCopy);
-      setCopyPastEntryPromptSuccess(entry.timestamp);
-      setTimeout(() => setCopyPastEntryPromptSuccess(null), 2000);
-    } catch (err) {
-      console.error('Failed to copy past entry prompt: ', err);
-    }
-  };
-
-  const copyPastEntryTextToClipboard = async (entry: JournalEntryWithTimestamp) => {
-    const defaultTitles = {
-      whatWentWell: "What went well today",
-      whatILearned: "What I learned today",
-      whatWouldDoDifferently: "What I would do differently",
-      nextStep: "My next step",
-    };
-
-    const title = entry.customTitles || defaultTitles;
-
-    const textToCopy = `
---- Journal Entry (${new Date(entry.timestamp).toLocaleString()}) ---
-${title.whatWentWell}:
-${entry.whatWentWell}
-
-${title.whatILearned}:
-${entry.whatILearned}
-
-${title.whatWouldDoDifferently}:
-${entry.whatWouldDoDifferently}
-
-${title.nextStep}:
-${entry.nextStep}
-`;
-    try {
-      await navigator.clipboard.writeText(textToCopy);
-      setCopyPastEntryTextSuccess(entry.timestamp);
-      setTimeout(() => setCopyPastEntryTextSuccess(null), 2000);
-    } catch (err) {
-      console.error('Failed to copy past entry text: ', err);
-    }
-  };
+  
 
   const handleShowMore = () => {
     setDisplayCount(prevCount => prevCount + INITIAL_DISPLAY_COUNT);
@@ -231,51 +134,9 @@ ${entry.nextStep}
 
         <h2 className="text-2xl font-extrabold text-gray-100 mb-4">Your Past Entries</h2>
         <div className="space-y-6">
-          {pastEntries.slice(0, displayCount).map((entry) => {
-            const defaultTitles = {
-              whatWentWell: "What went well today",
-              whatILearned: "What I learned today",
-              whatWouldDoDifferently: "What I would do differently",
-              nextStep: "My next step",
-            };
-            const title = entry.customTitles || defaultTitles;
-
-            return (
-              <div key={entry.timestamp} className="p-4 bg-gray-700 rounded-md shadow-md">
-                <div className="flex justify-between items-center mb-2">
-                  <h3 className="text-md font-semibold text-gray-100">
-                    Entry from {new Date(entry.timestamp).toLocaleString()}
-                  </h3>
-                  <div className="flex space-x-2">
-                    <button
-                      onClick={() => copyPastEntryPromptToClipboard(entry)}
-                      className="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
-                    >
-                      {copyPastEntryPromptSuccess === entry.timestamp ? 'Copied!' : 'Copy Prompt'}
-                    </button>
-                    <button
-                      onClick={() => copyPastEntryTextToClipboard(entry)}
-                      className="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                    >
-                      {copyPastEntryTextSuccess === entry.timestamp ? 'Copied!' : 'Copy Text'}
-                    </button>
-                  </div>
-                </div>
-                <p className="text-sm text-gray-300">
-                  <span className="font-medium">{title.whatWentWell}:</span> {entry.whatWentWell}
-                </p>
-                <p className="text-sm text-gray-300">
-                  <span className="font-medium">{title.whatILearned}:</span> {entry.whatILearned}
-                </p>
-                <p className="text-sm text-gray-300">
-                  <span className="font-medium">{title.whatWouldDoDifferently}:</span> {entry.whatWouldDoDifferently}
-                </p>
-                <p className="text-sm text-gray-300">
-                  <span className="font-medium">{title.nextStep}:</span> {entry.nextStep}
-                </p>
-              </div>
-            );
-          })}
+          {pastEntries.slice(0, displayCount).map((entry) => (
+            <JournalEntryItem key={entry.timestamp} entry={entry} />
+          ))}
         </div>
         <div className="mt-6 flex items-center justify-between">
           <button
