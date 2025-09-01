@@ -15,6 +15,36 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "JourIn: AI-Powered Journaling",
   description: "Your personal journaling companion, powered by AI.",
+  
+  twitter: {
+    card: "summary",
+    title: "jourIn",
+    description: "Turn your daily reflections into engaging LinkedIn content. JourIn is a smart journaling tool that uses AI to generate professional posts from your journal entries, helping you build your personal brand.",
+    images: ["https://jour-in.vercel.app/icons/android-chrome-192x192.png"],
+    creator: "@DavidWShadow",
+  },
+  openGraph: {
+    type: "website",
+    title: "jourIn",
+    description: "Turn your daily reflections into engaging LinkedIn content. JourIn is a smart journaling tool that uses AI to generate professional posts from your journal entries, helping you build your personal brand.",
+    siteName: "jourIn",
+    url: "https://jour-in.vercel.app/",
+    images: [
+      {
+        url: "https://jour-in.vercel.app/icons/apple-touch-icon.png",
+      },
+    ],
+  },
+  icons: {
+    icon: [
+      { url: "/icons/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+      { url: "/icons/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+    ],
+    apple: [
+      { url: "/icons/apple-touch-icon.png" },
+    ],
+    shortcut: "/icons/favicon.ico",
+  },
 };
 
 export default function RootLayout({
