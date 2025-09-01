@@ -15,6 +15,12 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "JourIn: AI-Powered Journaling",
   description: "Your personal journaling companion, powered by AI.",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "jourIn",
+  },
   
   twitter: {
     card: "summary",
