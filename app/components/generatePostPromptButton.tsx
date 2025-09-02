@@ -3,7 +3,7 @@
 
 import React from "react";
 import { generatePromptText } from "../utils/generatePromptText";
-import { JournalEntries } from '../types';
+import { JournalEntries } from "../types";
 
 interface GeneratePostPromptButtonProps {
   journalEntries: JournalEntries;

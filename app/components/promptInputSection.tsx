@@ -34,6 +34,7 @@ export default function PromptInputSection({ onPromptGenerated }: PromptInputSec
   const [promptTemplate, setPromptTemplate] = useState<string>(defaultPromptTemplate);
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [hasHydrated, setHasHydrated] = useState(false);
+  const [additionalFields, setAdditionalFields] = useState<string[]>([]);
 
   // --- Local Storage: Load on Mount ---
   useEffect(() => {
@@ -69,21 +70,37 @@ export default function PromptInputSection({ onPromptGenerated }: PromptInputSec
       setPromptTemplate(savedTemplate);
     }
 
+    const savedAdditionalFields = localStorage.getItem('jourin_additional_fields');
+    if (savedAdditionalFields) {
+      try {
+        setAdditionalFields(JSON.parse(savedAdditionalFields));
+      } catch (e) {
+        console.error("Failed to parse saved additional fields from localStorage", e);
+      }
+    }
+
     setHasHydrated(true);
   }, []);
 
   // --- Local Storage: Debounced Save ---
   const debouncedSaveDraft = debounce((entries: JournalEntries) => {
-      localStorage.setItem('jourin_current_draft', JSON.stringify(entries));
-    }, 500);
+    localStorage.setItem('jourin_current_draft', JSON.stringify(entries));
+  }, 500);
 
   const debouncedSaveUserGoal = debounce((goal: string) => {
-      localStorage.setItem('jourin_user_goal', JSON.stringify(goal));
-    }, 500);
+    localStorage.setItem('jourin_user_goal', JSON.stringify(goal));
+  }, 500);
 
   const saveCustomTitles = useCallback(
     (titles: CustomTitles) => {
       localStorage.setItem('jourin_custom_titles', JSON.stringify(titles));
+    },
+    []
+  );
+
+  const saveAdditionalFields = useCallback(
+    (fields: string[]) => {
+      localStorage.setItem('jourin_additional_fields', JSON.stringify(fields));
     },
     []
   );
@@ -93,6 +110,12 @@ export default function PromptInputSection({ onPromptGenerated }: PromptInputSec
       saveCustomTitles(customTitles);
     }
   }, [customTitles, saveCustomTitles, hasHydrated]);
+
+  useEffect(() => {
+    if (hasHydrated) {
+      saveAdditionalFields(additionalFields);
+    }
+  }, [additionalFields, saveAdditionalFields, hasHydrated]);
 
   // --- Event Handlers ---
   const handleJournalEntriesChange = (entries: JournalEntries) => {
@@ -106,7 +129,7 @@ export default function PromptInputSection({ onPromptGenerated }: PromptInputSec
     debouncedSaveUserGoal(newGoal);
   };
 
-  const handleCustomTitleChange = (key: keyof CustomTitles, value: string) => {
+  const handleCustomTitleChange = (key: string, value: string) => {
     setCustomTitles(prevTitles => ({ ...prevTitles, [key]: value }));
   };
 
@@ -130,7 +153,9 @@ export default function PromptInputSection({ onPromptGenerated }: PromptInputSec
       whatWouldDoDifferently: '',
       nextStep: '',
     });
+    setAdditionalFields([]);
     localStorage.removeItem('jourin_current_draft');
+    localStorage.removeItem('jourin_additional_fields');
   };
 
   if (!hasHydrated) {
@@ -144,6 +169,8 @@ export default function PromptInputSection({ onPromptGenerated }: PromptInputSec
         onJournalEntriesChange={handleJournalEntriesChange}
         customTitles={customTitles}
         onCustomTitleChange={handleCustomTitleChange}
+        additionalFields={additionalFields}
+        setAdditionalFields={setAdditionalFields}
       />
 
       <div className="mt-8">

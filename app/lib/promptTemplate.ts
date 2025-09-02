@@ -19,13 +19,7 @@ Ensure:
 
 Here are my journal entries for today:
 
-{{whatWentWellTitle}}: {{whatWentWell}}
-
-{{whatILearnedTitle}}: {{whatILearned}}
-
-{{whatWouldDoDifferentlyTitle}}: {{whatWouldDoDifferently}}
-
-{{nextStepTitle}}: {{nextStep}}
+{{journalEntries}}
 {{goalSection}}
 ---
 LinkedIn Post Structure Guidelines:

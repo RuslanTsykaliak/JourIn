@@ -15,9 +15,18 @@ export const generatePromptText = (
     nextStep: "My next step",
   };
 
-  const titles = customTitles || defaultTitles;
+  const titles = { ...defaultTitles, ...customTitles };
 
-  if (!entries.whatWentWell && !entries.whatILearned && !entries.whatWouldDoDifferently && !entries.nextStep) {
+  const filledEntries = Object.keys(entries)
+    .filter((key) => key !== 'userGoal' && !key.endsWith('_title') && entries[key])
+    .map((key) => {
+      const title = entries[`${key}_title`] || titles[key] || key;
+      const value = entries[key];
+      return `${title}: ${value}`;
+    })
+    .join('\n\n');
+
+  if (!filledEntries) {
     throw new Error("Please fill out at least one journal entry to generate a prompt.");
   }
 
@@ -29,14 +38,7 @@ User's Goal for this post: ${entries.userGoal}. Please tailor the tone and conte
   }
 
   const populatedTemplate = promptTemplate
-    .replace(/{{whatWentWellTitle}}/g, titles.whatWentWell)
-    .replace(/{{whatWentWell}}/g, entries.whatWentWell)
-    .replace(/{{whatILearnedTitle}}/g, titles.whatILearned)
-    .replace(/{{whatILearned}}/g, entries.whatILearned)
-    .replace(/{{whatWouldDoDifferentlyTitle}}/g, titles.whatWouldDoDifferently)
-    .replace(/{{whatWouldDoDifferently}}/g, entries.whatWouldDoDifferently)
-    .replace(/{{nextStepTitle}}/g, titles.nextStep)
-    .replace(/{{nextStep}}/g, entries.nextStep)
+    .replace(/{{journalEntries}}/g, filledEntries)
     .replace(/{{goalSection}}/g, goalSection);
 
   return populatedTemplate;

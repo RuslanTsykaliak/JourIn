@@ -19,21 +19,21 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "jourIn",
+    title: "JourIn",
   },
-  
+
   twitter: {
     card: "summary",
-    title: "jourIn",
+    title: "JourIn",
     description: "Turn your daily reflections into engaging LinkedIn content. JourIn is a smart journaling tool that uses AI to generate professional posts from your journal entries, helping you build your personal brand.",
     images: ["https://jour-in.vercel.app/icons/android-chrome-192x192.png"],
     creator: "@DavidWShadow",
   },
   openGraph: {
     type: "website",
-    title: "jourIn",
+    title: "JourIn",
     description: "Turn your daily reflections into engaging LinkedIn content. JourIn is a smart journaling tool that uses AI to generate professional posts from your journal entries, helping you build your personal brand.",
-    siteName: "jourIn",
+    siteName: "JourIn",
     url: "https://jour-in.vercel.app/",
     images: [
       {
