@@ -13,10 +13,19 @@ export function useDbJournalEntries() {
           const entries = await response.json();
           // Convert createdAt (ISO string) to timestamp (number)
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const formattedEntries = entries.map((entry: any) => ({
-            ...entry,
-            timestamp: new Date(entry.createdAt).getTime(), // Convert ISO string to Unix timestamp
-          }));
+          const formattedEntries: JournalEntryWithTimestamp[] = entries.map((entry: any) => {
+            const newEntry: JournalEntryWithTimestamp = {
+              timestamp: new Date(entry.createdAt).getTime(),
+            };
+
+            // Copy all properties from 'entry' except the Prisma-specific ones
+            for (const key in entry) {
+              if (key !== 'id' && key !== 'createdAt' && key !== 'updatedAt' && key !== 'userId') {
+                (newEntry as any)[key] = entry[key];
+              }
+            }
+            return newEntry;
+          });
           setPastEntries(formattedEntries);
         }
       };
@@ -38,7 +47,17 @@ export function useDbJournalEntries() {
 
       if (response.ok) {
         const createdEntry = await response.json();
-        setPastEntries(prevEntries => [createdEntry, ...prevEntries]);
+        // Map the createdEntry from Prisma to JournalEntryWithTimestamp
+        const formattedCreatedEntry: JournalEntryWithTimestamp = {
+          timestamp: new Date(createdEntry.createdAt).getTime(),
+        };
+
+        for (const key in createdEntry) {
+          if (key !== 'id' && key !== 'createdAt' && key !== 'updatedAt' && key !== 'userId') {
+            (formattedCreatedEntry as any)[key] = createdEntry[key];
+          }
+        }
+        setPastEntries(prevEntries => [formattedCreatedEntry, ...prevEntries]);
       }
     }
   };
