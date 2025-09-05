@@ -53,7 +53,7 @@ const HabitsPage = () => {
       const today = getTodayDateString();
       localStorage.setItem(`habit-data-${today}`, JSON.stringify(data));
     }, 500), // 500ms delay
-    []
+    [debounce]
   );
 
   // Autosave on data change

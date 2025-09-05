@@ -2,6 +2,7 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from 'react';
+import { useSession } from 'next-auth/react';
 import Header from './components/header';
 import PromptInputSection from './components/promptInputSection';
 import GeneratedPromptDisplay from './components/generatedPromptDisplay';
@@ -11,6 +12,7 @@ import { getStreakData, updateStreak } from './lib/fireUp';
 import { CustomTitles, JournalEntries, JournalEntryWithTimestamp } from './types';
 
 export default function Home() {
+  const { status } = useSession();
   const [generatedPrompt, setGeneratedPrompt] = useState<string>('');
   const [copyPromptSuccess, setCopyPromptSuccess] = useState<string>('');
   const [newEntryForHistory, setNewEntryForHistory] = useState<JournalEntryWithTimestamp | null>(null);
@@ -20,27 +22,33 @@ export default function Home() {
   const MILESTONES = useMemo(() => [7, 30, 365, 1461], []);
 
   useEffect(() => {
-    const checkStreakAndShowPopup = () => {
-      const data = getStreakData();
-      setCurrentStreak(data.currentStreak);
+    if (status === 'unauthenticated') {
+      // The user is not authenticated, you can keep them on this page
+      // or redirect them to a login page if you prefer.
+      // For now, we'll show the login/register buttons.
+    } else if (status === 'authenticated') {
+      const checkStreakAndShowPopup = () => {
+        const data = getStreakData();
+        setCurrentStreak(data.currentStreak);
 
-      if (MILESTONES.includes(data.currentStreak)) {
-        const lastShownMilestone = localStorage.getItem('jourin_last_shown_milestone');
-        if (lastShownMilestone !== `${data.currentStreak}-${data.lastPostDate}`) {
-          setShowRewardPopup(true);
-          localStorage.setItem('jourin_last_shown_milestone', `${data.currentStreak}-${data.lastPostDate}`);
+        if (MILESTONES.includes(data.currentStreak)) {
+          const lastShownMilestone = localStorage.getItem('jourin_last_shown_milestone');
+          if (lastShownMilestone !== `${data.currentStreak}-${data.lastPostDate}`) {
+            setShowRewardPopup(true);
+            localStorage.setItem('jourin_last_shown_milestone', `${data.currentStreak}-${data.lastPostDate}`);
+          }
         }
-      }
-    };
+      };
 
-    checkStreakAndShowPopup();
+      checkStreakAndShowPopup();
 
-    window.addEventListener('storage', checkStreakAndShowPopup);
+      window.addEventListener('storage', checkStreakAndShowPopup);
 
-    return () => {
-      window.removeEventListener('storage', checkStreakAndShowPopup);
-    };
-  }, [MILESTONES]);
+      return () => {
+        window.removeEventListener('storage', checkStreakAndShowPopup);
+      };
+    }
+  }, [status, MILESTONES]);
 
   const handlePromptGenerated = async (prompt: string, entry: JournalEntries, customTitles: CustomTitles) => {
     setGeneratedPrompt(prompt);
@@ -64,7 +72,6 @@ export default function Home() {
     setNewEntryForHistory(null); // Reset after processing
   };
 
-
   const copyGeneratedPromptToClipboard = async () => {
     try {
       await navigator.clipboard.writeText(generatedPrompt);
@@ -75,6 +82,12 @@ export default function Home() {
       console.error('Failed to copy prompt: ', err);
     }
   };
+
+  if (status === 'loading') {
+    return <div className="flex justify-center items-center h-screen">Loading...</div>;
+  }
+
+  
 
   return (
     <div className="min-h-screen bg-gray-900 flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8">

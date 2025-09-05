@@ -140,10 +140,27 @@ export default function PromptInputSection({ onPromptGenerated }: PromptInputSec
   };
 
   const handleGenerateClick = () => {
+    const defaultKeys = new Set(['whatWentWell', 'whatILearned', 'whatWouldDoDifferently', 'nextStep']);
+
     for (const key in journalEntries) {
       if (Object.prototype.hasOwnProperty.call(journalEntries, key)) {
         const entryValue = journalEntries[key];
-        if (typeof entryValue === 'string' && entryValue.trim() !== '' && (!customTitles[key] || customTitles[key].trim() === '')) {
+
+        // Skip if the key is a title for an additional field (e.g., 'customField_0_title')
+        if (key.endsWith('_title')) {
+          continue;
+        }
+
+        // Get the title for the current entry
+        let entryTitle = '';
+        if (defaultKeys.has(key)) {
+          entryTitle = customTitles[key] || '';
+        } else {
+          // This is an additional field, its title is stored in journalEntries itself
+          entryTitle = (journalEntries[`${key}_title`] as string) || '';
+        }
+
+        if (typeof entryValue === 'string' && entryValue.trim() !== '' && entryTitle.trim() === '') {
           alert(`Please provide a title for the entry with content: "${entryValue}"`);
           return;
         }

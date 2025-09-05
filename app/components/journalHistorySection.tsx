@@ -1,8 +1,10 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import { useSession } from "next-auth/react";
 import { JournalEntryWithTimestamp, CustomTitles } from '../types';
 import { useJournalEntriesStorage } from '../hooks/useJournalEntriesStorage';
+import { useDbJournalEntries } from '../hooks/useDbJournalEntries';
 import { getStartOfWeek, getEndOfWeek, generateWeeklySummary as generateWeeklySummaryUtil } from '../utils/weeklySummaryUtils';
 import JournalEntryItem from './journalEntryItem';
 
@@ -22,7 +24,14 @@ export default function JournalHistorySection({ newEntryToHistory }: JournalHist
   const [weeklySummaryText, setWeeklySummaryText] = useState<string>('');
   const [copySummarySuccess, setCopySummarySuccess] = useState<boolean>(false);
 
-  const { pastEntries, addJournalEntry } = useJournalEntriesStorage();
+  const { data: session } = useSession();
+  
+  // Call hooks unconditionally
+  const { pastEntries: localPastEntries, addJournalEntry: addLocalJournalEntry } = useJournalEntriesStorage();
+  const { pastEntries: dbPastEntries, addJournalEntry: addDbJournalEntry } = useDbJournalEntries();
+
+  const pastEntries = session ? dbPastEntries : localPastEntries;
+  const addJournalEntry = session ? addDbJournalEntry : addLocalJournalEntry;
 
   
 
@@ -50,9 +59,13 @@ export default function JournalHistorySection({ newEntryToHistory }: JournalHist
   // Add new entry to history when received from parent
   useEffect(() => {
     if (newEntryToHistory) {
-      addJournalEntry(newEntryToHistory);
+      if (session) {
+        addJournalEntry(newEntryToHistory);
+      } else {
+        addJournalEntry(newEntryToHistory);
+      }
     }
-  }, [newEntryToHistory, addJournalEntry]);
+  }, [newEntryToHistory, addJournalEntry, session]);
 
   const copyAllHistoryToClipboard = async () => {
     const defaultTitles: CustomTitles = {

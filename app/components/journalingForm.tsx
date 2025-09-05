@@ -4,6 +4,7 @@
 import React, { useState } from "react";
 import { JournalEntries, CustomTitles } from "../types";
 import EditableTitle from './editableTitle';
+import { useReward } from "../hooks/useReward";
 
 interface JournalingFormProps {
   journalEntries: JournalEntries;
@@ -25,6 +26,7 @@ export default function JournalingForm({
   const [hoveredField, setHoveredField] = useState<string | null>(null);
   const [focusedField, setFocusedField] = useState<string | null>(null);
   const [titleErrors, setTitleErrors] = useState<{ [key: string]: string }>({});
+  const { showReward } = useReward();
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -37,6 +39,7 @@ export default function JournalingForm({
   const handleAddField = () => {
     const newFieldName = `customField_${additionalFields.length}`;
     setAdditionalFields([...additionalFields, newFieldName]);
+    showReward("New field added!");
   };
 
   const handleRemoveField = (fieldName: string) => {
@@ -45,6 +48,7 @@ export default function JournalingForm({
     delete newEntries[fieldName];
     delete newEntries[`${fieldName}_title`];
     onJournalEntriesChange(newEntries);
+    showReward("Field removed!");
   };
 
   const renderTextarea = (name: string, placeholder: string, title: string) => {

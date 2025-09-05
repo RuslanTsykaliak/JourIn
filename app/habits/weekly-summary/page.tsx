@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { HabitData } from '../../types'; // Assuming HabitData interface is in app/types.ts
 
 const WeeklySummaryPage = () => {
@@ -17,7 +17,7 @@ const WeeklySummaryPage = () => {
     return dates;
   };
 
-  const loadWeeklyData = (startOfWeek: Date) => {
+  const loadWeeklyData = useCallback((startOfWeek: Date) => {
     const dates = getDatesForWeek(startOfWeek);
     const loadedData: Record<string, Partial<HabitData>[]> = {};
 
@@ -30,7 +30,7 @@ const WeeklySummaryPage = () => {
       }
     });
     setWeeklyData(loadedData);
-  };
+  }, [getDatesForWeek]);
 
   useEffect(() => {
     // Set currentWeekStart to the most recent Monday
@@ -40,7 +40,7 @@ const WeeklySummaryPage = () => {
     const monday = new Date(today.setDate(diff));
     setCurrentWeekStart(monday);
     loadWeeklyData(monday);
-  }, []);
+  }, [loadWeeklyData]);
 
   const goToPreviousWeek = () => {
     const prevWeek = new Date(currentWeekStart);
