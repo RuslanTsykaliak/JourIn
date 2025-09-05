@@ -147,15 +147,22 @@ export default function PromptInputSection({ onPromptGenerated }: PromptInputSec
     );
     onPromptGenerated(prompt, { ...journalEntries, userGoal }, customTitles);
 
-    setJournalEntries({
+    const clearedAdditionalEntries = additionalFields.reduce((acc, fieldName) => {
+      acc[fieldName] = '';
+      return acc;
+    }, {} as { [key: string]: string });
+
+    const newEntries = {
+      ...journalEntries,
       whatWentWell: '',
       whatILearned: '',
       whatWouldDoDifferently: '',
       nextStep: '',
-    });
-    setAdditionalFields([]);
-    localStorage.removeItem('jourin_current_draft');
-    localStorage.removeItem('jourin_additional_fields');
+      ...clearedAdditionalEntries,
+    };
+
+    localStorage.setItem('jourin_current_draft', JSON.stringify(newEntries));
+    setJournalEntries(newEntries);
   };
 
   if (!hasHydrated) {

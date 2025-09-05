@@ -1,33 +1,40 @@
-
-import React from 'react';
+import React, { useState } from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import JournalingForm from '../app/components/journalingForm';
 import '@testing-library/jest-dom';
 
-describe('JournalingForm', () => {
-  const mockJournalEntries = {
+const mockCustomTitles = {
+  whatWentWell: 'What went well today?',
+  whatILearned: 'What did I learn today?',
+  whatWouldDoDifferently: 'What would I do differently?',
+  nextStep: 'What’s my next step?',
+};
+
+const TestJournalingForm = ({ initialJournalEntries = {} }) => {
+  const [journalEntries, setJournalEntries] = useState({
     whatWentWell: '',
     whatILearned: '',
     whatWouldDoDifferently: '',
     nextStep: '',
-  };
+    ...initialJournalEntries,
+  });
+  const [additionalFields, setAdditionalFields] = useState([]);
 
-  const mockCustomTitles = {
-    whatWentWell: 'What went well today?',
-    whatILearned: 'What did I learn today?',
-    whatWouldDoDifferently: 'What would I do differently?',
-    nextStep: 'What’s my next step?',
-  };
+  return (
+    <JournalingForm
+      journalEntries={journalEntries}
+      onJournalEntriesChange={setJournalEntries}
+      customTitles={mockCustomTitles}
+      onCustomTitleChange={() => {}}
+      additionalFields={additionalFields}
+      setAdditionalFields={setAdditionalFields}
+    />
+  );
+};
 
+describe('JournalingForm', () => {
   it('shows a plus button on hover when the textarea is empty', () => {
-    render(
-      <JournalingForm
-        journalEntries={mockJournalEntries}
-        onJournalEntriesChange={() => {}}
-        customTitles={mockCustomTitles}
-        onCustomTitleChange={() => {}}
-      />
-    );
+    render(<TestJournalingForm />);
     const whatWentWellTextarea = screen.getByPlaceholderText('Reflect on your achievements and positive experiences...');
     fireEvent.mouseEnter(whatWentWellTextarea.parentElement);
     const addButton = screen.getByText('+');
@@ -37,14 +44,7 @@ describe('JournalingForm', () => {
   });
 
   it('does not show the plus button on hover when the textarea has content', () => {
-    render(
-      <JournalingForm
-        journalEntries={{ ...mockJournalEntries, whatWentWell: 'Today was a good day' }}
-        onJournalEntriesChange={() => {}}
-        customTitles={mockCustomTitles}
-        onCustomTitleChange={() => {}}
-      />
-    );
+    render(<TestJournalingForm initialJournalEntries={{ whatWentWell: 'Today was a good day' }} />);
     const whatWentWellTextarea = screen.getByPlaceholderText('Reflect on your achievements and positive experiences...');
     fireEvent.mouseEnter(whatWentWellTextarea.parentElement);
     const addButton = screen.queryByText('+');
@@ -52,42 +52,73 @@ describe('JournalingForm', () => {
   });
 
   it('adds a title and description field when the plus button is clicked', () => {
-    render(
-      <JournalingForm
-        journalEntries={mockJournalEntries}
-        onJournalEntriesChange={() => {}}
-        customTitles={mockCustomTitles}
-        onCustomTitleChange={() => {}}
-      />
-    );
+    render(<TestJournalingForm />);
     const whatWentWellTextarea = screen.getByPlaceholderText('Reflect on your achievements and positive experiences...');
     fireEvent.mouseEnter(whatWentWellTextarea.parentElement);
     const addButton = screen.getByText('+');
     fireEvent.click(addButton);
-    const titleInput = screen.getByPlaceholderText('Title');
+    const newFieldTitle = screen.getByText('New Field');
     const descriptionTextarea = screen.getByPlaceholderText('Description');
-    expect(titleInput).toBeInTheDocument();
+    expect(newFieldTitle).toBeInTheDocument();
     expect(descriptionTextarea).toBeInTheDocument();
   });
 
   it('removes the title and description field when the minus button is clicked', () => {
-    render(
-      <JournalingForm
-        journalEntries={mockJournalEntries}
-        onJournalEntriesChange={() => {}}
-        customTitles={mockCustomTitles}
-        onCustomTitleChange={() => {}}
-      />
-    );
+    render(<TestJournalingForm />);
     const whatWentWellTextarea = screen.getByPlaceholderText('Reflect on your achievements and positive experiences...');
+    
+    // Add a field
     fireEvent.mouseEnter(whatWentWellTextarea.parentElement);
     const addButton = screen.getByText('+');
     fireEvent.click(addButton);
-    const titleInput = screen.getByPlaceholderText('Title');
+
+    // Check that the field is there
+    const newFieldTitle = screen.getByText('New Field');
     const descriptionTextarea = screen.getByPlaceholderText('Description');
+    expect(newFieldTitle).toBeInTheDocument();
+    expect(descriptionTextarea).toBeInTheDocument();
+
+    // Hover to show the remove button and click it
+    fireEvent.mouseEnter(newFieldTitle.parentElement.parentElement); // The wrapper div
     const removeButton = screen.getByText('-');
     fireEvent.click(removeButton);
-    expect(titleInput).not.toBeInTheDocument();
+
+    // Check that the field is gone
+    expect(newFieldTitle).not.toBeInTheDocument();
     expect(descriptionTextarea).not.toBeInTheDocument();
+  });
+
+  it('keeps the editable title field present with a placeholder when its content is removed', async () => {
+    render(<TestJournalingForm />);
+    const whatWentWellTextarea = screen.getByPlaceholderText('Reflect on your achievements and positive experiences...');
+    
+    // Add a field
+    fireEvent.mouseEnter(whatWentWellTextarea.parentElement);
+    const addButton = screen.getByText('+');
+    fireEvent.click(addButton);
+
+    // Find the new field's title (initially "New Field")
+    const newFieldTitleDisplay = screen.getByText('New Field');
+    expect(newFieldTitleDisplay).toBeInTheDocument();
+
+    // Click to activate editing mode (should be double-click for EditableTitle)
+    fireEvent.doubleClick(newFieldTitleDisplay);
+
+    // Find the input field that appears for editing (wait for it to appear)
+    const titleInput = await screen.findByDisplayValue('New Field');
+    expect(titleInput).toBeInTheDocument();
+
+    // Clear the input and blur to trigger save
+    fireEvent.change(titleInput, { target: { value: '' } });
+    fireEvent.blur(titleInput);
+
+    // Expect the error message to appear
+    expect(await screen.findByText('Title cannot be empty')).toBeInTheDocument();
+
+    // Expect the input field to still be present and have an empty value
+    // The EditableTitle component itself should still be rendered, and the input should be visible
+    const updatedTitleInput = screen.getByDisplayValue('');
+    expect(updatedTitleInput).toBeInTheDocument();
+    expect(updatedTitleInput).toHaveValue('');
   });
 });

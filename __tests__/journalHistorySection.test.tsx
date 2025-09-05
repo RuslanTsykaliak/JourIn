@@ -206,25 +206,12 @@ describe('JournalHistorySection', () => {
 
     await waitFor(() => {
       const entry = mockPastEntries[0];
-      const expectedText = `
---- Journal Entry (${new Date(entry.timestamp).toLocaleString()}) ---
-What went well today:
-${entry.whatWentWell}
-
-What I learned today:
-${entry.whatILearned}
-
-What I would do differently:
-${entry.whatWouldDoDifferently}
-
-My next step:
-${entry.nextStep}
-`;
+      const expectedText = `--- Journal Entry (${new Date(entry.timestamp).toLocaleString()}) ---\nWhat went well today:\n${entry.whatWentWell}`;
       expect(navigator.clipboard.writeText).toHaveBeenCalledWith(expectedText);
     });
   });
 
-  it('should copy individual entry text to the clipboard', async () => {
+  it('should copy individual entry text to the clipboard (from localStorage)', async () => {
     localStorage.setItem('jourin_past_entries', JSON.stringify(mockPastEntries));
     render(<JournalHistorySection newEntryToHistory={null} />);
 
@@ -237,20 +224,7 @@ ${entry.nextStep}
 
     await waitFor(() => {
       const entry = mockPastEntries[0];
-      const expectedText = `
---- Journal Entry (${new Date(entry.timestamp).toLocaleString()}) ---
-What went well today:
-${entry.whatWentWell}
-
-What I learned today:
-${entry.whatILearned}
-
-What I would do differently:
-${entry.whatWouldDoDifferently}
-
-My next step:
-${entry.nextStep}
-`;
+      const expectedText = `--- Journal Entry (${new Date(entry.timestamp).toLocaleString()}) ---\nWhat went well today:\n${entry.whatWentWell}`;
       expect(navigator.clipboard.writeText).toHaveBeenCalledWith(expectedText);
     });
   });
@@ -267,22 +241,37 @@ ${entry.nextStep}
     fireEvent.click(copyAllHistoryButton);
 
     await waitFor(() => {
+      const defaultTitles = {
+        whatWentWell: "What went well today",
+        whatILearned: "What I learned today",
+        whatWouldDoDifferently: "What I would do differently",
+        nextStep: "My next step",
+      };
+
       const formattedHistory = mockPastEntries.map(entry => {
-        return `
---- Journal Entry (${new Date(entry.timestamp).toLocaleString()}) ---
-What went well today:
-${entry.whatWentWell}
+        const titles = { ...defaultTitles, ...entry.customTitles };
+        
+        const entryContent = Object.keys(entry)
+          .filter(key => {
+            if (key === 'timestamp' || key === 'customTitles' || key.endsWith('_title')) {
+              return false;
+            }
+            const value = entry[key];
+            if (typeof value === 'string') {
+              return value.trim() !== '';
+            }
+            return !!value;
+          })
+          .map(key => {
+            const title = entry[`${key}_title`] || titles[key] || key;
+            const value = entry[key];
+            return `${title}:\n${value}`;
+          })
+          .join('\n\n');
 
-What I learned today:
-${entry.whatILearned}
-
-What I would do differently:
-${entry.whatWouldDoDifferently}
-
-My next step:
-${entry.nextStep}
-`;
+        return `--- Journal Entry (${new Date(entry.timestamp).toLocaleString()}) ---\n${entryContent}`;
       }).join('\n\n');
+
       expect(navigator.clipboard.writeText).toHaveBeenCalledWith(formattedHistory);
     });
   });

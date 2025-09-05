@@ -1,8 +1,7 @@
-// app/components/journalHistorySection.tsx
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { JournalEntryWithTimestamp } from '../types';
+import { JournalEntryWithTimestamp, CustomTitles } from '../types';
 import { useJournalEntriesStorage } from '../hooks/useJournalEntriesStorage';
 import { getStartOfWeek, getEndOfWeek, generateWeeklySummary as generateWeeklySummaryUtil } from '../utils/weeklySummaryUtils';
 import JournalEntryItem from './journalEntryItem';
@@ -56,7 +55,7 @@ export default function JournalHistorySection({ newEntryToHistory }: JournalHist
   }, [newEntryToHistory, addJournalEntry]);
 
   const copyAllHistoryToClipboard = async () => {
-    const defaultTitles = {
+    const defaultTitles: CustomTitles = {
       whatWentWell: "What went well today",
       whatILearned: "What I learned today",
       whatWouldDoDifferently: "What I would do differently",
@@ -64,21 +63,27 @@ export default function JournalHistorySection({ newEntryToHistory }: JournalHist
     };
 
     const formattedHistory = pastEntries.map(entry => {
-      const title = entry.customTitles || defaultTitles;
-      return `
---- Journal Entry (${new Date(entry.timestamp).toLocaleString()}) ---
-${title.whatWentWell}:
-${entry.whatWentWell}
+      const titles = { ...defaultTitles, ...entry.customTitles };
+      
+      const entryContent = Object.keys(entry)
+        .filter(key => {
+          if (key === 'timestamp' || key === 'customTitles' || key.endsWith('_title')) {
+            return false;
+          }
+          const value = entry[key];
+          if (typeof value === 'string') {
+            return value.trim() !== '';
+          }
+          return !!value;
+        })
+        .map(key => {
+          const title = entry[`${key}_title`] || titles[key] || key;
+          const value = entry[key];
+          return `${title}:\n${value}`;
+        })
+        .join('\n\n');
 
-${title.whatILearned}:
-${entry.whatILearned}
-
-${title.whatWouldDoDifferently}:
-${entry.whatWouldDoDifferently}
-
-${title.nextStep}:
-${entry.nextStep}
-`;
+      return `--- Journal Entry (${new Date(entry.timestamp).toLocaleString()}) ---\n${entryContent}`;
     }).join('\n\n');
 
     try {

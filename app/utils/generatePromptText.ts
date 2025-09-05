@@ -18,7 +18,16 @@ export const generatePromptText = (
   const titles = { ...defaultTitles, ...customTitles };
 
   const filledEntries = Object.keys(entries)
-    .filter((key) => key !== 'userGoal' && !key.endsWith('_title') && entries[key])
+    .filter((key) => {
+      if (key === 'userGoal' || key.endsWith('_title')) {
+        return false;
+      }
+      const value = entries[key];
+      if (typeof value === 'string') {
+        return value.trim() !== '';
+      }
+      return !!value;
+    })
     .map((key) => {
       const title = entries[`${key}_title`] || titles[key] || key;
       const value = entries[key];
@@ -37,9 +46,19 @@ export const generatePromptText = (
 User's Goal for this post: ${entries.userGoal}. Please tailor the tone and content of the LinkedIn post to align with this goal, making it relevant and appealing to an audience that can help achieve it.`;
   }
 
-  const populatedTemplate = promptTemplate
+  let populatedTemplate = promptTemplate
     .replace(/{{journalEntries}}/g, filledEntries)
     .replace(/{{goalSection}}/g, goalSection);
+
+  for (const key in entries) {
+    if (Object.prototype.hasOwnProperty.call(entries, key)) {
+      const value = entries[key];
+      if (typeof value === 'string') {
+        const regex = new RegExp(`{{${key}}}`, 'g');
+        populatedTemplate = populatedTemplate.replace(regex, value);
+      }
+    }
+  }
 
   return populatedTemplate;
 };

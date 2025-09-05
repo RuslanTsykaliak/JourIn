@@ -16,7 +16,6 @@ const JournalEntryItem: React.FC<JournalEntryItemProps> = ({ entry }) => {
     whatWouldDoDifferently: "What I would do differently",
     nextStep: "My next step",
   };
-  const title = entry.customTitles || defaultTitles;
 
   const copyPastEntryPromptToClipboard = async () => {
     const promptToCopy = generatePromptText(entry, entry.customTitles, entry.promptTemplate);
@@ -30,20 +29,27 @@ const JournalEntryItem: React.FC<JournalEntryItemProps> = ({ entry }) => {
   };
 
   const copyPastEntryTextToClipboard = async () => {
-    const textToCopy = `
---- Journal Entry (${new Date(entry.timestamp).toLocaleString()}) ---
-${title.whatWentWell}:
-${entry.whatWentWell}
+    const titles = { ...defaultTitles, ...entry.customTitles };
+    const entryContent = Object.keys(entry)
+      .filter(key => {
+        if (key === 'timestamp' || key === 'customTitles' || key.endsWith('_title') || key === 'userGoal') {
+          return false;
+        }
+        const value = entry[key];
+        if (typeof value === 'string') {
+          return value.trim() !== '';
+        }
+        return !!value;
+      })
+      .map(key => {
+        const title = entry[`${key}_title`] || titles[key] || key;
+        const value = entry[key];
+        return `${title}:\n${value}`;
+      })
+      .join('\n\n');
+    
+    const textToCopy = `--- Journal Entry (${new Date(entry.timestamp).toLocaleString()}) ---\n${entryContent}`;
 
-${title.whatILearned}:
-${entry.whatILearned}
-
-${title.whatWouldDoDifferently}:
-${entry.whatWouldDoDifferently}
-
-${title.nextStep}:
-${entry.nextStep}
-`;
     try {
       await navigator.clipboard.writeText(textToCopy);
       setCopyPastEntryTextSuccess(entry.timestamp);
@@ -74,18 +80,27 @@ ${entry.nextStep}
           </button>
         </div>
       </div>
-      <p className="text-sm text-gray-300">
-        <span className="font-medium">{title.whatWentWell}:</span> {entry.whatWentWell}
-      </p>
-      <p className="text-sm text-gray-300">
-        <span className="font-medium">{title.whatILearned}:</span> {entry.whatILearned}
-      </p>
-      <p className="text-sm text-gray-300">
-        <span className="font-medium">{title.whatWouldDoDifferently}:</span> {entry.whatWouldDoDifferently}
-      </p>
-      <p className="text-sm text-gray-300">
-        <span className="font-medium">{title.nextStep}:</span> {entry.nextStep}
-      </p>
+      {Object.keys(entry)
+        .filter(key => {
+          if (key === 'timestamp' || key === 'customTitles' || key.endsWith('_title') || key === 'userGoal') {
+            return false;
+          }
+          const value = entry[key];
+          if (typeof value === 'string') {
+            return value.trim() !== '';
+          }
+          return !!value;
+        })
+        .map(key => {
+          const titles = { ...defaultTitles, ...entry.customTitles };
+          const title = key;
+          const value = entry[key];
+          return (
+            <p key={key} className="text-sm text-gray-300">
+              <span className="font-medium">{title}:</span> {value as string}
+            </p>
+          );
+        })}
     </div>
   );
 };
