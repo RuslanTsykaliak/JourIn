@@ -22,7 +22,7 @@ export default function Header() {
         {/* New div for left alignment and spacing */}
         {!session ? (
           <button
-            onClick={() => router.push('/login')}
+            onClick={() => router.push('/auth')}
             className="text-white text-2xl p-2 rounded-full hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-600"
             aria-label="Login or Register"
           >

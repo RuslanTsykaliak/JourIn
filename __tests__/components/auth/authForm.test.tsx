@@ -1,8 +1,7 @@
-// This test is currently commented out because the component import is failing.
-/*
+
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import Login from '@/app/components/auth/login';
+import AuthForm from '@/app/auth/components/AuthForm';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 
@@ -20,7 +19,7 @@ jest.mock('next/navigation', () => ({
 const mockSignIn = signIn as jest.Mock;
 const mockUseRouter = useRouter as jest.Mock;
 
-describe('Login Component', () => {
+describe('AuthForm Component - Login Functionality', () => {
   let mockPush: jest.Mock;
 
   beforeEach(() => {
@@ -34,11 +33,12 @@ describe('Login Component', () => {
   });
 
   it('renders the login form', () => {
-    render(<Login />);
+    render(<AuthForm />);
     expect(screen.getByRole('heading', { name: /login/i })).toBeInTheDocument();
     expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/password/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /login/i })).toBeInTheDocument();
+    expect(screen.queryByLabelText(/name/i)).not.toBeInTheDocument(); // Ensure name field is not present in login mode
   });
 
   it('calls signIn with credentials on form submission', async () => {
@@ -46,7 +46,7 @@ describe('Login Component', () => {
       Promise.resolve({ ok: true, error: null })
     );
 
-    render(<Login />);
+    render(<AuthForm />);
     const user = userEvent.setup();
 
     await user.type(screen.getByLabelText(/email/i), 'test@example.com');
@@ -68,7 +68,7 @@ describe('Login Component', () => {
       Promise.resolve({ ok: false, error: 'Invalid credentials' })
     );
 
-    render(<Login />);
+    render(<AuthForm />);
     const user = userEvent.setup();
 
     await user.type(screen.getByLabelText(/email/i), 'wrong@example.com');
@@ -86,7 +86,7 @@ describe('Login Component', () => {
       Promise.resolve({ ok: false, error: 'Invalid credentials' })
     );
 
-    render(<Login />);
+    render(<AuthForm />);
     const user = userEvent.setup();
 
     await user.type(screen.getByLabelText(/email/i), 'wrong@example.com');
@@ -107,9 +107,4 @@ describe('Login Component', () => {
       expect(screen.queryByText('Invalid credentials')).not.toBeInTheDocument();
     });
   });
-});
-*/
-
-describe('Login Component (Auth)', () => {
-  test.todo('Failing test to message in progress: Component import is failing.');
 });

@@ -6,32 +6,39 @@ import { getStreakData } from "../lib/fireUp";
 
 export default function StreakCounter() {
   const [streak, setStreak] = useState(0);
+  const [mounted, setMounted] = useState(false); // New state for mounting
 
   // 🔹 New: central refresh method
   const refreshStreak = () => {
-    const data = getStreakData();
-    setStreak(data.currentStreak);
+    if (mounted) { // Only call if mounted
+      const data = getStreakData();
+      setStreak(data.currentStreak);
+    }
   };
 
   useEffect(() => {
-    const data = getStreakData();
-    setStreak(data.currentStreak);
+    setMounted(true); // Set mounted to true after component mounts
 
-    // Listen for changes in localStorage to update streak dynamically
-    const handleStorageChange = () => {
-      const updatedData = getStreakData();
-      setStreak(updatedData.currentStreak);
-    };
+    if (typeof window !== 'undefined') { // Ensure window is defined before accessing it
+      const data = getStreakData();
+      setStreak(data.currentStreak);
 
-    // 🔹 Listen for custom refresh events in same tab
-    window.addEventListener("streakUpdated", refreshStreak);
+      // Listen for changes in localStorage to update streak dynamically
+      const handleStorageChange = () => {
+        const updatedData = getStreakData();
+        setStreak(updatedData.currentStreak);
+      };
 
-    window.addEventListener("storage", handleStorageChange);
-    return () => {
-      window.removeEventListener("storage", handleStorageChange);
-      window.removeEventListener("streakUpdated", refreshStreak);
-    };
-  }, []);
+      // 🔹 Listen for custom refresh events in same tab
+      window.addEventListener("streakUpdated", refreshStreak);
+
+      window.addEventListener("storage", handleStorageChange);
+      return () => {
+        window.removeEventListener("storage", handleStorageChange);
+        window.removeEventListener("streakUpdated", refreshStreak);
+      };
+    }
+  }, [mounted]); // Add mounted to dependency array
 
   const tooltipText =
     streak > 0

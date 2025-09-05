@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useSession } from "next-auth/react";
 import { JournalEntryWithTimestamp, CustomTitles } from '../types';
 import { useJournalEntriesStorage } from '../hooks/useJournalEntriesStorage';
-import { useDbJournalEntries } from '../hooks/useDbJournalEntries';
+import { useDbJournalEntries } from '../auth/useDbJournalEntries';
 import { getStartOfWeek, getEndOfWeek, generateWeeklySummary as generateWeeklySummaryUtil } from '../utils/weeklySummaryUtils';
 import JournalEntryItem from './journalEntryItem';
 
@@ -15,7 +15,7 @@ interface JournalHistorySectionProps {
 const INITIAL_DISPLAY_COUNT = 5;
 
 export default function JournalHistorySection({ newEntryToHistory }: JournalHistorySectionProps) {
-  
+
   const [copyHistorySuccess, setCopyHistorySuccess] = useState<string>('');
   const [displayCount, setDisplayCount] = useState(INITIAL_DISPLAY_COUNT);
   const [selectedWeekStart, setSelectedWeekStart] = useState<Date>(getStartOfWeek(new Date()));
@@ -25,7 +25,7 @@ export default function JournalHistorySection({ newEntryToHistory }: JournalHist
   const [copySummarySuccess, setCopySummarySuccess] = useState<boolean>(false);
 
   const { data: session } = useSession();
-  
+
   // Call hooks unconditionally
   const { pastEntries: localPastEntries, addJournalEntry: addLocalJournalEntry } = useJournalEntriesStorage();
   const { pastEntries: dbPastEntries, addJournalEntry: addDbJournalEntry } = useDbJournalEntries();
@@ -33,7 +33,7 @@ export default function JournalHistorySection({ newEntryToHistory }: JournalHist
   const pastEntries = session ? dbPastEntries : localPastEntries;
   const addJournalEntry = session ? addDbJournalEntry : addLocalJournalEntry;
 
-  
+
 
   const handlePreviousWeek = () => {
     const newDate = new Date(selectedWeekStart);
@@ -54,7 +54,7 @@ export default function JournalHistorySection({ newEntryToHistory }: JournalHist
     setShowSummaryModal(true);
   };
 
-  
+
 
   // Add new entry to history when received from parent
   useEffect(() => {
@@ -77,7 +77,7 @@ export default function JournalHistorySection({ newEntryToHistory }: JournalHist
 
     const formattedHistory = pastEntries.map(entry => {
       const titles = { ...defaultTitles, ...entry.customTitles };
-      
+
       const entryContent = Object.keys(entry)
         .filter(key => {
           if (key === 'timestamp' || key === 'customTitles' || key.endsWith('_title')) {
@@ -109,7 +109,7 @@ export default function JournalHistorySection({ newEntryToHistory }: JournalHist
     }
   };
 
-  
+
 
   const handleShowMore = () => {
     setDisplayCount(prevCount => prevCount + INITIAL_DISPLAY_COUNT);

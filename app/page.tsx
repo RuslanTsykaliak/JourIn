@@ -6,7 +6,7 @@ import { useSession } from 'next-auth/react';
 import Header from './components/header';
 import PromptInputSection from './components/promptInputSection';
 import GeneratedPromptDisplay from './components/generatedPromptDisplay';
-import JournalHistorySection from './components/journalHistorySection';
+import JournalHistorySection from './components/journalHistorySection'; // Commented out
 import RewardPopup from './components/rewardPopup';
 import { getStreakData, updateStreak } from './lib/fireUp';
 import { CustomTitles, JournalEntries, JournalEntryWithTimestamp } from './types';
@@ -55,7 +55,7 @@ export default function Home() {
     setCopyPromptSuccess('');
     setNewEntryForHistory({ ...entry, timestamp: Date.now(), customTitles });
 
-    await updateStreak(); // 🔹 Wait for streak update
+    await updateStreak(); // ◆ Wait for streak update
 
     const data = getStreakData();
     setCurrentStreak(data.currentStreak);
@@ -87,7 +87,7 @@ export default function Home() {
     return <div className="flex justify-center items-center h-screen">Loading...</div>;
   }
 
-  
+
 
   return (
     <div className="min-h-screen bg-gray-900 flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -101,7 +101,7 @@ export default function Home() {
             copySuccess={copyPromptSuccess}
           />
         )}
-        <JournalHistorySection newEntryToHistory={newEntryForHistory} />
+        <JournalHistorySection newEntryToHistory={newEntryForHistory} /> {/* Commented out */}
       </div>
 
       {showRewardPopup && (

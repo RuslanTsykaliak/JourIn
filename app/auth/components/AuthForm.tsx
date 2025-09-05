@@ -30,7 +30,7 @@ export default function AuthForm() {
       });
 
       if (res.ok) {
-        router.push("/login");
+        router.push("/auth");
       } else {
         const data = await res.json();
         setError(data.message || "Something went wrong");
