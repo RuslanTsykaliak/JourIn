@@ -479,4 +479,40 @@ describe('JournalHistorySection', () => {
       expect(screen.queryByRole('dialog', { name: /weekly summary/i })).not.toBeInTheDocument();
     });
   });
+
+  it('should display custom titles for entries in the history', async () => {
+    const mockEntryWithCustomTitle: JournalEntryWithTimestamp = {
+      timestamp: 1678886400000,
+      whatWentWell: 'This is a test entry',
+      whatILearned: '',
+      whatWouldDoDifferently: '',
+      nextStep: '',
+      userGoal: '',
+      customTitles: {
+        whatWentWell: 'My Custom Title',
+      },
+    };
+
+    (useJournalEntriesStorage as jest.Mock).mockReturnValue({
+      pastEntries: [mockEntryWithCustomTitle],
+      setPastEntries: jest.fn(),
+      addJournalEntry: jest.fn(),
+    });
+
+    render(<JournalHistorySection newEntryToHistory={null} />);
+
+    await waitFor(() => {
+      // Check for the entry date to make sure it's rendered
+      expect(screen.getByText(/Entry from/)).toBeInTheDocument();
+    });
+
+    // Assert that the custom title is displayed
+    expect(screen.getByText('My Custom Title:')).toBeInTheDocument();
+    
+    // Assert that the entry content is displayed
+    expect(screen.getByText('This is a test entry')).toBeInTheDocument();
+
+    // Assert that the default field key is NOT displayed
+    expect(screen.queryByText('whatWentWell:')).not.toBeInTheDocument();
+  });
 });

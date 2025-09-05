@@ -93,7 +93,7 @@ const JournalEntryItem: React.FC<JournalEntryItemProps> = ({ entry }) => {
         })
         .map(key => {
           const titles = { ...defaultTitles, ...entry.customTitles };
-          const title = key;
+          const title = (entry[`${key}_title`] as string) || titles[key] || key;
           const value = entry[key];
           return (
             <p key={key} className="text-sm text-gray-300">

@@ -43,3 +43,26 @@ export interface JournalingTextareaProps {
   onCustomTitleChange: (key: string, value: string) => void;
   onAddField: () => void;
 }
+
+export interface HabitData {
+  'my-notes': string;
+  'ai-notes': string;
+  'tracked-behavior': 'yes' | 'no' | '';
+  'watched-video': 'yes' | 'no' | '';
+  'exercised': 'yes' | 'no' | '';
+  'exercise-plan': string;
+  'diet-health': string;
+  'sleep-hours': string;
+  'sleep-on-time': 'yes' | 'no' | '';
+  'energy-level': string;
+  'social-media-usage': string;
+  'productivity-level': string;
+  'completed-work-task': 'yes' | 'no' | '';
+  'work-task-tomorrow': string;
+  'timeboxed-schedule': 'yes' | 'no' | '';
+  'grateful-health': string;
+  'grateful-person': string;
+  'grateful-circumstances': string;
+  'attitude': string;
+  'discipline-on-demand': 'yes' | 'no' | '';
+}

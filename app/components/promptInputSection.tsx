@@ -140,34 +140,54 @@ export default function PromptInputSection({ onPromptGenerated }: PromptInputSec
   };
 
   const handleGenerateClick = () => {
-    const prompt = generatePromptText(
-      { ...journalEntries, userGoal },
-      customTitles,
-      promptTemplate
-    );
-    onPromptGenerated(prompt, { ...journalEntries, userGoal }, customTitles);
+    for (const key in journalEntries) {
+      if (Object.prototype.hasOwnProperty.call(journalEntries, key)) {
+        const entryValue = journalEntries[key];
+        if (typeof entryValue === 'string' && entryValue.trim() !== '' && (!customTitles[key] || customTitles[key].trim() === '')) {
+          alert(`Please provide a title for the entry with content: "${entryValue}"`);
+          return;
+        }
+      }
+    }
 
-    const clearedAdditionalEntries = additionalFields.reduce((acc, fieldName) => {
-      acc[fieldName] = '';
-      return acc;
-    }, {} as { [key: string]: string });
+    try {
+      const prompt = generatePromptText(
+        { ...journalEntries, userGoal },
+        customTitles,
+        promptTemplate
+      );
+      onPromptGenerated(prompt, { ...journalEntries, userGoal }, customTitles);
 
-    const newEntries = {
-      ...journalEntries,
-      whatWentWell: '',
-      whatILearned: '',
-      whatWouldDoDifferently: '',
-      nextStep: '',
-      ...clearedAdditionalEntries,
-    };
+      const clearedAdditionalEntries = additionalFields.reduce((acc, fieldName) => {
+        acc[fieldName] = '';
+        return acc;
+      }, {} as { [key: string]: string });
 
-    localStorage.setItem('jourin_current_draft', JSON.stringify(newEntries));
-    setJournalEntries(newEntries);
+      const newEntries = {
+        ...journalEntries,
+        whatWentWell: '',
+        whatILearned: '',
+        whatWouldDoDifferently: '',
+        nextStep: '',
+        ...clearedAdditionalEntries,
+      };
+
+      localStorage.setItem('jourin_current_draft', JSON.stringify(newEntries));
+      setJournalEntries(newEntries);
+    } catch (error) {
+      if (error instanceof Error) {
+        alert(error.message);
+      }
+    }
   };
 
   if (!hasHydrated) {
     return <div>Loading...</div>;
   }
+
+  const isGenerationDisabled = Object.values(journalEntries).every(
+    (value) => typeof value === 'string' && value.trim() === ''
+  );
 
   return (
     <>
@@ -198,8 +218,8 @@ export default function PromptInputSection({ onPromptGenerated }: PromptInputSec
 
       <div className="mt-6 flex flex-col items-center">
         <GeneratePostPromptButton
-          journalEntries={journalEntries}
-          onGeneratePrompt={handleGenerateClick}
+          onClick={handleGenerateClick}
+          disabled={isGenerationDisabled}
         />
         <button
           onClick={() => setIsEditorOpen(true)}

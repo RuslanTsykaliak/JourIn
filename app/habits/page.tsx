@@ -1,34 +1,14 @@
 'use client';
 import React, { useState, useEffect, useCallback } from 'react';
 import { debounce } from '@/app/utils/debounce';
+import { HabitData } from '../types';
 
-interface HabitData {
-  'my-notes': string;
-  'ai-notes': string;
-  'tracked-behavior': 'yes' | 'no' | '';
-  'watched-video': 'yes' | 'no' | '';
-  'exercised': 'yes' | 'no' | '';
-  'exercise-plan': string;
-  'diet-health': string;
-  'sleep-hours': string;
-  'sleep-on-time': 'yes' | 'no' | '';
-  'energy-level': string;
-  'social-media-usage': string;
-  'productivity-level': string;
-  'completed-work-task': 'yes' | 'no' | '';
-  'work-task-tomorrow': string;
-  'timeboxed-schedule': 'yes' | 'no' | '';
-  'grateful-health': string;
-  'grateful-person': string;
-  'grateful-circumstances': string;
-  'attitude': string;
-  'discipline-on-demand': 'yes' | 'no' | '';
-}
+
 
 // Helper component for 1-5 scale questions
 const ScaleQuestion = ({ question, name, descriptions, value, onChange }: { question: string, name: string, descriptions: string[], value: string, onChange: (e: React.ChangeEvent<HTMLInputElement>) => void }) => (
   <div>
-    <p className="text-sm font-medium text-gray-700">{question}</p>
+    <p className="text-sm font-bold text-gray-700 dark:text-gray-300">{question}</p>
     <div className="flex flex-col gap-2 mt-1">
       {descriptions.map((desc, index) => (
         <label key={index} className="flex items-center gap-2">
@@ -42,7 +22,7 @@ const ScaleQuestion = ({ question, name, descriptions, value, onChange }: { ques
 
 const YesNoQuestion = ({ question, name, value, onChange }: { question: string, name: string, value: string, onChange: (e: React.ChangeEvent<HTMLInputElement>) => void }) => (
     <div>
-        <p className="text-sm font-medium text-gray-700">{question}</p>
+        <p className="text-sm font-bold text-gray-700 dark:text-gray-300">{question}</p>
         <div className="flex gap-4 mt-1">
             <label><input type="radio" name={name} value="yes" checked={value === 'yes'} onChange={onChange} /> Yes</label>
             <label><input type="radio" name={name} value="no" checked={value === 'no'} onChange={onChange} /> No</label>
@@ -133,7 +113,7 @@ const HabitsPage = () => {
 
   return (
     <main className="p-4 md:p-8">
-      <h1 className="text-2xl font-bold mb-4">Supper Habits</h1>
+      <h1 className="text-2xl font-bold mb-4 dark:text-white">Supper Habits</h1>
       <form>
         <div className="grid grid-cols-1 gap-8">
 
@@ -141,11 +121,11 @@ const HabitsPage = () => {
           <section className="p-4 border rounded-lg">
             <div className="grid grid-cols-1 gap-4">
               <div>
-                <label htmlFor="my-notes" className="block text-sm font-medium text-gray-700">My Notes</label>
+                <label htmlFor="my-notes" className="block text-sm font-bold text-gray-700 dark:text-gray-300">My Notes</label>
                 <textarea id="my-notes" name="my-notes" rows={3} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" value={habitData['my-notes'] || ''} onChange={handleChange}></textarea>
               </div>
               <div>
-                <label htmlFor="ai-notes" className="block text-sm font-medium text-gray-700">AI&apos;s Notes 👊</label>
+                <label htmlFor="ai-notes" className="block text-sm font-medium text-gray-700 dark:text-gray-300">AI&apos;s Notes 👊</label>
                 <textarea id="ai-notes" name="ai-notes" rows={3} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" readOnly value={habitData['ai-notes'] || ''}></textarea>
               </div>
               <YesNoQuestion question="Did I track my behavior on this sheet today?" name="tracked-behavior" value={habitData['tracked-behavior'] || ''} onChange={handleChange} />
@@ -155,16 +135,16 @@ const HabitsPage = () => {
 
           {/* Energy Section */}
           <section className="p-4 border rounded-lg">
-            <h2 className="text-xl font-semibold mb-2">Energy ⚡️</h2>
+            <h2 className="text-2xl font-bold mb-2 dark:text-white">Energy ⚡️</h2>
             <div className="grid grid-cols-1 gap-4">
               <YesNoQuestion question="Did I exercise today?" name="exercised" value={habitData.exercised || ''} onChange={handleChange} />
               <div>
-                <label htmlFor="exercise-plan" className="block text-sm font-medium text-gray-700">Habit Stack: What is my exercise plan for tomorrow? (What, Where, When)</label>
+                <label htmlFor="exercise-plan" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Habit Stack: What is my exercise plan for tomorrow? (What, Where, When)</label>
                 <input type="text" id="exercise-plan" name="exercise-plan" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" value={habitData['exercise-plan'] || ''} onChange={handleChange} />
               </div>
               <ScaleQuestion question="How healthy was my diet today?" name="diet-health" descriptions={dietDescriptions} value={habitData['diet-health'] || ''} onChange={handleChange} />
               <div>
-                <label htmlFor="sleep-hours" className="block text-sm font-medium text-gray-700">How many hours of sleep did I get last night?</label>
+                <label htmlFor="sleep-hours" className="block text-sm font-medium text-gray-700 dark:text-gray-300">How many hours of sleep did I get last night?</label>
                 <input type="number" id="sleep-hours" name="sleep-hours" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" value={habitData['sleep-hours'] || ''} onChange={handleChange} />
               </div>
               <YesNoQuestion question="Am I on track to get to sleep on time tonight?" name="sleep-on-time" value={habitData['sleep-on-time'] || ''} onChange={handleChange} />
@@ -174,13 +154,13 @@ const HabitsPage = () => {
 
           {/* Productivity Section */}
           <section className="p-4 border rounded-lg">
-            <h2 className="text-xl font-semibold mb-2">Productivity ⏰</h2>
+            <h2 className="text-2xl font-bold mb-2 dark:text-white">Productivity ⏰</h2>
             <div className="grid grid-cols-1 gap-4">
               <ScaleQuestion question="How was my social media usage today?" name="social-media-usage" descriptions={socialMediaDescriptions} value={habitData['social-media-usage'] || ''} onChange={handleChange} />
               <ScaleQuestion question="How productive was I today?" name="productivity-level" descriptions={productivityDescriptions} value={habitData['productivity-level'] || ''} onChange={handleChange} />
               <YesNoQuestion question="Did I complete my #1 Work Task today?" name="completed-work-task" value={habitData['completed-work-task'] || ''} onChange={handleChange} />
               <div>
-                <label htmlFor="work-task-tomorrow" className="block text-sm font-medium text-gray-700">What is my #1 Work Task for tomorrow?</label>
+                <label htmlFor="work-task-tomorrow" className="block text-sm font-medium text-gray-700 dark:text-gray-300">What is my #1 Work Task for tomorrow?</label>
                 <input type="text" id="work-task-tomorrow" name="work-task-tomorrow" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" value={habitData['work-task-tomorrow'] || ''} onChange={handleChange} />
               </div>
               <YesNoQuestion question="Habit Stack: Did I create a detailed, 30x30 minute Timeboxed Schedule for tomorrow?" name="timeboxed-schedule" value={habitData['timeboxed-schedule'] || ''} onChange={handleChange} />
@@ -189,18 +169,18 @@ const HabitsPage = () => {
 
           {/* Mindset Section */}
           <section className="p-4 border rounded-lg">
-            <h2 className="text-xl font-semibold mb-2">Mindset 🧠</h2>
+            <h2 className="text-2xl font-bold mb-2 dark:text-white">Mindset 🧠</h2>
             <div className="grid grid-cols-1 gap-4">
               <div>
-                <label htmlFor="grateful-health" className="block text-sm font-medium text-gray-700">Reflection: What&apos;s one reason to be grateful for your health and body?</label>
+                <label htmlFor="grateful-health" className="block text-sm font-bold text-gray-700 dark:text-gray-300">Reflection: What&apos;s one reason to be grateful for your health and body?</label>
                 <textarea id="grateful-health" name="grateful-health" rows={3} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" value={habitData['grateful-health'] || ''} onChange={handleChange}></textarea>
               </div>
               <div>
-                <label htmlFor="grateful-person" className="block text-sm font-medium text-gray-700">Reflection: Who is one person that you&apos;re grateful for today and why?</label>
+                <label htmlFor="grateful-person" className="block text-sm font-bold text-gray-700 dark:text-gray-300">Reflection: Who is one person that you&apos;re grateful for today and why?</label>
                 <textarea id="grateful-person" name="grateful-person" rows={3} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" value={habitData['grateful-person'] || ''} onChange={handleChange}></textarea>
               </div>
               <div>
-                <label htmlFor="grateful-circumstances" className="block text-sm font-medium text-gray-700">Reflection: What&apos;s one reason to be grateful for your circumstances?</label>
+                <label htmlFor="grateful-circumstances" className="block text-sm font-bold text-gray-700 dark:text-gray-300">Reflection: What&apos;s one reason to be grateful for your circumstances?</label>
                 <textarea id="grateful-circumstances" name="grateful-circumstances" rows={3} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" value={habitData['grateful-circumstances'] || ''} onChange={handleChange}></textarea>
               </div>
               <ScaleQuestion question="How was my attitude today?" name="attitude" descriptions={attitudeDescriptions} value={habitData.attitude || ''} onChange={handleChange} />

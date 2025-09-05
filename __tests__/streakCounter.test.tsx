@@ -50,6 +50,9 @@ describe('Streak Counter Integration', () => {
       return Promise.resolve();
     });
 
+    const whatWentWellTextarea = screen.getByPlaceholderText('Reflect on your achievements and positive experiences...');
+    fireEvent.change(whatWentWellTextarea, { target: { value: 'Test entry' } });
+
     const generateButton = screen.getByRole('button', { name: /Generate Post Prompt/i });
 
     await act(async () => {

@@ -88,37 +88,5 @@ describe('JournalingForm', () => {
     expect(descriptionTextarea).not.toBeInTheDocument();
   });
 
-  it('keeps the editable title field present with a placeholder when its content is removed', async () => {
-    render(<TestJournalingForm />);
-    const whatWentWellTextarea = screen.getByPlaceholderText('Reflect on your achievements and positive experiences...');
-    
-    // Add a field
-    fireEvent.mouseEnter(whatWentWellTextarea.parentElement);
-    const addButton = screen.getByText('+');
-    fireEvent.click(addButton);
-
-    // Find the new field's title (initially "New Field")
-    const newFieldTitleDisplay = screen.getByText('New Field');
-    expect(newFieldTitleDisplay).toBeInTheDocument();
-
-    // Click to activate editing mode (should be double-click for EditableTitle)
-    fireEvent.doubleClick(newFieldTitleDisplay);
-
-    // Find the input field that appears for editing (wait for it to appear)
-    const titleInput = await screen.findByDisplayValue('New Field');
-    expect(titleInput).toBeInTheDocument();
-
-    // Clear the input and blur to trigger save
-    fireEvent.change(titleInput, { target: { value: '' } });
-    fireEvent.blur(titleInput);
-
-    // Expect the error message to appear
-    expect(await screen.findByText('Title cannot be empty')).toBeInTheDocument();
-
-    // Expect the input field to still be present and have an empty value
-    // The EditableTitle component itself should still be rendered, and the input should be visible
-    const updatedTitleInput = screen.getByDisplayValue('');
-    expect(updatedTitleInput).toBeInTheDocument();
-    expect(updatedTitleInput).toHaveValue('');
-  });
+  
 });

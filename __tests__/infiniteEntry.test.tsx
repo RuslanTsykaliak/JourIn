@@ -39,6 +39,9 @@ describe('Infinite Entry Creation Bug', () => {
   test('should not create endless entries when "Generate Post Prompt" is clicked', async () => {
     render(<Home />);
 
+    const whatWentWellTextarea = screen.getByPlaceholderText('Reflect on your achievements and positive experiences...');
+    fireEvent.change(whatWentWellTextarea, { target: { value: 'Test entry' } });
+
     const generateButton = screen.getByRole('button', { name: /Generate Post Prompt/i });
 
     // Click the button
