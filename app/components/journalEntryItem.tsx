@@ -21,6 +21,7 @@ const JournalEntryItem: React.FC<JournalEntryItemProps> = ({ entry }) => {
   const getAllDisplayFields = () => {
     const fields: { key: string; value: string; title: string }[] = [];
     const titles = { ...defaultTitles, ...entry.customTitles };
+    const addedKeys = new Set<string>();
 
     // Get standard fields from top level
     Object.keys(entry)
@@ -35,9 +36,12 @@ const JournalEntryItem: React.FC<JournalEntryItemProps> = ({ entry }) => {
         return !!value;
       })
       .forEach(key => {
-        const title = (entry[`${key}_title`] as string) || titles[key] || key;
-        const value = entry[key] as string;
-        fields.push({ key, value, title });
+        if (!addedKeys.has(key)) {
+          const title = (entry[`${key}_title`] as string) || titles[key] || key;
+          const value = entry[key] as string;
+          fields.push({ key, value, title });
+          addedKeys.add(key);
+        }
       });
 
     // Get custom fields from customTitles object
@@ -45,15 +49,18 @@ const JournalEntryItem: React.FC<JournalEntryItemProps> = ({ entry }) => {
       Object.keys(entry.customTitles)
         .filter(key => {
           // Only include custom fields (like customField_0), not the standard title overrides
-          return key.startsWith('customField_') && entry.customTitles[key];
+          return key.startsWith('customField_') && !key.endsWith('_title') && entry.customTitles[key];
         })
         .forEach(key => {
-          const value = entry.customTitles[key] as string;
-          const titleKey = `${key}_title`;
-          const title = (entry.customTitles[titleKey] as string) || (entry[titleKey] as string) || key;
+          if (!addedKeys.has(key)) {
+            const value = entry.customTitles[key] as string;
+            const titleKey = `${key}_title`;
+            const title = (entry.customTitles[titleKey] as string) || (entry[titleKey] as string) || key;
 
-          if (value && value.trim() !== '') {
-            fields.push({ key, value, title });
+            if (value && value.trim() !== '') {
+              fields.push({ key, value, title });
+              addedKeys.add(key);
+            }
           }
         });
     }
