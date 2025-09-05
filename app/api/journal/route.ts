@@ -1,4 +1,3 @@
-
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/auth/lib/auth";
 import prisma from "@/app/lib/prisma";
@@ -30,7 +29,23 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { whatWentWell, whatILearned, whatWouldDoDifferently, nextStep, customTitles } = await req.json();
+  const requestData = await req.json();
+  console.log('API received data:', requestData);
+
+  const { whatWentWell, whatILearned, whatWouldDoDifferently, nextStep, customTitles } = requestData;
+
+  // Process the customTitles to include any custom field titles from the top level
+  const processedCustomTitles = { ...customTitles };
+
+  // Look for custom field titles in the request data and add them to customTitles
+  Object.keys(requestData).forEach(key => {
+    if (key.endsWith('_title') && key.startsWith('customField_')) {
+      processedCustomTitles[key] = requestData[key];
+      console.log(`Adding ${key}: ${requestData[key]} to customTitles`);
+    }
+  });
+
+  console.log('Processed customTitles:', processedCustomTitles);
 
   const newEntry = await prisma.journalEntry.create({
     data: {
@@ -38,10 +53,11 @@ export async function POST(req: NextRequest) {
       whatILearned,
       whatWouldDoDifferently,
       nextStep,
-      customTitles,
+      customTitles: processedCustomTitles,
       userId: session.user.id,
     },
   });
 
+  console.log('Created entry in DB:', newEntry);
   return NextResponse.json(newEntry, { status: 201 });
 }

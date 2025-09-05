@@ -173,7 +173,27 @@ export default function PromptInputSection({ onPromptGenerated }: PromptInputSec
         customTitles,
         promptTemplate
       );
-      onPromptGenerated(prompt, { ...journalEntries, userGoal }, customTitles);
+
+      // Create a comprehensive customTitles object
+      const allCustomTitles: CustomTitles = { ...customTitles };
+
+      // Add custom field titles to the customTitles object
+      for (const key in journalEntries) {
+        if (Object.prototype.hasOwnProperty.call(journalEntries, key) && key.endsWith('_title')) {
+          // Add the title field itself to customTitles
+          allCustomTitles[key] = journalEntries[key] as string;
+
+          // ALSO make sure the custom field value is in customTitles
+          const baseKey = key.replace(/_title$/, '');
+          if (journalEntries[baseKey]) {
+            allCustomTitles[baseKey] = journalEntries[baseKey] as string;
+          }
+        }
+      }
+
+      console.log('Final allCustomTitles being passed to onPromptGenerated:', allCustomTitles);
+
+      onPromptGenerated(prompt, { ...journalEntries, userGoal }, allCustomTitles);
 
       const clearedAdditionalEntries = additionalFields.reduce((acc, fieldName) => {
         acc[fieldName] = '';

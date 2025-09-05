@@ -26,6 +26,19 @@ export interface JournalEntryWithTimestamp extends JournalEntries {
   timestamp: number; // Unix timestamp for sorting and display
 }
 
+export interface PrismaJournalEntry {
+  id: string;
+  createdAt: string; // ISO string from Prisma
+  updatedAt: string; // ISO string from Prisma
+  userId: string;
+  whatWentWell: string;
+  whatILearned: string;
+  whatWouldDoDifferently: string;
+  nextStep: string;
+  customTitles: CustomTitles; // Assuming it's stored as JSON and matches CustomTitles structure
+  // Add any other fields that might be in your Prisma JournalEntry model
+}
+
 export interface CustomTitles {
   whatWentWell: string;
   whatILearned: string;

@@ -59,13 +59,18 @@ export default function JournalHistorySection({ newEntryToHistory }: JournalHist
   // Add new entry to history when received from parent
   useEffect(() => {
     if (newEntryToHistory) {
-      if (session) {
-        addJournalEntry(newEntryToHistory);
-      } else {
-        addJournalEntry(newEntryToHistory);
-      }
+      addJournalEntry(newEntryToHistory);
     }
   }, [newEntryToHistory, addJournalEntry, session]);
+  // useEffect(() => {
+  //   if (newEntryToHistory) {
+  //     if (session) {
+  //       addJournalEntry(newEntryToHistory);
+  //     } else {
+  //       addJournalEntry(newEntryToHistory);
+  //     }
+  //   }
+  // }, [newEntryToHistory, addJournalEntry, session]);
 
   const copyAllHistoryToClipboard = async () => {
     const defaultTitles: CustomTitles = {

@@ -17,6 +17,50 @@ const JournalEntryItem: React.FC<JournalEntryItemProps> = ({ entry }) => {
     nextStep: "My next step",
   };
 
+  // Helper function to get all fields to display, including custom fields from customTitles
+  const getAllDisplayFields = () => {
+    const fields: { key: string; value: string; title: string }[] = [];
+    const titles = { ...defaultTitles, ...entry.customTitles };
+
+    // Get standard fields from top level
+    Object.keys(entry)
+      .filter(key => {
+        if (key === 'timestamp' || key === 'customTitles' || key.endsWith('_title') || key === 'userGoal') {
+          return false;
+        }
+        const value = entry[key];
+        if (typeof value === 'string') {
+          return value.trim() !== '';
+        }
+        return !!value;
+      })
+      .forEach(key => {
+        const title = (entry[`${key}_title`] as string) || titles[key] || key;
+        const value = entry[key] as string;
+        fields.push({ key, value, title });
+      });
+
+    // Get custom fields from customTitles object
+    if (entry.customTitles) {
+      Object.keys(entry.customTitles)
+        .filter(key => {
+          // Only include custom fields (like customField_0), not the standard title overrides
+          return key.startsWith('customField_') && entry.customTitles[key];
+        })
+        .forEach(key => {
+          const value = entry.customTitles[key] as string;
+          const titleKey = `${key}_title`;
+          const title = (entry.customTitles[titleKey] as string) || (entry[titleKey] as string) || key;
+
+          if (value && value.trim() !== '') {
+            fields.push({ key, value, title });
+          }
+        });
+    }
+
+    return fields;
+  };
+
   const copyPastEntryPromptToClipboard = async () => {
     const promptToCopy = generatePromptText(entry, entry.customTitles, entry.promptTemplate);
     try {
@@ -29,25 +73,11 @@ const JournalEntryItem: React.FC<JournalEntryItemProps> = ({ entry }) => {
   };
 
   const copyPastEntryTextToClipboard = async () => {
-    const titles = { ...defaultTitles, ...entry.customTitles };
-    const entryContent = Object.keys(entry)
-      .filter(key => {
-        if (key === 'timestamp' || key === 'customTitles' || key.endsWith('_title') || key === 'userGoal') {
-          return false;
-        }
-        const value = entry[key];
-        if (typeof value === 'string') {
-          return value.trim() !== '';
-        }
-        return !!value;
-      })
-      .map(key => {
-        const title = entry[`${key}_title`] || titles[key] || key;
-        const value = entry[key];
-        return `${title}:\n${value}`;
-      })
+    const fields = getAllDisplayFields();
+    const entryContent = fields
+      .map(field => `${field.title}:\n${field.value}`)
       .join('\n\n');
-    
+
     const textToCopy = `--- Journal Entry (${new Date(entry.timestamp).toLocaleString()}) ---\n${entryContent}`;
 
     try {
@@ -58,6 +88,8 @@ const JournalEntryItem: React.FC<JournalEntryItemProps> = ({ entry }) => {
       console.error('Failed to copy past entry text: ', err);
     }
   };
+
+  const displayFields = getAllDisplayFields();
 
   return (
     <div key={entry.timestamp} className="p-4 bg-gray-700 rounded-md shadow-md">
@@ -80,27 +112,11 @@ const JournalEntryItem: React.FC<JournalEntryItemProps> = ({ entry }) => {
           </button>
         </div>
       </div>
-      {Object.keys(entry)
-        .filter(key => {
-          if (key === 'timestamp' || key === 'customTitles' || key.endsWith('_title') || key === 'userGoal') {
-            return false;
-          }
-          const value = entry[key];
-          if (typeof value === 'string') {
-            return value.trim() !== '';
-          }
-          return !!value;
-        })
-        .map(key => {
-          const titles = { ...defaultTitles, ...entry.customTitles };
-          const title = (entry[`${key}_title`] as string) || titles[key] || key;
-          const value = entry[key];
-          return (
-            <p key={key} className="text-sm text-gray-300">
-              <span className="font-medium">{title}:</span> {value as string}
-            </p>
-          );
-        })}
+      {displayFields.map(field => (
+        <p key={field.key} className="text-sm text-gray-300">
+          <span className="font-medium">{field.title}:</span> {field.value}
+        </p>
+      ))}
     </div>
   );
 };
