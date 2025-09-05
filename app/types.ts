@@ -40,10 +40,6 @@ export interface PrismaJournalEntry {
 }
 
 export interface CustomTitles {
-  whatWentWell: string;
-  whatILearned: string;
-  whatWouldDoDifferently: string;
-  nextStep: string;
   [key: string]: string;
 }
 

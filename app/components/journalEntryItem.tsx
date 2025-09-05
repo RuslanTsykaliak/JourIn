@@ -38,24 +38,25 @@ const JournalEntryItem: React.FC<JournalEntryItemProps> = ({ entry }) => {
       .forEach(key => {
         if (!addedKeys.has(key)) {
           const title = (entry[`${key}_title`] as string) || titles[key] || key;
-          const value = entry[key] as string;
+          const value = entry[key] as string || ''; // Ensure value is string or empty
           fields.push({ key, value, title });
           addedKeys.add(key);
         }
       });
 
     // Get custom fields from customTitles object
-    if (entry.customTitles) {
-      Object.keys(entry.customTitles)
+    if (entry.customTitles && typeof entry.customTitles === 'object') { // Check if customTitles exists and is an object
+            Object.keys(entry.customTitles!)
         .filter(key => {
           // Only include custom fields (like customField_0), not the standard title overrides
-          return key.startsWith('customField_') && !key.endsWith('_title') && entry.customTitles[key];
+          const customTitleValue = entry.customTitles![key];
+          return key.startsWith('customField_') && !key.endsWith('_title') && customTitleValue !== undefined && customTitleValue !== null;
         })
         .forEach(key => {
           if (!addedKeys.has(key)) {
-            const value = entry.customTitles[key] as string;
+            const value = entry.customTitles![key] as string;
             const titleKey = `${key}_title`;
-            const title = (entry.customTitles[titleKey] as string) || (entry[titleKey] as string) || key;
+            const title = (entry.customTitles![titleKey] as string) || (entry[titleKey] as string) || key;
 
             if (value && value.trim() !== '') {
               fields.push({ key, value, title });
@@ -69,7 +70,7 @@ const JournalEntryItem: React.FC<JournalEntryItemProps> = ({ entry }) => {
   };
 
   const copyPastEntryPromptToClipboard = async () => {
-    const promptToCopy = generatePromptText(entry, entry.customTitles, entry.promptTemplate);
+    const promptToCopy = generatePromptText(entry, entry.customTitles || {}, entry.promptTemplate); // Pass empty object if undefined
     try {
       await navigator.clipboard.writeText(promptToCopy);
       setCopyPastEntryPromptSuccess(entry.timestamp);

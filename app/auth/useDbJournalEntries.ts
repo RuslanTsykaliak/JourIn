@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { JournalEntryWithTimestamp } from '../types';
+import { JournalEntryWithTimestamp, CustomTitles } from '../types';
 
 export function useDbJournalEntries() {
   const [pastEntries, setPastEntries] = useState<JournalEntryWithTimestamp[]>([]);
@@ -50,19 +50,25 @@ export function useDbJournalEntries() {
     if (typeof window !== 'undefined') {
       // Ensure custom field titles are included in customTitles object
       const processedEntry = { ...newEntry };
-      if (processedEntry.customTitles) {
-        // Look for any custom field titles at the top level and include them in customTitles
-        Object.keys(processedEntry).forEach(key => {
-          if (key.endsWith('_title') && key.startsWith('customField_')) {
-            processedEntry.customTitles[key] = processedEntry[key];
+      // Ensure customTitles is an object before processing
+      if (!processedEntry.customTitles) {
+        processedEntry.customTitles = {};
+      }
+      const currentCustomTitles: CustomTitles = processedEntry.customTitles;
+
+      // Look for any custom field titles at the top level and include them in customTitles
+      Object.keys(processedEntry).forEach(key => {
+        if (key.endsWith('_title') && key.startsWith('customField_')) {
+          if (typeof processedEntry[key] === 'string') {
+            currentCustomTitles[key] = processedEntry[key];
             console.log(`Added title ${key}: ${processedEntry[key]} to customTitles`);
           }
-        });
+        }
+      });
 
-        // IMPORTANT: Don't overwrite custom field values! 
-        // customTitles should already have the correct values from the original entry
-        console.log('CustomTitles before processing:', processedEntry.customTitles);
-      }
+      // IMPORTANT: Don't overwrite custom field values! 
+      // customTitles should already have the correct values from the original entry
+      console.log('CustomTitles before processing:', processedEntry.customTitles);
 
       console.log('Processed entry for DB:', processedEntry);
 
