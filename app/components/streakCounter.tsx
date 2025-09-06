@@ -1,44 +1,67 @@
 // app/components/streakCounter.tsx
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
+import { useSession } from "next-auth/react";
 import { getStreakData } from "../lib/fireUp";
 
 export default function StreakCounter() {
   const [streak, setStreak] = useState(0);
-  const [mounted, setMounted] = useState(false); // New state for mounting
+  const { status } = useSession();
+  const [mounted, setMounted] = useState(false);
 
-  // 🔹 New: central refresh method
-  const refreshStreak = () => {
-    if (mounted) { // Only call if mounted
-      const data = getStreakData();
-      setStreak(data.currentStreak);
+  const fetchStreakForAuthUser = useCallback(async () => {
+    try {
+      const response = await fetch("/api/streak");
+      if (response.ok) {
+        const data = await response.json();
+        setStreak(data.streak);
+      } else {
+        console.error("Failed to fetch streak for authenticated user.");
+      }
+    } catch (error) {
+      console.error("Error fetching streak:", error);
     }
-  };
+  }, []);
+
+  const fetchStreakForGuest = useCallback(() => {
+    const data = getStreakData();
+    setStreak(data.currentStreak);
+  }, []);
+
+  const refreshStreak = useCallback(() => {
+    if (!mounted) return;
+
+    if (status === "authenticated") {
+      fetchStreakForAuthUser();
+    } else if (status === "unauthenticated") {
+      fetchStreakForGuest();
+    }
+  }, [mounted, status, fetchStreakForAuthUser, fetchStreakForGuest]);
 
   useEffect(() => {
-    setMounted(true); // Set mounted to true after component mounts
+    setMounted(true);
+  }, []);
 
-    if (typeof window !== 'undefined') { // Ensure window is defined before accessing it
-      const data = getStreakData();
-      setStreak(data.currentStreak);
+  useEffect(() => {
+    if (!mounted) return;
 
-      // Listen for changes in localStorage to update streak dynamically
-      const handleStorageChange = () => {
-        const updatedData = getStreakData();
-        setStreak(updatedData.currentStreak);
-      };
+    refreshStreak();
 
-      // 🔹 Listen for custom refresh events in same tab
-      window.addEventListener("streakUpdated", refreshStreak);
+    const handleStorageChange = () => {
+      if (status === "unauthenticated") {
+        fetchStreakForGuest();
+      }
+    };
 
-      window.addEventListener("storage", handleStorageChange);
-      return () => {
-        window.removeEventListener("storage", handleStorageChange);
-        window.removeEventListener("streakUpdated", refreshStreak);
-      };
-    }
-  }, [mounted]); // Add mounted to dependency array
+    window.addEventListener("streakUpdated", refreshStreak);
+    window.addEventListener("storage", handleStorageChange);
+
+    return () => {
+      window.removeEventListener("streakUpdated", refreshStreak);
+      window.removeEventListener("storage", handleStorageChange);
+    };
+  }, [mounted, status, refreshStreak, fetchStreakForGuest]);
 
   const tooltipText =
     streak > 0

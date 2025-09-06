@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { debounce } from '@/app/utils/debounce';
 import { HabitData } from '../types';
 
@@ -21,13 +21,13 @@ const ScaleQuestion = ({ question, name, descriptions, value, onChange }: { ques
 );
 
 const YesNoQuestion = ({ question, name, value, onChange }: { question: string, name: string, value: string, onChange: (e: React.ChangeEvent<HTMLInputElement>) => void }) => (
-    <div>
-        <p className="text-sm font-bold text-gray-700 dark:text-gray-300">{question}</p>
-        <div className="flex gap-4 mt-1">
-            <label><input type="radio" name={name} value="yes" checked={value === 'yes'} onChange={onChange} /> Yes</label>
-            <label><input type="radio" name={name} value="no" checked={value === 'no'} onChange={onChange} /> No</label>
-        </div>
+  <div>
+    <p className="text-sm font-bold text-gray-700 dark:text-gray-300">{question}</p>
+    <div className="flex gap-4 mt-1">
+      <label><input type="radio" name={name} value="yes" checked={value === 'yes'} onChange={onChange} /> Yes</label>
+      <label><input type="radio" name={name} value="no" checked={value === 'no'} onChange={onChange} /> No</label>
     </div>
+  </div>
 );
 
 const HabitsPage = () => {
@@ -48,20 +48,19 @@ const HabitsPage = () => {
   }, []);
 
   // Debounced save function
-  const debouncedSave = useCallback(
+  const debouncedSaveRef = useRef(
     debounce((data: Partial<HabitData>) => {
       const today = getTodayDateString();
       localStorage.setItem(`habit-data-${today}`, JSON.stringify(data));
-    }, 500), // 500ms delay
-    [debounce]
+    }, 500) // 500ms delay
   );
 
   // Autosave on data change
   useEffect(() => {
     if (Object.keys(habitData).length > 0) {
-      debouncedSave(habitData);
+      debouncedSaveRef.current(habitData);
     }
-  }, [habitData, debouncedSave]);
+  }, [habitData]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -111,10 +110,32 @@ const HabitsPage = () => {
     '5 - Every moment full of resilience and enthusiasm'
   ];
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const response = await fetch('/api/habits', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(habitData),
+      });
+
+      if (response.ok) {
+        console.log('Data submitted successfully');
+        // Optionally, clear the form or show a success message
+      } else {
+        console.error('Failed to submit data');
+      }
+    } catch (error) {
+      console.error('An error occurred while submitting the data', error);
+    }
+  };
+
   return (
     <main className="p-4 md:p-8">
       <h1 className="text-2xl font-bold mb-4 dark:text-white">Supper Habits</h1>
-      <form>
+      <form onSubmit={handleSubmit}>
         <div className="grid grid-cols-1 gap-8">
 
           {/* General Section */}
@@ -189,6 +210,7 @@ const HabitsPage = () => {
           </section>
 
         </div>
+        <button type="submit" className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md">Submit</button>
       </form>
     </main>
   );

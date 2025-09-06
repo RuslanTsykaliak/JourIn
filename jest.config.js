@@ -13,6 +13,9 @@ const customJestConfig = {
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1',
   },
+  testPathIgnorePatterns: [
+    '<rootDir>/__tests__/test-utils.tsx'
+  ],
   // Add more setup options before each test is run
   // setupFiles: ['<rootDir>/jest.setup.js'],
 };

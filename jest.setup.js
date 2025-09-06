@@ -21,7 +21,13 @@ Object.defineProperty(window, 'localStorage', {
   value: localStorageMock,
 });
 
-// Clear local storage before each test
+// Mock fetch
 beforeEach(() => {
+  global.fetch = jest.fn(() =>
+    Promise.resolve({
+      ok: true,
+      json: () => Promise.resolve({}),
+    })
+  );
   localStorage.clear();
 });

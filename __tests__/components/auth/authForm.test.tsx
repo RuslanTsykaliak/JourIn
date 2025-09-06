@@ -1,15 +1,18 @@
 
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '../../test-utils'; // Use custom render
 import userEvent from '@testing-library/user-event';
 import AuthForm from '@/app/auth/components/AuthForm';
 import { signIn } from 'next-auth/react';
+
+// Mock parts of next-auth/react
+jest.mock('next-auth/react', () => ({
+  ...jest.requireActual('next-auth/react'), // Import and retain default behavior
+  signIn: jest.fn(), // Mock signIn specifically
+}));
 import { useRouter } from 'next/navigation';
 
 // Mock next-auth/react
-jest.mock('next-auth/react', () => ({
-  signIn: jest.fn(),
-  useSession: jest.fn(() => ({ data: null, status: 'unauthenticated' })),
-}));
+
 
 // Mock next/navigation
 jest.mock('next/navigation', () => ({

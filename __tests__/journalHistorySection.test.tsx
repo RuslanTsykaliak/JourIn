@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from './test-utils'; // Use custom render
 import JournalHistorySection from '../app/components/journalHistorySection';
 import '@testing-library/jest-dom';
 import { JournalEntryWithTimestamp } from '../app/types';

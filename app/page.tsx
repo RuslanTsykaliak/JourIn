@@ -22,32 +22,47 @@ export default function Home() {
   const MILESTONES = useMemo(() => [7, 30, 365, 1461], []);
 
   useEffect(() => {
-    if (status === 'unauthenticated') {
-      // The user is not authenticated, you can keep them on this page
-      // or redirect them to a login page if you prefer.
-      // For now, we'll show the login/register buttons.
-    } else if (status === 'authenticated') {
-      const checkStreakAndShowPopup = () => {
-        const data = getStreakData();
-        setCurrentStreak(data.currentStreak);
+    const checkStreakAndShowPopup = async () => {
+      let streak = 0;
+      let lastPost: string | null = null;
 
-        if (MILESTONES.includes(data.currentStreak)) {
-          const lastShownMilestone = localStorage.getItem('jourin_last_shown_milestone');
-          if (lastShownMilestone !== `${data.currentStreak}-${data.lastPostDate}`) {
-            setShowRewardPopup(true);
-            localStorage.setItem('jourin_last_shown_milestone', `${data.currentStreak}-${data.lastPostDate}`);
+      if (status === 'authenticated') {
+        try {
+          const response = await fetch('/api/streak');
+          if (response.ok) {
+            const data = await response.json();
+            streak = data.streak;
+            lastPost = new Date().toISOString().split('T')[0];
           }
+        } catch (error) {
+          console.error("Failed to fetch streak for auth user", error);
         }
-      };
+      } else if (status === 'unauthenticated') {
+        const data = getStreakData();
+        streak = data.currentStreak;
+        lastPost = data.lastPostDate;
+      }
 
+      setCurrentStreak(streak);
+
+      if (MILESTONES.includes(streak)) {
+        const lastShownMilestone = localStorage.getItem('jourin_last_shown_milestone');
+        if (lastShownMilestone !== `${streak}-${lastPost}`) {
+          setShowRewardPopup(true);
+          localStorage.setItem('jourin_last_shown_milestone', `${streak}-${lastPost}`);
+        }
+      }
+    };
+
+    if (status === 'authenticated' || status === 'unauthenticated') {
       checkStreakAndShowPopup();
-
-      window.addEventListener('storage', checkStreakAndShowPopup);
-
-      return () => {
-        window.removeEventListener('storage', checkStreakAndShowPopup);
-      };
     }
+
+    window.addEventListener('storage', checkStreakAndShowPopup);
+
+    return () => {
+      window.removeEventListener('storage', checkStreakAndShowPopup);
+    };
   }, [status, MILESTONES]);
 
   const handlePromptGenerated = async (prompt: string, entry: JournalEntries, customTitles: CustomTitles) => {
@@ -55,18 +70,37 @@ export default function Home() {
     setCopyPromptSuccess('');
     setNewEntryForHistory({ ...entry, timestamp: Date.now(), customTitles });
 
-    await updateStreak(); // ◆ Wait for streak update
+    let newStreak = 0;
+    let lastPostDate: string | null = null;
 
-    const data = getStreakData();
-    setCurrentStreak(data.currentStreak);
+    if (status === 'authenticated') {
+      try {
+        const response = await fetch('/api/streak', { method: 'POST' });
+        if (response.ok) {
+          const data = await response.json();
+          newStreak = data.streak;
+          lastPostDate = new Date().toISOString().split('T')[0]; // Today
+        } else {
+          console.error('Failed to update streak for authenticated user.');
+        }
+      } catch (error) {
+        console.error('Error updating streak:', error);
+      }
+    } else {
+      await updateStreak(); // For guest users
+      const data = getStreakData();
+      newStreak = data.currentStreak;
+      lastPostDate = data.lastPostDate;
+    }
 
-    window.dispatchEvent(new Event("streakUpdated"));
+    setCurrentStreak(newStreak);
+    window.dispatchEvent(new Event('streakUpdated'));
 
-    if (MILESTONES.includes(data.currentStreak)) {
+    if (MILESTONES.includes(newStreak)) {
       const lastShownMilestone = localStorage.getItem('jourin_last_shown_milestone');
-      if (lastShownMilestone !== `${data.currentStreak}-${data.lastPostDate}`) {
+      if (lastShownMilestone !== `${newStreak}-${lastPostDate}`) {
         setShowRewardPopup(true);
-        localStorage.setItem('jourin_last_shown_milestone', `${data.currentStreak}-${data.lastPostDate}`);
+        localStorage.setItem('jourin_last_shown_milestone', `${newStreak}-${lastPostDate}`);
       }
     }
     setNewEntryForHistory(null); // Reset after processing

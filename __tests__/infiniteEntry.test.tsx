@@ -1,6 +1,6 @@
 // __tests__/infiniteEntry.test.tsx
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from './test-utils'; // Use custom render
 import Home from '../app/page';
 import * as fireUp from '../app/lib/fireUp';
 import * as generatePromptText from '../app/utils/generatePromptText';
@@ -10,6 +10,10 @@ import * as useJournalEntriesStorage from '../app/hooks/useJournalEntriesStorage
 jest.mock('../app/lib/fireUp');
 jest.mock('../app/utils/generatePromptText');
 jest.mock('../app/hooks/useJournalEntriesStorage');
+
+jest.mock('next/navigation', () => ({
+  useRouter: jest.fn(() => ({ push: jest.fn() })),
+}));
 
 describe('Infinite Entry Creation Bug', () => {
   let addJournalEntryMock: jest.Mock;
