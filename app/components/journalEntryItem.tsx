@@ -54,11 +54,11 @@ const JournalEntryItem: React.FC<JournalEntryItemProps> = ({ entry }) => {
         })
         .forEach(key => {
           if (!addedKeys.has(key)) {
-            const value = entry.customTitles![key] as string;
+            const value = entry[key] as string || ''; // Always get value from entry
             const titleKey = `${key}_title`;
             const title = (entry.customTitles![titleKey] as string) || (entry[titleKey] as string) || key;
 
-            if (value && value.trim() !== '') {
+            if (value && value.trim() !== '') { // Ensure the value is not empty
               fields.push({ key, value, title });
               addedKeys.add(key);
             }

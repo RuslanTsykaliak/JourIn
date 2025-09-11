@@ -11,6 +11,11 @@ jest.mock('../app/lib/fireUp');
 jest.mock('../app/utils/generatePromptText');
 jest.mock('../app/hooks/useJournalEntriesStorage');
 
+jest.mock('next-auth/react', () => ({
+  ...jest.requireActual('next-auth/react'),
+  useSession: jest.fn(() => ({ data: null, status: 'unauthenticated' })),
+}));
+
 jest.mock('next/navigation', () => ({
   useRouter: jest.fn(() => ({ push: jest.fn() })),
 }));

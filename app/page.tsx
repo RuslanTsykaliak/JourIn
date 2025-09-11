@@ -103,7 +103,7 @@ export default function Home() {
         localStorage.setItem('jourin_last_shown_milestone', `${newStreak}-${lastPostDate}`);
       }
     }
-    setNewEntryForHistory(null); // Reset after processing
+    // setNewEntryForHistory(null); // Reset after processing
   };
 
   const copyGeneratedPromptToClipboard = async () => {

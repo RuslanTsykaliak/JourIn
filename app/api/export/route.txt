@@ -1,0 +1,172 @@
+
+// Export data in CSV file
+// import prisma from "@/app/lib/prisma";
+// import { getServerSession } from "next-auth/next";
+// import { authOptions } from "@/app/auth/lib/auth";
+// import { NextResponse } from "next/server";
+// import { CsvData } from "@/app/types";
+
+// const formatHeader = (header: string): string => {
+//   const mappings: Record<string, string> = {
+//     whatWentWell: "What Went Well?",
+//     whatILearned: "What I Learned?",
+//     whatWouldDoDifferently: "What Would I Do Differently?",
+//     nextStep: "Next Step",
+//     date: "Date",
+//     comments: "Comments",
+//   };
+//   return mappings[header] || header.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase());
+// };
+
+// // Helper to convert array of objects to CSV string
+// const toCsv = (data: CsvData[], columns: { key: string, displayName: string }[]): string => {
+//   const headers = columns.map(c => c.displayName).join(",");
+//   const rows = data.map(row =>
+//     columns.map(col => {
+//       const val = row[col.key];
+//       if (val === null || val === undefined) {
+//         return '""';
+//       }
+//       const str = String(val);
+//       return `"${str.replace(/"/g, '""')}"`;
+//     }).join(",")
+//   );
+//   return [headers, ...rows].join("\n");
+// };
+
+// export async function GET() {
+//   const session = await getServerSession(authOptions);
+//   if (!session?.user?.id) {
+//     return new NextResponse("Unauthorized", { status: 401 });
+//   }
+
+//   const userId = session.user.id;
+
+//   try {
+//     const user = await prisma.user.findUnique({
+//       where: { id: userId },
+//       select: { email: true, streakCount: true }
+//     });
+
+//     if (!user) {
+//       return new NextResponse("User not found", { status: 404 });
+//     }
+
+//     const journalEntries = await prisma.journalEntry.findMany({
+//       where: { userId },
+//       select: {
+//         createdAt: true,
+//         whatWentWell: true,
+//         whatILearned: true,
+//         whatWouldDoDifferently: true,
+//         nextStep: true,
+//         customTitles: true,
+//       }
+//     });
+
+//     const habitEntries = await prisma.habitEntry.findMany({
+//       where: { userId },
+//       select: {
+//         createdAt: true,
+//         date: true,
+//         data: true,
+//         comments: true,
+//       }
+//     });
+
+//     const allHeaders = new Set<string>();
+//     const combinedData: CsvData[] = [];
+
+//     // Process journal entries
+//     for (const entry of journalEntries) {
+//       const row: CsvData = {
+//         type: "Journal",
+//         date_created: entry.createdAt.toISOString(),
+//         user_email: user.email,
+//         user_current_streak: user.streakCount,
+//       };
+
+//       if(entry.whatWentWell) {
+//         allHeaders.add("whatWentWell");
+//         row.whatWentWell = entry.whatWentWell;
+//       }
+//       if(entry.whatILearned) {
+//         allHeaders.add("whatILearned");
+//         row.whatILearned = entry.whatILearned;
+//       }
+//       if(entry.whatWouldDoDifferently) {
+//         allHeaders.add("whatWouldDoDifferently");
+//         row.whatWouldDoDifferently = entry.whatWouldDoDifferently;
+//       }
+//       if(entry.nextStep) {
+//         allHeaders.add("nextStep");
+//         row.nextStep = entry.nextStep;
+//       }
+
+//       if (entry.customTitles && typeof entry.customTitles === 'object') {
+//         for (const [key, value] of Object.entries(entry.customTitles)) {
+//           if (key && value) {
+//             allHeaders.add(key);
+//             row[key] = value;
+//           }
+//         }
+//       }
+//       combinedData.push(row);
+//     }
+
+//     // Process habit entries
+//     for (const entry of habitEntries) {
+//       const row: CsvData = {
+//         type: "Habit",
+//         date_created: entry.createdAt.toISOString(),
+//         user_email: user.email,
+//         user_current_streak: user.streakCount,
+//         date: entry.date.toISOString(),
+//       };
+//       allHeaders.add("date");
+
+//       if(entry.comments) {
+//         allHeaders.add("comments");
+//         row.comments = entry.comments;
+//       }
+
+//       if (entry.data && typeof entry.data === 'object') {
+//         for (const [key, value] of Object.entries(entry.data)) {
+//           if (key && value) {
+//             allHeaders.add(key);
+//             row[key] = value as string;
+//           }
+//         }
+//       }
+//       combinedData.push(row);
+//     }
+
+//     const baseColumnHeaders = [
+//       { key: "type", displayName: "Type" },
+//       { key: "date_created", displayName: "Date Created" },
+//       { key: "user_email", displayName: "User Email" },
+//       { key: "user_current_streak", displayName: "Current Streak" },
+//     ];
+
+//     const dynamicColumnHeaders = Array.from(allHeaders).sort().map(header => ({
+//       key: header,
+//       displayName: formatHeader(header)
+//     }));
+
+//     const columns = [...baseColumnHeaders, ...dynamicColumnHeaders];
+
+//     const csv = toCsv(combinedData, columns);
+
+//     return new NextResponse(csv, {
+//       status: 200,
+//       headers: {
+//         "Content-Type": "text/csv",
+//         "Content-Disposition": "attachment; filename=jourin_data_export.csv",
+//       },
+//     });
+
+//   } catch (error) {
+//     console.error("Failed to export data:", error);
+//     return new NextResponse("Internal Server Error", { status: 500 });
+//   }
+// }

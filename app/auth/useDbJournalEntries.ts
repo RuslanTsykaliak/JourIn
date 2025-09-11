@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { JournalEntryWithTimestamp, CustomTitles } from '../types';
 
 export function useDbJournalEntries() {
@@ -13,9 +13,12 @@ export function useDbJournalEntries() {
           const entries = await response.json();
           console.log('Raw entries from API:', entries);
 
+          // Ensure entries is an array before mapping
+          const entriesArray = Array.isArray(entries) ? entries : [];
+
           // Convert database entries to the expected format
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const formattedEntries = entries.map((entry: any) => {
+          const formattedEntries = entriesArray.map((entry: any) => {
             console.log('Processing entry:', entry);
             console.log('Entry customTitles:', entry.customTitles);
 
@@ -43,7 +46,7 @@ export function useDbJournalEntries() {
     }
   }, []);
 
-  const addJournalEntry = async (newEntry: JournalEntryWithTimestamp) => {
+  const addJournalEntry = useCallback(async (newEntry: JournalEntryWithTimestamp) => {
     console.log('Adding new entry to DB:', newEntry);
 
     // Only add entry if window is defined (i.e., in a browser environment)
@@ -100,7 +103,7 @@ export function useDbJournalEntries() {
         console.error('Failed to create entry:', response.status, response.statusText);
       }
     }
-  };
+  }, []);
 
   return { pastEntries, addJournalEntry };
 }

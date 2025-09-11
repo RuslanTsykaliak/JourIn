@@ -65,6 +65,7 @@ export default function AuthForm() {
           {isRegister ? "Create Account" : "Login"}
         </h2>
         {error && <p className="text-red-500 mb-4">{error}</p>}
+        {error && console.log("AuthForm error state:", error)}
 
         {isRegister && (
           <div className="mb-4">
@@ -90,7 +91,7 @@ export default function AuthForm() {
             id="email"
             type="email"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => { setEmail(e.target.value); setError(""); }}
             className="w-full p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500"
             required
           />
@@ -105,7 +106,7 @@ export default function AuthForm() {
               id="password"
               type={showPassword ? "text" : "password"}
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => { setPassword(e.target.value); setError(""); }}
               className="w-full p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500 pr-10"
               required
             />

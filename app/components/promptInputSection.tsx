@@ -195,19 +195,24 @@ export default function PromptInputSection({ onPromptGenerated }: PromptInputSec
 
       onPromptGenerated(prompt, { ...journalEntries, userGoal }, allCustomTitles);
 
-      const clearedAdditionalEntries = additionalFields.reduce((acc, fieldName) => {
-        acc[fieldName] = '';
-        return acc;
-      }, {} as { [key: string]: string });
-
-      const newEntries = {
-        ...journalEntries,
+      const newEntries: JournalEntries = {
         whatWentWell: '',
         whatILearned: '',
         whatWouldDoDifferently: '',
         nextStep: '',
-        ...clearedAdditionalEntries,
       };
+
+      // Add back any additional fields that are still active and have content
+      additionalFields.forEach(fieldName => {
+        if (journalEntries[fieldName] && (journalEntries[fieldName] as string).trim() !== '') {
+          newEntries[fieldName] = journalEntries[fieldName];
+          // Only add the title if the field itself has content
+          const titleKey = `${fieldName}_title`;
+          if (journalEntries[titleKey]) { // Check if title exists
+            newEntries[titleKey] = journalEntries[titleKey];
+          }
+        }
+      });
 
       localStorage.setItem('jourin_current_draft', JSON.stringify(newEntries));
       setJournalEntries(newEntries);

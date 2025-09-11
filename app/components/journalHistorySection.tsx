@@ -61,7 +61,7 @@ export default function JournalHistorySection({ newEntryToHistory }: JournalHist
     if (newEntryToHistory) {
       addJournalEntry(newEntryToHistory);
     }
-  }, [newEntryToHistory, addJournalEntry, session]);
+  }, [newEntryToHistory]);
   // useEffect(() => {
   //   if (newEntryToHistory) {
   //     if (session) {

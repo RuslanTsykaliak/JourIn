@@ -1,4 +1,3 @@
-
 import { render, screen, waitFor } from '../../test-utils'; // Use custom render
 import userEvent from '@testing-library/user-event';
 import AuthForm from '@/app/auth/components/AuthForm';
@@ -78,16 +77,17 @@ describe('AuthForm Component - Login Functionality', () => {
     await user.type(screen.getByLabelText(/password/i), 'wrongpass');
     await user.click(screen.getByRole('button', { name: /login/i }));
 
-    await waitFor(() => {
-      expect(screen.getByText('Invalid credentials')).toBeInTheDocument();
+    await waitFor(async () => {
+      expect(await screen.findByText('Invalid credentials')).toBeInTheDocument();
     });
+    screen.debug();
     expect(mockPush).not.toHaveBeenCalled();
   });
 
   it('clears error message on new input', async () => {
-    mockSignIn.mockImplementation(() =>
-      Promise.resolve({ ok: false, error: 'Invalid credentials' })
-    );
+    mockSignIn
+      .mockImplementationOnce(() => Promise.resolve({ ok: false, error: 'Invalid credentials' }))
+      .mockImplementationOnce(() => Promise.resolve({ ok: true, error: null }));
 
     render(<AuthForm />);
     const user = userEvent.setup();
@@ -95,9 +95,10 @@ describe('AuthForm Component - Login Functionality', () => {
     await user.type(screen.getByLabelText(/email/i), 'wrong@example.com');
     await user.click(screen.getByRole('button', { name: /login/i }));
 
-    await waitFor(() => {
-      expect(screen.getByText('Invalid credentials')).toBeInTheDocument();
+    await waitFor(async () => {
+      expect(await screen.findByText('Invalid credentials')).toBeInTheDocument();
     });
+    screen.debug();
 
     // New input should clear the error
     await user.clear(screen.getByLabelText(/email/i));

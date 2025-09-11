@@ -19,7 +19,7 @@ export const generatePromptText = (
 
   const filledEntries = Object.keys(entries)
     .filter((key) => {
-      if (key === 'userGoal' || key.endsWith('_title')) {
+      if (key === 'userGoal' || key.endsWith('_title') || key === 'customTitles' || key === 'promptTemplate' || key === 'timestamp') {
         return false;
       }
       const value = entries[key];

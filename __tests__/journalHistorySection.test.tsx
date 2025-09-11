@@ -46,6 +46,21 @@ jest.mock('../app/utils/weeklySummaryUtils', () => ({
 }));
 
 
+// Mock the useDbJournalEntries hook
+jest.mock('../app/auth/useDbJournalEntries', () => ({
+  useDbJournalEntries: jest.fn(() => ({
+    pastEntries: [],
+    setPastEntries: jest.fn(),
+    addJournalEntry: jest.fn(),
+  })),
+}));
+
+// Mock next-auth/react for useSession
+jest.mock('next-auth/react', () => ({
+  ...jest.requireActual('next-auth/react'),
+  useSession: jest.fn(() => ({ data: null, status: 'unauthenticated' })),
+}));
+
 const mockPastEntries: JournalEntryWithTimestamp[] = [
   {
     timestamp: 1678886400000,
@@ -67,6 +82,8 @@ const mockPastEntries: JournalEntryWithTimestamp[] = [
 ];
 
 describe('JournalHistorySection', () => {
+  let fetchSpy: jest.SpyInstance;
+
   beforeEach(() => {
     localStorage.clear();
     jest.clearAllMocks();
@@ -76,6 +93,21 @@ describe('JournalHistorySection', () => {
         writeText: jest.fn(),
       },
     });
+
+    // Mock fetch API
+    fetchSpy = jest.spyOn(global, 'fetch').mockImplementation((url) => {
+      if (url === '/api/journal') {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve([]), // Return empty array for initial fetch
+        }) as Promise<Response>;
+      }
+      return Promise.reject(new Error('Unhandled fetch request'));
+    });
+  });
+
+  afterEach(() => {
+    fetchSpy.mockRestore();
   });
 
   it('should render past entries from localStorage', async () => {
