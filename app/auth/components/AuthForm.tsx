@@ -65,7 +65,6 @@ export default function AuthForm() {
           {isRegister ? "Create Account" : "Login"}
         </h2>
         {error && <p className="text-red-500 mb-4">{error}</p>}
-        {error && console.log("AuthForm error state:", error)}
 
         {isRegister && (
           <div className="mb-4">

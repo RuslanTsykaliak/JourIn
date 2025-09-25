@@ -6,7 +6,7 @@ import { useSession } from 'next-auth/react';
 import Header from './components/header';
 import PromptInputSection from './components/promptInputSection';
 import GeneratedPromptDisplay from './components/generatedPromptDisplay';
-import JournalHistorySection from './components/journalHistorySection'; // Commented out
+import JournalHistorySection from './components/journalHistorySection';
 import RewardPopup from './components/rewardPopup';
 import { getStreakData, updateStreak } from './lib/fireUp';
 import { CustomTitles, JournalEntries, JournalEntryWithTimestamp } from './types';

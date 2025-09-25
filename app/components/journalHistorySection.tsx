@@ -6,7 +6,7 @@ import { JournalEntryWithTimestamp, CustomTitles } from '../types';
 import { useJournalEntriesStorage } from '../hooks/useJournalEntriesStorage';
 import { useDbJournalEntries } from '../auth/useDbJournalEntries';
 import { getStartOfWeek, getEndOfWeek, generateWeeklySummary as generateWeeklySummaryUtil } from '../utils/weeklySummaryUtils';
-import JournalEntryItem from './journalEntryItem';
+import DynamicJournalEntryItem from './DynamicJournalEntryItem';
 
 interface JournalHistorySectionProps {
   newEntryToHistory: JournalEntryWithTimestamp | null;
@@ -74,10 +74,10 @@ export default function JournalHistorySection({ newEntryToHistory }: JournalHist
 
   const copyAllHistoryToClipboard = async () => {
     const defaultTitles: CustomTitles = {
-      whatWentWell: "What went well today",
-      whatILearned: "What I learned today",
-      whatWouldDoDifferently: "What I would do differently",
-      nextStep: "My next step",
+      whatWentWell: "What went well today?",
+      whatILearned: "What I learned today?",
+      whatWouldDoDifferently: "What I would do differently?",
+      nextStep: "What's my next step?",
     };
 
     const formattedHistory = pastEntries.map(entry => {
@@ -158,7 +158,7 @@ export default function JournalHistorySection({ newEntryToHistory }: JournalHist
         <h2 className="text-2xl font-extrabold text-gray-100 mb-4">Your Past Entries</h2>
         <div className="space-y-6">
           {pastEntries.slice(0, displayCount).map((entry) => (
-            <JournalEntryItem key={entry.timestamp} entry={entry} />
+            <DynamicJournalEntryItem key={entry.timestamp} entry={entry} />
           ))}
         </div>
         <div className="mt-6 flex items-center justify-between">

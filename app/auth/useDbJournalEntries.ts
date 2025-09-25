@@ -23,6 +23,7 @@ export function useDbJournalEntries() {
             console.log('Entry customTitles:', entry.customTitles);
 
             const formatted = {
+              ...entry,
               whatWentWell: entry.whatWentWell || '',
               whatILearned: entry.whatILearned || '',
               whatWouldDoDifferently: entry.whatWouldDoDifferently || '',
@@ -89,6 +90,7 @@ export function useDbJournalEntries() {
 
         // Format the created entry to match the expected structure
         const formattedEntry: JournalEntryWithTimestamp = {
+          ...createdEntry,
           whatWentWell: createdEntry.whatWentWell || '',
           whatILearned: createdEntry.whatILearned || '',
           whatWouldDoDifferently: createdEntry.whatWouldDoDifferently || '',

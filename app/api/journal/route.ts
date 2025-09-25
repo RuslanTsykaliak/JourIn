@@ -1,7 +1,10 @@
+// Never use type any or unknown in this file
+
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/auth/lib/auth";
 import prisma from "@/app/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
+import { JsonObject } from "@prisma/client/runtime/library";
 
 export async function GET() {
   const session = await getServerSession(authOptions);
@@ -35,17 +38,24 @@ export async function POST(req: NextRequest) {
   const { whatWentWell, whatILearned, whatWouldDoDifferently, nextStep, customTitles } = requestData;
 
   // Process the customTitles to include any custom field titles from the top level
-  const processedCustomTitles = { ...customTitles };
+  const processedCustomTitles: Record<string, unknown> = { ...(customTitles || {}) };
+  const dynamicFields: Record<string, unknown> = {};
 
-  // Look for custom field titles in the request data and add them to customTitles
+  // Look for custom field titles and values in the request data
   Object.keys(requestData).forEach(key => {
-    if (key.endsWith('_title') && key.startsWith('customField_')) {
-      processedCustomTitles[key] = requestData[key];
-      console.log(`Adding ${key}: ${requestData[key]} to customTitles`);
+    if (key.startsWith('customField_')) {
+      if (key.endsWith('_title')) {
+        processedCustomTitles[key] = requestData[key];
+        console.log(`Adding ${key}: ${requestData[key]} to customTitles`);
+      } else {
+        dynamicFields[key] = requestData[key];
+        console.log(`Adding ${key}: ${requestData[key]} to dynamicFields`);
+      }
     }
   });
 
   console.log('Processed customTitles:', processedCustomTitles);
+  console.log('Processed dynamicFields:', dynamicFields);
 
   const newEntry = await prisma.journalEntry.create({
     data: {
@@ -53,7 +63,8 @@ export async function POST(req: NextRequest) {
       whatILearned,
       whatWouldDoDifferently,
       nextStep,
-      customTitles: processedCustomTitles,
+      customTitles: processedCustomTitles as JsonObject,
+      dynamicFields: dynamicFields as JsonObject,
       userId: session.user.id,
     },
   });

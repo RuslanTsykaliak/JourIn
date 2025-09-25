@@ -82,6 +82,19 @@ export default function PromptInputSection({ onPromptGenerated }: PromptInputSec
     setHasHydrated(true);
   }, []);
 
+  // // Add back any additional fields that are still active and have content
+  // additionalFields.forEach(fieldName => {
+  //   if (journalEntries[fieldName] && (journalEntries[fieldName] as string).trim() !== '') {
+  //     newEntries[fieldName] = journalEntries[fieldName];
+  //     // Only add the title if the field itself has content
+  //     const titleKey = `${fieldName}_title`;
+  //     if (journalEntries[titleKey]) { // Check if title exists
+  //       newEntries[titleKey] = journalEntries[titleKey];
+  //     }
+  //   }
+  // });
+
+
   // --- Local Storage: Debounced Save ---
   const debouncedSaveDraft = debounce((entries: JournalEntries) => {
     localStorage.setItem('jourin_current_draft', JSON.stringify(entries));
@@ -202,15 +215,10 @@ export default function PromptInputSection({ onPromptGenerated }: PromptInputSec
         nextStep: '',
       };
 
-      // Add back any additional fields that are still active and have content
-      additionalFields.forEach(fieldName => {
-        if (journalEntries[fieldName] && (journalEntries[fieldName] as string).trim() !== '') {
-          newEntries[fieldName] = journalEntries[fieldName];
-          // Only add the title if the field itself has content
-          const titleKey = `${fieldName}_title`;
-          if (journalEntries[titleKey]) { // Check if title exists
-            newEntries[titleKey] = journalEntries[titleKey];
-          }
+      additionalFields.forEach(field => {
+        const titleKey = `${field}_title`;
+        if (journalEntries[titleKey]) {
+          newEntries[titleKey] = journalEntries[titleKey];
         }
       });
 

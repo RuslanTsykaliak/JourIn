@@ -18,8 +18,9 @@ export interface JournalEntries {
   userGoal?: string; // Optional user goal
   customTitles?: CustomTitles; // Optional custom titles for the entries
   promptTemplate?: string; // ✅ Optional custom prompt template
+  dynamicFields?: Record<string, string>;
   // Index signature to allow dynamic fields
-  [key: string]: string | CustomTitles | number | undefined;
+  [key: string]: string | CustomTitles | number | undefined | Record<string, string>;
 }
 
 export interface JournalEntryWithTimestamp extends JournalEntries {
@@ -36,6 +37,7 @@ export interface PrismaJournalEntry {
   whatWouldDoDifferently: string;
   nextStep: string;
   customTitles: CustomTitles; // Assuming it's stored as JSON and matches CustomTitles structure
+  dynamicFields?: Record<string, string>;
   // Add any other fields that might be in your Prisma JournalEntry model
 }
 
@@ -74,4 +76,23 @@ export interface HabitData {
   'grateful-circumstances': string;
   'attitude': string;
   'discipline-on-demand': 'yes' | 'no' | '';
+}
+
+export interface JournalCoreFields {
+  whatWentWell: string;
+  whatILearned: string;
+  whatWouldDoDifferently: string;
+  nextStep: string;
+}
+
+export interface JournalEntryForDisplay {
+  whatWentWell: string;
+  whatILearned: string;
+  whatWouldDoDifferently: string;
+  nextStep: string;
+  userGoal?: string;
+  customTitles?: CustomTitles;
+  promptTemplate?: string;
+  dynamicFields?: Record<string, string>;
+  timestamp: number;
 }
