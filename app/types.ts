@@ -45,6 +45,13 @@ export interface CustomTitles {
   [key: string]: string;
 }
 
+export const defaultTitles: CustomTitles = {
+  whatWentWell: "What went well today",
+  whatILearned: "What I learned today",
+  whatWouldDoDifferently: "What I would do differently",
+  nextStep: "What's my next step?",
+};
+
 export interface JournalingTextareaProps {
   name: string;
   placeholder: string;

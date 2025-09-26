@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { JournalEntryWithTimestamp, CustomTitles, JournalCoreFields, JournalEntryForDisplay } from '../types';
-import { generatePromptText } from '../utils/generatePromptText';
+import { JournalEntryWithTimestamp, CustomTitles, JournalCoreFields, JournalEntryForDisplay, defaultTitles } from '../types';
+import { generatePromptTextDB } from '../utils/generatePromptTextDB';
 
 interface JournalEntryItemProps {
   entry: JournalEntryWithTimestamp;
@@ -11,13 +11,6 @@ const JournalEntryItemDB: React.FC<JournalEntryItemProps> = ({ entry }) => {
   const [copyPastEntryTextSuccess, setCopyPastEntryTextSuccess] = useState<number | null>(null);
 
   const displayEntry = entry as JournalEntryForDisplay;
-
-  const defaultTitles: CustomTitles = {
-    whatWentWell: "What went well today",
-    whatILearned: "What I learned today",
-    whatWouldDoDifferently: "What I would do differently",
-    nextStep: "My next step",
-  };
 
   const getAllDisplayFields = () => {
     const fields: { key: string; value: string; title: string }[] = [];
@@ -56,7 +49,7 @@ const JournalEntryItemDB: React.FC<JournalEntryItemProps> = ({ entry }) => {
   };
 
   const copyPastEntryPromptToClipboard = async () => {
-    const promptToCopy = generatePromptText(entry, displayEntry.customTitles || {}, displayEntry.promptTemplate);
+    const promptToCopy = generatePromptTextDB(entry, displayEntry.customTitles || {}, displayEntry.promptTemplate);
     try {
       await navigator.clipboard.writeText(promptToCopy);
       setCopyPastEntryPromptSuccess(displayEntry.timestamp);

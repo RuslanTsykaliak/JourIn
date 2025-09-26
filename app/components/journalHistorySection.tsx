@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useSession } from "next-auth/react";
-import { JournalEntryWithTimestamp, CustomTitles } from '../types';
+import { JournalEntryWithTimestamp, CustomTitles, defaultTitles } from '../types';
 import { useJournalEntriesStorage } from '../hooks/useJournalEntriesStorage';
 import { useDbJournalEntries } from '../auth/useDbJournalEntries';
 import { getStartOfWeek, getEndOfWeek, generateWeeklySummary as generateWeeklySummaryUtil } from '../utils/weeklySummaryUtils';
@@ -73,13 +73,6 @@ export default function JournalHistorySection({ newEntryToHistory }: JournalHist
   // }, [newEntryToHistory, addJournalEntry, session]);
 
   const copyAllHistoryToClipboard = async () => {
-    const defaultTitles: CustomTitles = {
-      whatWentWell: "What went well today?",
-      whatILearned: "What I learned today?",
-      whatWouldDoDifferently: "What I would do differently?",
-      nextStep: "What's my next step?",
-    };
-
     const formattedHistory = pastEntries.map(entry => {
       const titles = { ...defaultTitles, ...entry.customTitles };
 

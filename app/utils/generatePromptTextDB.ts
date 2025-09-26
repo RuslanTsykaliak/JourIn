@@ -1,9 +1,7 @@
-// app/utils/generatePromptText.ts
-
 import { JournalEntries, CustomTitles, defaultTitles } from "../types";
 import { defaultPromptTemplate } from '../lib/promptTemplate';
 
-export const generatePromptText = (
+export const generatePromptTextDB = (
   entries: JournalEntries,
   customTitles?: CustomTitles,
   promptTemplate: string = defaultPromptTemplate
@@ -11,23 +9,15 @@ export const generatePromptText = (
 
   const titles = { ...defaultTitles, ...customTitles };
 
-  const filledEntries = Object.keys(entries)
-    .filter((key) => {
-      if (key === 'userGoal' || key.endsWith('_title') || key === 'customTitles' || key === 'promptTemplate' || key === 'timestamp') {
-        return false;
-      }
-      const value = entries[key];
-      if (typeof value === 'string') {
-        return value.trim() !== '';
-      }
-      return !!value;
-    })
-    .map((key) => {
-      const title = entries[`${key}_title`] || titles[key] || key;
-      const value = entries[key];
-      return `${title}: ${value}`;
-    })
-    .join('\n\n');
+  const filledEntries = entries.dynamicFields
+    ? Object.keys(entries.dynamicFields)
+      .map((key) => {
+        const title = titles[key] || key;
+        const value = entries.dynamicFields![key]; // Use non-null assertion as we've checked for existence
+        return `${title}: ${value}`;
+      })
+      .join('\n\n')
+    : '';
 
   if (!filledEntries) {
     throw new Error("Please fill out at least one journal entry to generate a prompt.");

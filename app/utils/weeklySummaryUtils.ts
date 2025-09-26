@@ -1,4 +1,4 @@
-import { JournalEntryWithTimestamp } from '../types';
+import { JournalEntryWithTimestamp, defaultTitles } from '../types';
 
 // Helper to get the start of the week (Sunday)
 export function getStartOfWeek(date: Date): Date {
@@ -28,12 +28,6 @@ export function generateWeeklySummary(pastEntries: JournalEntryWithTimestamp[], 
     return 'No journal entries found for this week.';
   } else {
     const summary = entriesInWeek.map(entry => {
-      const defaultTitles = {
-        whatWentWell: "What went well today",
-        whatILearned: "What I learned today",
-        whatWouldDoDifferently: "What I would do differently",
-        nextStep: "My next step",
-      };
       const title = entry.customTitles || defaultTitles;
       return `
 ---

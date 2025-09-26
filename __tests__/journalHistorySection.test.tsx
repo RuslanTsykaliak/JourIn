@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor } from './test-utils'; // Use custom render
 import JournalHistorySection from '../app/components/journalHistorySection';
 import '@testing-library/jest-dom';
-import { JournalEntryWithTimestamp } from '../app/types';
+import { JournalEntryWithTimestamp, defaultTitles } from '../app/types';
 import { useJournalEntriesStorage } from '../app/hooks/useJournalEntriesStorage';
 import { getStartOfWeek, getEndOfWeek, generateWeeklySummary as utilGenerateWeeklySummary } from '../app/utils/weeklySummaryUtils';
 
@@ -273,13 +273,6 @@ describe('JournalHistorySection', () => {
     fireEvent.click(copyAllHistoryButton);
 
     await waitFor(() => {
-      const defaultTitles = {
-        whatWentWell: "What went well today",
-        whatILearned: "What I learned today",
-        whatWouldDoDifferently: "What I would do differently",
-        nextStep: "My next step",
-      };
-
       const formattedHistory = mockPastEntries.map(entry => {
         const titles = { ...defaultTitles, ...entry.customTitles };
         

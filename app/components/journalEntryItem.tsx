@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { JournalEntryWithTimestamp, CustomTitles } from '../types';
+import { JournalEntryWithTimestamp, CustomTitles, defaultTitles } from '../types';
 import { generatePromptText } from '../utils/generatePromptText';
 
 interface JournalEntryItemProps {
@@ -9,13 +9,6 @@ interface JournalEntryItemProps {
 const JournalEntryItem: React.FC<JournalEntryItemProps> = ({ entry }) => {
   const [copyPastEntryPromptSuccess, setCopyPastEntryPromptSuccess] = useState<number | null>(null);
   const [copyPastEntryTextSuccess, setCopyPastEntryTextSuccess] = useState<number | null>(null);
-
-  const defaultTitles: CustomTitles = {
-    whatWentWell: "What went well today",
-    whatILearned: "What I learned today",
-    whatWouldDoDifferently: "What I would do differently",
-    nextStep: "My next step",
-  };
 
   // Helper function to get all fields to display, including custom fields from customTitles
   const getAllDisplayFields = () => {
