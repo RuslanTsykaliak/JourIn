@@ -136,7 +136,7 @@ export default function PromptInputSection({ onPromptGenerated }: PromptInputSec
     debouncedSaveDraft(entries);
   };
 
-  const handleGoalInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleGoalInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newGoal = e.target.value;
     setUserGoal(newGoal);
     debouncedSaveUserGoal(newGoal);
@@ -253,10 +253,10 @@ export default function PromptInputSection({ onPromptGenerated }: PromptInputSec
       <div className="mt-8">
         <div className="mt-4 space-y-4">
           <div>
-            <input
-              type="text"
+            <textarea
               id="userGoal"
               name="userGoal"
+              rows={3} // Or any other number of rows you prefer
               className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 mt-1 block w-full sm:text-sm border border-gray-600 rounded-md p-2 bg-gray-700 text-gray-100"
               placeholder="Your goal (e.g., 'Find a fullstack position', 'Build followers for my tech blog')"
               value={userGoal}
