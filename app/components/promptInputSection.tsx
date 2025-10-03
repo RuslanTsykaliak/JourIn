@@ -10,6 +10,10 @@ import { debounce } from '../utils/debounce';
 import { generatePromptText } from '../utils/generatePromptText';
 import { defaultPromptTemplate } from '../lib/promptTemplate';
 
+import { useSession } from 'next-auth/react';
+import GeneratePostPromptButtonDB from './generatePostPromptButtonDB';
+import GeneratedPostDisplayDB from './generatedPostDisplayDB';
+
 const DEFAULT_CUSTOM_TITLES: CustomTitles = {
   whatWentWell: 'What went well today?',
   whatILearned: 'What did I learn today?',
@@ -22,6 +26,7 @@ interface PromptInputSectionProps {
 }
 
 export default function PromptInputSection({ onPromptGenerated }: PromptInputSectionProps) {
+  const { status } = useSession();
   const [journalEntries, setJournalEntries] = useState<JournalEntries>({
     whatWentWell: '',
     whatILearned: '',
@@ -35,6 +40,7 @@ export default function PromptInputSection({ onPromptGenerated }: PromptInputSec
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [hasHydrated, setHasHydrated] = useState(false);
   const [additionalFields, setAdditionalFields] = useState<string[]>([]);
+  const [generatedPostDB, setGeneratedPostDB] = useState<string>("");
 
   // --- Local Storage: Load on Mount ---
   useEffect(() => {
@@ -231,6 +237,30 @@ export default function PromptInputSection({ onPromptGenerated }: PromptInputSec
     }
   };
 
+  const handleGeneratePostDB = async () => {
+    try {
+      const response = await fetch('/api/generate/db', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userGoal: userGoal,
+          promptTemplate: promptTemplate,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate post');
+      }
+
+      const { post } = await response.json();
+      setGeneratedPostDB(post);
+    } catch (error) {
+      console.error('Error generating post:', error);
+    }
+  };
+
   if (!hasHydrated) {
     return <div>Loading...</div>;
   }
@@ -271,6 +301,14 @@ export default function PromptInputSection({ onPromptGenerated }: PromptInputSec
           onClick={handleGenerateClick}
           disabled={isGenerationDisabled}
         />
+        {status === 'authenticated' && (
+          <div className="mt-4 w-full">
+            <GeneratePostPromptButtonDB
+              onClick={handleGeneratePostDB}
+              disabled={isGenerationDisabled}
+            />
+          </div>
+        )}
         <button
           onClick={() => setIsEditorOpen(true)}
           className="mt-2 text-sm text-blue-500 hover:underline"
@@ -278,6 +316,8 @@ export default function PromptInputSection({ onPromptGenerated }: PromptInputSec
           Customize Prompt
         </button>
       </div>
+
+      {generatedPostDB && <GeneratedPostDisplayDB post={generatedPostDB} />}
 
       {isEditorOpen && (
         <PromptTemplateEditor
