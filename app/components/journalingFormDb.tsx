@@ -74,6 +74,14 @@ export default function JournalingFormDb({
 
       const { post } = await response.json();
       setGeneratedPostDB(post);
+      onJournalEntriesChange({
+        ...journalEntries,
+        whatWentWell: "",
+        whatILearned: "",
+        whatWouldDoDifferently: "",
+        nextStep: "",
+        ...additionalFields.reduce((acc, field) => ({ ...acc, [field]: "" }), {}),
+      });
     } catch (error) {
       console.error('Error generating post:', error);
     }

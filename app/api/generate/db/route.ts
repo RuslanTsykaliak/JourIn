@@ -46,14 +46,20 @@ export async function POST(req: NextRequest) {
     }, {});
 
     const customTitles = journalEntries.reduce((acc, entry) => {
-        if (entry.customTitles) {
-            Object.assign(acc, entry.customTitles);
-        }
-        return acc;
+      if (entry.customTitles) {
+        Object.assign(acc, entry.customTitles);
+      }
+      return acc;
     }, {});
 
     const prompt = generatePromptTextDB(
-      { dynamicFields: combinedDynamicFields, userGoal },
+      {
+        dynamicFields: combinedDynamicFields, userGoal,
+        whatWentWell: '',
+        whatILearned: '',
+        whatWouldDoDifferently: '',
+        nextStep: ''
+      },
       customTitles,
       promptTemplate
     );
@@ -65,7 +71,7 @@ export async function POST(req: NextRequest) {
           content: prompt,
         },
       ],
-      model: 'llama3-8b-8192',
+      model: 'llama-3.1-8b-instant',
     });
 
     const generatedPost = chatCompletion.choices[0]?.message?.content || '';

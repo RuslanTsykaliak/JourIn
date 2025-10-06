@@ -256,6 +256,23 @@ export default function PromptInputSection({ onPromptGenerated }: PromptInputSec
 
       const { post } = await response.json();
       setGeneratedPostDB(post);
+
+      const newEntries: JournalEntries = {
+        whatWentWell: '',
+        whatILearned: '',
+        whatWouldDoDifferently: '',
+        nextStep: '',
+      };
+
+      additionalFields.forEach(field => {
+        const titleKey = `${field}_title`;
+        if (journalEntries[titleKey]) {
+          newEntries[titleKey] = journalEntries[titleKey];
+        }
+      });
+
+      localStorage.setItem('jourin_current_draft', JSON.stringify(newEntries));
+      setJournalEntries(newEntries);
     } catch (error) {
       console.error('Error generating post:', error);
     }
