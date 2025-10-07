@@ -1,4 +1,14 @@
-// Basic test for Provider component
+import { render, screen } from '@testing-library/react';
+import Provider from '@/app/auth/components/provider';
+
 describe('Provider Component', () => {
-  test.todo('Failing test to message in progress: Logic components not yet implemented');
+  it('should render children', () => {
+    render(
+      <Provider>
+        <div>Child Component</div>
+      </Provider>
+    );
+
+    expect(screen.getByText('Child Component')).toBeInTheDocument();
+  });
 });

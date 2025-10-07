@@ -86,29 +86,25 @@ describe('AuthForm Component - Login Functionality', () => {
 
   it('clears error message on new input', async () => {
     mockSignIn
-      .mockImplementationOnce(() => Promise.resolve({ ok: false, error: 'Invalid credentials' }))
-      .mockImplementationOnce(() => Promise.resolve({ ok: true, error: null }));
+      .mockImplementationOnce(() => Promise.resolve({ ok: false, error: 'Invalid credentials' }));
 
     render(<AuthForm />);
     const user = userEvent.setup();
 
+    // First attempt with wrong credentials
     await user.type(screen.getByLabelText(/email/i), 'wrong@example.com');
+    await user.type(screen.getByLabelText(/password/i), 'wrongpassword');
     await user.click(screen.getByRole('button', { name: /login/i }));
 
     await waitFor(async () => {
       expect(await screen.findByText('Invalid credentials')).toBeInTheDocument();
     });
-    screen.debug();
 
     // New input should clear the error
     await user.clear(screen.getByLabelText(/email/i));
-    await user.type(screen.getByLabelText(/email/i), 'newinput@example.com');
+    await user.type(screen.getByLabelText(/email/i), 'test@example.com');
 
-    // Simulate a new form submission to clear the error
-    await user.click(screen.getByRole('button', { name: /login/i }));
-
-    await waitFor(() => {
-      expect(screen.queryByText('Invalid credentials')).not.toBeInTheDocument();
-    });
+    // The error should be gone now
+    expect(screen.queryByText('Invalid credentials')).not.toBeInTheDocument();
   });
 });

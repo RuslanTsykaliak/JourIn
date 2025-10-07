@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from './test-utils';
 import PromptInputSection from '../app/components/promptInputSection';
 import '@testing-library/jest-dom';
 
