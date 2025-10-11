@@ -146,7 +146,7 @@ const HabitsPage = () => {
                 <textarea id="my-notes" name="my-notes" rows={3} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" value={habitData['my-notes'] || ''} onChange={handleChange}></textarea>
               </div>
               <div>
-                <label htmlFor="ai-notes" className="block text-sm font-medium text-gray-700 dark:text-gray-300">AI's Notes</label>
+                <label htmlFor="ai-notes" className="block text-sm font-medium text-gray-700 dark:text-gray-300">AI&apos;s Notes</label>
                 <textarea id="ai-notes" name="ai-notes" rows={3} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" readOnly value={habitData['ai-notes'] || ''}></textarea>
               </div>
               <YesNoQuestion question="Did I track my behavior on this sheet today" name="tracked-behavior" value={habitData['tracked-behavior'] || ''} onChange={handleChange} />
@@ -193,15 +193,15 @@ const HabitsPage = () => {
             <h2 className="text-2xl font-bold mb-2 dark:text-white">Mindset 🧠</h2>
             <div className="grid grid-cols-1 gap-4">
               <div>
-                <label htmlFor="grateful-health" className="block text-sm font-bold text-gray-700 dark:text-gray-300">Reflection: What's one reason to be grateful for your health and body</label>
+                <label htmlFor="grateful-health" className="block text-sm font-bold text-gray-700 dark:text-gray-300">Reflection: What&apos;s one reason to be grateful for your health and body</label>
                 <textarea id="grateful-health" name="grateful-health" rows={3} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" value={habitData['grateful-health'] || ''} onChange={handleChange}></textarea>
               </div>
               <div>
-                <label htmlFor="grateful-person" className="block text-sm font-bold text-gray-700 dark:text-gray-300">Reflection: Who is one person that you're grateful for today and why</label>
+                <label htmlFor="grateful-person" className="block text-sm font-bold text-gray-700 dark:text-gray-300">Reflection: Who is one person that you&apos;re grateful for today and why</label>
                 <textarea id="grateful-person" name="grateful-person" rows={3} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" value={habitData['grateful-person'] || ''} onChange={handleChange}></textarea>
               </div>
               <div>
-                <label htmlFor="grateful-circumstances" className="block text-sm font-bold text-gray-700 dark:text-gray-300">Reflection: What's one reason to be grateful for your circumstances</label>
+                <label htmlFor="grateful-circumstances" className="block text-sm font-bold text-gray-700 dark:text-gray-300">Reflection: What&apos;s one reason to be grateful for your circumstances</label>
                 <textarea id="grateful-circumstances" name="grateful-circumstances" rows={3} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" value={habitData['grateful-circumstances'] || ''} onChange={handleChange}></textarea>
               </div>
               <ScaleQuestion question="How was my attitude today" name="attitude" descriptions={attitudeDescriptions} value={habitData.attitude || ''} onChange={handleChange} />
