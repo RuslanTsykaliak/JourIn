@@ -180,7 +180,7 @@ export default function PromptInputSection({ onPromptGenerated }: PromptInputSec
         }
 
         if (typeof entryValue === 'string' && entryValue.trim() !== '' && entryTitle.trim() === '') {
-          alert(`Please provide a title for the entry with content: "${entryValue}"`);
+          alert(`Please provide a title for the entry: "${entryValue}"`);
           return;
         }
       }
@@ -305,7 +305,7 @@ export default function PromptInputSection({ onPromptGenerated }: PromptInputSec
               name="userGoal"
               rows={3} // Or any other number of rows you prefer
               className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 mt-1 block w-full sm:text-sm border border-gray-600 rounded-md p-2 bg-gray-700 text-gray-100"
-              placeholder="Your goal (e.g., 'Find a fullstack position', 'Build followers for my tech blog')"
+              placeholder="What's your goal? (e.g., 'Find a full-stack position', 'Build a following for my tech blog')"
               value={userGoal}
               onChange={handleGoalInputChange}
             />
@@ -318,6 +318,15 @@ export default function PromptInputSection({ onPromptGenerated }: PromptInputSec
           onClick={handleGenerateClick}
           disabled={isGenerationDisabled}
         />
+        {status === 'unauthenticated' && (
+          <a href="/auth" className="mt-4 w-full">
+            <button
+              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-700 hover:bg-green-800  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+            >
+              Log in to Generate a Post
+            </button>
+          </a>
+        )}
         {status === 'authenticated' && (
           <div className="mt-4 w-full">
             <GeneratePostPromptButtonDB

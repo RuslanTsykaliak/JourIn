@@ -99,10 +99,10 @@ export default function JournalHistorySection({ newEntryToHistory }: JournalHist
 
     try {
       await navigator.clipboard.writeText(formattedHistory);
-      setCopyHistorySuccess('History Copied!');
+      setCopyHistorySuccess('History copied!');
       setTimeout(() => setCopyHistorySuccess(''), 2000);
     } catch (err) {
-      setCopyHistorySuccess('Failed to copy history!');
+      setCopyHistorySuccess('Failed to copy the history!');
       console.error('Failed to copy history: ', err);
     }
   };
@@ -187,7 +187,7 @@ export default function JournalHistorySection({ newEntryToHistory }: JournalHist
         </div>
         {pastEntries.length > INITIAL_DISPLAY_COUNT && (
           <p className="mt-4 text-sm text-gray-300">
-            Showing {Math.min(displayCount, pastEntries.length)} of {pastEntries.length} entries.
+            Showing {Math.min(displayCount, pastEntries.length)} of {pastEntries.length} entries
           </p>
         )}
 

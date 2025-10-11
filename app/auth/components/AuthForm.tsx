@@ -51,11 +51,11 @@ export default function AuthForm() {
   };
 
   const passwordRequirements = [
-    { regex: /.{8,}/, text: "At least 8 characters long" },
-    { regex: /[0-9]/, text: "Contains a number" },
-    { regex: /[A-Z]/, text: "Contains an uppercase letter" },
-    { regex: /[a-z]/, text: "Contains a lowercase letter" },
-    { regex: /[^A-Za-z0-9]/, text: "Contains a special character" },
+    { regex: /.{8,}/, text: "At least 8 characters" },
+    { regex: /[0-9]/, text: "Contain at least one number" },
+    { regex: /[A-Z]/, text: "Contain at least one uppercase letter" },
+    { regex: /[a-z]/, text: "Contain at least one lowercase letter" },
+    { regex: /[^A-Za-z0-9]/, text: "Contain at least one special character" },
   ];
 
   return (
@@ -119,7 +119,7 @@ export default function AuthForm() {
           </div>
           {isRegister && password && (
             <div className="mt-2 text-xs text-gray-400">
-              <p>Password must:</p>
+              <p>The password must:</p>
               <ul className="list-disc list-inside">
                 {passwordRequirements.map((req, index) => (
                   <li key={index} className={req.regex.test(password) ? "text-green-400" : "text-red-400"}>
@@ -142,11 +142,11 @@ export default function AuthForm() {
                 className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
               />
               <label htmlFor="rememberMe" className="ml-2 block text-sm text-gray-300">
-                Remember me
+                Remember me on this device
               </label>
             </div>
             <Link href="/forgot-password" className="text-sm text-blue-500 hover:underline">
-              Forgot password?
+              Forgot your password?
             </Link>
           </div>
         )}
@@ -160,7 +160,7 @@ export default function AuthForm() {
 
         <div className="mt-6 text-center">
           <p className="text-sm text-gray-400">
-            {isRegister ? "Already have an account?" : "Don't have an account?"}{" "}
+            {isRegister ? "Do you already have an account?" : "Don't have an account yet?"}{" "}
             <button type="button" onClick={() => setIsRegister(!isRegister)} className="text-blue-500 hover:underline">
               {isRegister ? "Login" : "Register"}
             </button>

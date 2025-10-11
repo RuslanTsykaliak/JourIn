@@ -8,14 +8,14 @@ describe('Habits Page', () => {
   });
 
   it('should render the main heading', () => {
-    expect(screen.getByRole('heading', { name: /supper habits/i })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /super habits/i })).toBeInTheDocument();
   });
 
   it('should render general notes and tracking questions', () => {
     expect(screen.getByLabelText(/my notes/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/ai's notes/i)).toBeInTheDocument();
     expect(screen.getByText(/Did I track my behavior on this sheet today?/i)).toBeInTheDocument();
-    expect(screen.getByText(/Did I watch a video for the 21 Day Challenge today?/i)).toBeInTheDocument();
+    expect(screen.getByText(/Did I watch a video for the 21-Day Challenge today/i)).toBeInTheDocument();
   });
 
   it('should render the Energy section with all its questions', () => {

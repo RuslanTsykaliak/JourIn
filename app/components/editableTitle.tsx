@@ -93,7 +93,7 @@ export default function EditableTitle({
           {currentValue.trim() === '' ? (placeholder || "Write your question") : currentValue}
           {isHovered && (
             <span className="absolute left-full top-1/2 -translate-y-1/2 ml-2 text-gray-500 text-xs italic whitespace-nowrap">
-              (double-click to edit)
+              (Double-click to edit)
             </span>
           )}
         </span>

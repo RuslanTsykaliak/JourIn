@@ -61,7 +61,7 @@ describe('PromptInputSection', () => {
     fireEvent.click(generateButton);
 
     // Assert that alert was called
-    expect(alertSpy).toHaveBeenCalledWith('Please provide a title for the entry with content: "Test entry"');
+    expect(alertSpy).toHaveBeenCalledWith('Please provide a title for the entry: "Test entry"');
 
     // Assert that onPromptGenerated was not called
     expect(onPromptGenerated).not.toHaveBeenCalled();

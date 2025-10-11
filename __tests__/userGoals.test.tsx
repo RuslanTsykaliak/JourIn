@@ -12,7 +12,7 @@ describe('PromptInputSection user goal', () => {
     const handlePromptGenerated = jest.fn();
     const { rerender } = render(<PromptInputSection onPromptGenerated={handlePromptGenerated} />);
 
-    const goalInput = screen.getByPlaceholderText("Your goal (e.g., 'Find a fullstack position', 'Build followers for my tech blog')");
+    const goalInput = screen.getByPlaceholderText("What's your goal? (e.g., 'Find a full-stack position', 'Build a following for my tech blog')");
     fireEvent.change(goalInput, { target: { value: 'My test goal' } });
 
     await waitFor(() => {
@@ -22,7 +22,7 @@ describe('PromptInputSection user goal', () => {
     // Simulate a reload by rerendering the component
     rerender(<PromptInputSection onPromptGenerated={handlePromptGenerated} />);
 
-    const goalInputAfterReload = screen.getByPlaceholderText("Your goal (e.g., 'Find a fullstack position', 'Build followers for my tech blog')");
+    const goalInputAfterReload = screen.getByPlaceholderText("What's your goal? (e.g., 'Find a full-stack position', 'Build a following for my tech blog')");
     expect(goalInputAfterReload).toHaveValue('My test goal');
   });
 });

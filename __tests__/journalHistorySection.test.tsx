@@ -58,7 +58,7 @@ jest.mock('../app/auth/useDbJournalEntries', () => ({
 // Mock next-auth/react for useSession
 jest.mock('next-auth/react', () => ({
   ...jest.requireActual('next-auth/react'),
-  useSession: jest.fn(() => ({ data: null, status: 'unauthenticated' })),
+  useSession: jest.fn(() => ({ data: null, status: 'unauthenticated' }))
 }));
 
 const mockPastEntries: JournalEntryWithTimestamp[] = [

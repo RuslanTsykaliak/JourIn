@@ -240,11 +240,11 @@ const WeeklySummaryPage = () => {
     <main className="p-4 md:p-8">
       <h1 className="text-2xl font-bold mb-4 dark:text-white">Weekly Habits Summary</h1>
       <div className="flex justify-between items-center mb-4">
-        <button onClick={goToPreviousWeek} className="px-4 py-2 rounded-md bg-gray-200 dark:bg-gray-700 dark:text-white">Previous Week</button>
+        <button onClick={goToPreviousWeek} className="px-4 py-2 rounded-md bg-ray-200 dark:bg-gray-700 dark:text-white">Previous week</button>
         <span className="text-lg font-semibold dark:text-white">
           Week of {currentWeekStart.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
         </span>
-        <button onClick={goToNextWeek} className="px-4 py-2 rounded-md bg-gray-200 dark:bg-gray-700 dark:text-white">Next Week</button>
+        <button onClick={goToNextWeek} className="px-4 py-2 rounded-md bg-gray-200 dark:bg-gray-700 dark:text-white">Next week</button>
       </div>
       <div className="overflow-x-auto">
         <table className="min-w-full border-collapse">
@@ -258,7 +258,7 @@ const WeeklySummaryPage = () => {
               ))}
               <th className="py-2 px-4 text-left text-sm font-semibold text-gray-600 dark:text-gray-300 border border-gray-300 dark:border-gray-600">Target</th>
               <th className="py-2 px-4 text-left text-sm font-semibold text-gray-600 dark:text-gray-300 border border-gray-300 dark:border-gray-600">Points</th>
-              <th className="py-2 px-4 text-left text-sm font-semibold text-gray-600 dark:text-gray-300 border border-gray-300 dark:border-gray-600">% of Goal</th>
+              <th className="py-2 px-4 text-left text-sm font-semibold text-gray-600 dark:text-gray-300 border border-gray-300 dark:border-gray-600">% of goal</th>
             </tr>
           </thead>
           <tbody>
