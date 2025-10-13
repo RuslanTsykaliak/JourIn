@@ -103,3 +103,9 @@ export interface JournalEntryForDisplay {
   dynamicFields?: Record<string, string>;
   timestamp: number;
 }
+
+export interface PromptTemplate {
+  id: string;
+  title: string;
+  text: string;
+}
