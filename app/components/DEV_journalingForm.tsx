@@ -61,6 +61,7 @@ function SortableTextareaItem({
   };
 
   const [isHovered, setIsHovered] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
   const hasContent = journalEntries[item.id] && typeof journalEntries[item.id] === 'string' && (journalEntries[item.id] as string).length > 0;
 
   const handleChange = (e: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
@@ -87,6 +88,8 @@ function SortableTextareaItem({
             initialValue={item.title}
             onSave={(newValue) => onCustomTitleChange(item.id, newValue)}
             fieldKey={item.id}
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
           />
         </label>
         <div className="mt-1">
@@ -98,6 +101,8 @@ function SortableTextareaItem({
             placeholder={item.placeholder}
             value={(journalEntries[item.id] as string) || ''}
             onChange={handleChange}
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
           />
         </div>
         {isHovered && !hasContent && !isRemovable && (
@@ -109,7 +114,7 @@ function SortableTextareaItem({
             +
           </button>
         )}
-        {isHovered && isRemovable && (
+        {isHovered && isRemovable && !hasContent && !isFocused && (
           <button
             type="button"
             onClick={() => handleRemoveField(item.id)}
