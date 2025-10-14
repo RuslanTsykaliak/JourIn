@@ -72,6 +72,8 @@ function SortableTextareaItem({
     });
   };
 
+  const dragListeners = isFocused ? {} : listeners;
+
   return (
     <div
       ref={setNodeRef}
@@ -83,7 +85,7 @@ function SortableTextareaItem({
       onMouseLeave={() => setIsHovered(false)}
     >
       <div className="relative">
-        <label {...listeners} htmlFor={item.id} className="block text-sm font-medium text-gray-300 text-center cursor-grab">
+        <label {...dragListeners} htmlFor={item.id} className={`block text-sm font-medium text-gray-300 text-center ${!isFocused ? 'cursor-grab' : ''}`}>
           <EditableTitle
             initialValue={item.title}
             onSave={(newValue) => onCustomTitleChange(item.id, newValue)}
@@ -97,12 +99,13 @@ function SortableTextareaItem({
             id={item.id}
             name={item.id}
             rows={4}
-            className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 mt-1 block w-full sm:text-sm border border-gray-600 rounded-md p-2 bg-gray-700 text-gray-100"
+            className={`shadow-sm focus:ring-indigo-500 focus:border-indigo-500 mt-1 block w-full sm:text-sm border border-gray-600 rounded-md p-2 bg-gray-700 text-gray-100 ${!isFocused ? 'cursor-grab' : ''}`}
             placeholder={item.placeholder}
             value={(journalEntries[item.id] as string) || ''}
             onChange={handleChange}
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
+            {...dragListeners}
           />
         </div>
         {isHovered && !hasContent && !isRemovable && (
