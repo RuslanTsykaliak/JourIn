@@ -37,9 +37,9 @@ const SortablePromptItem: React.FC<SortablePromptItemProps> = ({
   };
 
   return (
-    <div ref={setNodeRef} style={style} {...attributes} className="flex items-center mb-4">
-      <div {...listeners} className="cursor-grab mr-2">
-        <GripVertical />
+    <div ref={setNodeRef} style={style} {...attributes} className="flex items-start mb-4">
+      <div {...listeners} className="cursor-grab mr-2 pt-1">
+        <GripVertical size={18} className="text-gray-500" />
       </div>
       <div className="flex-grow">
         <EditableTitle
@@ -53,7 +53,7 @@ const SortablePromptItem: React.FC<SortablePromptItemProps> = ({
           placeholder="Reflect here..."
           className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 mt-1 block w-full sm:text-sm border border-gray-600 rounded-md p-2 bg-gray-700 text-gray-100"
         />
-        {isRemovable && <button onClick={() => removeTemplate(template.id)} className="text-red-500">Remove</button>}
+        {isRemovable && <button onClick={() => removeTemplate(template.id)} className="text-red-500 mt-1 text-xs">Remove</button>}
       </div>
     </div>
   );

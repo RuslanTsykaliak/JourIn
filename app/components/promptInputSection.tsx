@@ -2,7 +2,10 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from 'react';
-import JournalingForm from './journalingForm';
+
+// import JournalingForm from './journalingForm';
+import JournalingForm from './DEV_journalingForm';
+
 import GeneratePostPromptButton from './generatePostPromptButton';
 import PromptTemplateEditor from './promptTemplateEditor';
 import { JournalEntries, CustomTitles } from '../types';
