@@ -53,6 +53,7 @@ function SortableTextareaItem({
     setNodeRef,
     transform,
     transition,
+    isDragging,
   } = useSortable({ id: item.id });
 
   const style = {
@@ -90,8 +91,8 @@ function SortableTextareaItem({
             initialValue={item.title}
             onSave={(newValue) => onCustomTitleChange(item.id, newValue)}
             fieldKey={item.id}
-            onFocus={() => setIsFocused(true)}
-            onBlur={() => setIsFocused(false)}
+            onFocus={isDragging ? undefined : () => setIsFocused(true)}
+            onBlur={isDragging ? undefined : () => setIsFocused(false)}
           />
         </label>
         <div className="mt-1">
@@ -103,9 +104,8 @@ function SortableTextareaItem({
             placeholder={item.placeholder}
             value={(journalEntries[item.id] as string) || ''}
             onChange={handleChange}
-            onFocus={() => setIsFocused(true)}
-            onBlur={() => setIsFocused(false)}
-            {...dragListeners}
+            onFocus={isDragging ? undefined : () => setIsFocused(true)}
+            onBlur={isDragging ? undefined : () => setIsFocused(false)}
           />
         </div>
         {isHovered && !hasContent && !isRemovable && (
