@@ -7,6 +7,7 @@ import { useJournalEntriesStorage } from '../hooks/useJournalEntriesStorage';
 import { useDbJournalEntries } from '../auth/useDbJournalEntries';
 import { getStartOfWeek, getEndOfWeek, generateWeeklySummary as generateWeeklySummaryUtil } from '../utils/weeklySummaryUtils';
 import DynamicJournalEntryItem from './DynamicJournalEntryItem';
+import { weeklyPromptTemplate } from '../lib/weeklyPromptTemplate';
 
 interface JournalHistorySectionProps {
   newEntryToHistory: JournalEntryWithTimestamp | null;
@@ -51,6 +52,13 @@ export default function JournalHistorySection({ newEntryToHistory }: JournalHist
 
   const generateWeeklySummary = () => {
     setWeeklySummaryText(generateWeeklySummaryUtil(pastEntries, selectedWeekStart, selectedWeekEnd));
+    setShowSummaryModal(true);
+  };
+
+  const generateWeeklyPrompt = () => {
+    const summary = generateWeeklySummaryUtil(pastEntries, selectedWeekStart, selectedWeekEnd);
+    const postText = weeklyPromptTemplate.replace('{{weeklySummary}}', summary);
+    setWeeklySummaryText(postText);
     setShowSummaryModal(true);
   };
 
@@ -145,6 +153,12 @@ export default function JournalHistorySection({ newEntryToHistory }: JournalHist
             className="w-full px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
           >
             Generate Weekly Summary
+          </button>
+          <button
+            onClick={generateWeeklyPrompt}
+            className="mt-2 w-full px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          >
+            Weekly Prompt
           </button>
         </div>
 
