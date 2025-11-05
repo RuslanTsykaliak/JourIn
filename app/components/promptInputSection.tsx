@@ -184,7 +184,7 @@ export default function PromptInputSection({ onPromptGenerated }: PromptInputSec
 
         if (typeof entryValue === 'string' && entryValue.trim() !== '' && entryTitle.trim() === '') {
           alert(`Please provide a title for the entry: "${entryValue}"`);
-          return;
+          return false;
         }
       }
     }
@@ -233,15 +233,19 @@ export default function PromptInputSection({ onPromptGenerated }: PromptInputSec
 
       localStorage.setItem('jourin_current_draft', JSON.stringify(newEntries));
       setJournalEntries(newEntries);
+      return true;
     } catch (error) {
       if (error instanceof Error) {
         alert(error.message);
       }
+      return false;
     }
   };
 
   const handleGeneratePostDB = async () => {
-    handleGenerateClick(); // First, save the journal entry and generate the local prompt
+    if (!handleGenerateClick()) {
+      return;
+    }
 
     try {
       const response = await fetch('/api/generate/db', {
