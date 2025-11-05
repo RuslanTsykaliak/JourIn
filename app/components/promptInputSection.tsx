@@ -241,6 +241,8 @@ export default function PromptInputSection({ onPromptGenerated }: PromptInputSec
   };
 
   const handleGeneratePostDB = async () => {
+    handleGenerateClick(); // First, save the journal entry and generate the local prompt
+
     try {
       const response = await fetch('/api/generate/db', {
         method: 'POST',
