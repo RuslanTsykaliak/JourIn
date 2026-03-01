@@ -330,7 +330,7 @@ export default function PromptInputSection({ onPromptGenerated }: PromptInputSec
         {status === 'unauthenticated' && (
           <a href="/auth" className="mt-3 xs:mt-4 sm:mt-5 w-full">
             <button
-              className="w-full flex justify-center py-2 xs:py-3 sm:py-4 px-3 xs:px-4 sm:px-6 border border-transparent rounded-md shadow-sm text-base xs:text-lg sm:text-xl md:text-2xl font-medium text-white bg-green-700 hover:bg-green-800  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+              className="w-full flex justify-center py-2 xs:py-3 sm:py-4 md:py-5 px-3 xs:px-4 sm:px-5 md:px-6 border border-transparent rounded-md shadow-sm text-base xs:text-lg sm:text-xl md:text-2xl font-medium text-white bg-green-700 hover:bg-green-800  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
             >
               Log in to Generate a Post
             </button>
@@ -346,7 +346,7 @@ export default function PromptInputSection({ onPromptGenerated }: PromptInputSec
         )}
         <button
           onClick={() => setIsEditorOpen(true)}
-          className="mt-2 text-xl xs:text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-blue-500 hover:underline"
+          className="mt-2 text-base xs:text-lg sm:text-xl md:text-2xl text-blue-500 hover:underline"
         >
           Customize Prompt
         </button>
