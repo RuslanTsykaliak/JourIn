@@ -124,8 +124,8 @@ export default function Home() {
 
 
   return (
-    <div className="min-h-screen bg-gray-900 flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8 text-center bg-gray-800 p-8 rounded-lg shadow-lg text-gray-100">
+    <div className="min-h-screen bg-gray-900 flex flex-col items-center justify-center py-4 xs:py-6 sm:py-8 md:py-10 lg:py-12 px-0 xs:px-0 sm:px-0 md:px-0 lg:px-0">
+      <div className="w-full mx-auto px-0 xs:px-0 sm:px-0 md:px-0 lg:px-0 xs:max-w-none sm:max-w-none md:max-w-none lg:max-w-none space-y-6 xs:space-y-7 sm:space-y-8 text-center bg-gray-800 p-4 xs:p-5 sm:p-6 md:p-7 lg:p-8 rounded-lg shadow-lg text-gray-100">
         <Header />
         <PromptInputSection onPromptGenerated={handlePromptGenerated} />
         {generatedPrompt && (

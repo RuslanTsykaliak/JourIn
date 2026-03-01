@@ -133,13 +133,13 @@ const HabitsPage = () => {
   };
 
   return (
-    <main className="p-4 md:p-8">
-      <h1 className="text-2xl font-bold mb-4 dark:text-white">Super Habits</h1>
+    <main className="p-2 xs:p-3 sm:p-4 md:p-6 lg:p-8">
+      <h1 className="text-xl xs:text-2xl sm:text-3xl md:text-4xl font-bold mb-4 dark:text-white">Super Habits</h1>
       <form onSubmit={handleSubmit}>
-        <div className="grid grid-cols-1 gap-8">
+        <div className="grid grid-cols-1 gap-6 xs:gap-7 sm:gap-8">
 
           {/* General Section */}
-          <section className="p-4 border rounded-lg">
+          <section className="p-3 xs:p-4 sm:p-5 md:p-6 border rounded-lg">
             <div className="grid grid-cols-1 gap-4">
               <div>
                 <label htmlFor="my-notes" className="block text-sm font-bold text-gray-700 dark:text-gray-300">My notes</label>

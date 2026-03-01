@@ -19,7 +19,7 @@ const EditableCell = ({ value, onChange, onBlur, type }: {
   onBlur: () => void;
   type: 'text' | 'yesNo' | 'number' | 'scale';
 }) => {
-  const commonClasses = "w-full h-full p-1 bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 rounded";
+  const commonClasses = "w-full h-full p-2 xs:p-3 sm:p-4 bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 rounded text-base xs:text-lg sm:text-xl md:text-2xl";
   if (type === 'yesNo') {
     return (
       <select value={value || ''} onChange={onChange} onBlur={onBlur} autoFocus className={commonClasses}>
@@ -30,9 +30,9 @@ const EditableCell = ({ value, onChange, onBlur, type }: {
     );
   }
   if (type === 'number' || type === 'scale') {
-    return <input type="number" value={value || ''} onChange={onChange} onBlur={onBlur} autoFocus className={`${commonClasses} w-20`} />;
+    return <input type="number" value={value || ''} onChange={onChange} onBlur={onBlur} autoFocus className={`${commonClasses} w-20 xs:w-24 sm:w-28 md:w-32`} />;
   }
-  return <textarea value={value || ''} onChange={onChange} onBlur={onBlur} autoFocus className={`${commonClasses} h-20`} rows={3} />;
+  return <textarea value={value || ''} onChange={onChange} onBlur={onBlur} autoFocus className={`${commonClasses} h-20 xs:h-24 sm:h-28 md:h-32`} rows={3} />;
 };
 
 const WeeklySummaryPage = () => {
@@ -237,36 +237,38 @@ const WeeklySummaryPage = () => {
   const daysOfWeek = getDatesForWeek(currentWeekStart);
 
   return (
-    <main className="p-4 md:p-8">
-      <h1 className="text-2xl font-bold mb-4 dark:text-white">Weekly Habits Summary</h1>
-      <div className="flex justify-between items-center mb-4">
-        <button onClick={goToPreviousWeek} className="px-4 py-2 rounded-md bg-ray-200 dark:bg-gray-700 dark:text-white">Previous week</button>
+    <main className="p-2 xs:p-3 sm:p-4 md:p-6 lg:p-8">
+      <div className="w-full max-w-none">
+        <h1 className="text-xl xs:text-2xl sm:text-3xl md:text-4xl font-bold mb-4 dark:text-white">Weekly Habits Summary</h1>
+        <div className="flex justify-between items-center mb-4">
+          <button onClick={goToPreviousWeek} className="px-4 xs:px-5 sm:px-6 py-3 xs:py-4 rounded-md bg-gray-200 dark:bg-gray-700 dark:text-white text-base xs:text-lg sm:text-xl md:text-2xl">Previous week</button>
         <span className="text-lg font-semibold dark:text-white">
           Week of {currentWeekStart.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
         </span>
-        <button onClick={goToNextWeek} className="px-4 py-2 rounded-md bg-gray-200 dark:bg-gray-700 dark:text-white">Next week</button>
+        <button onClick={goToNextWeek} className="px-4 xs:px-5 sm:px-6 py-3 xs:py-4 rounded-md bg-gray-200 dark:bg-gray-700 dark:text-white text-base xs:text-lg sm:text-xl md:text-2xl">Next week</button>
+        </div>
       </div>
       <div className="overflow-x-auto">
-        <table className="min-w-full border-collapse">
+        <table className="min-w-full max-w-full border-collapse text-base xs:text-lg sm:text-xl md:text-2xl">
           <thead>
             <tr>
-              <th className="py-2 px-4 text-left text-sm font-semibold text-gray-600 dark:text-gray-300 border border-gray-300 dark:border-gray-600">Habit</th>
+              <th className="py-3 xs:py-4 px-4 xs:px-5 text-left text-lg xs:text-xl sm:text-2xl font-semibold text-gray-600 dark:text-gray-300 border border-gray-300 dark:border-gray-600">Habit</th>
               {daysOfWeek.map(day => (
-                <th key={day} className="py-2 px-4 text-left text-sm font-semibold text-gray-600 dark:text-gray-300 border border-gray-300 dark:border-gray-600">
+                <th key={day} className="py-3 xs:py-4 px-4 xs:px-5 text-left text-lg xs:text-xl sm:text-2xl font-semibold text-gray-600 dark:text-gray-300 border border-gray-300 dark:border-gray-600">
                   {new Date(day + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
                 </th>
               ))}
-              <th className="py-2 px-4 text-left text-sm font-semibold text-gray-600 dark:text-gray-300 border border-gray-300 dark:border-gray-600">Target</th>
-              <th className="py-2 px-4 text-left text-sm font-semibold text-gray-600 dark:text-gray-300 border border-gray-300 dark:border-gray-600">Points</th>
-              <th className="py-2 px-4 text-left text-sm font-semibold text-gray-600 dark:text-gray-300 border border-gray-300 dark:border-gray-600">% of goal</th>
+              <th className="py-3 xs:py-4 px-4 xs:px-5 text-left text-lg xs:text-xl sm:text-2xl font-semibold text-gray-600 dark:text-gray-300 border border-gray-300 dark:border-gray-600">Target</th>
+              <th className="py-3 xs:py-4 px-4 xs:px-5 text-left text-lg xs:text-xl sm:text-2xl font-semibold text-gray-600 dark:text-gray-300 border border-gray-300 dark:border-gray-600">Points</th>
+              <th className="py-3 xs:py-4 px-4 xs:px-5 text-left text-lg xs:text-xl sm:text-2xl font-semibold text-gray-600 dark:text-gray-300 border border-gray-300 dark:border-gray-600">% of goal</th>
             </tr>
           </thead>
           <tbody>
             {habitQuestions.map(habit => (
               <tr key={habit.key}>
-                <td className="py-2 px-4 text-sm text-gray-800 dark:text-gray-200 font-medium border border-gray-300 dark:border-gray-600">{habit.label}</td>
+                <td className="py-3 xs:py-4 px-4 xs:px-5 text-base xs:text-lg sm:text-xl md:text-2xl text-gray-800 dark:text-gray-200 font-medium border border-gray-300 dark:border-gray-600">{habit.label}</td>
                 {daysOfWeek.map(date => (
-                  <td key={date} onClick={() => setActiveCell({ date, habit: habit.key })} className="py-0 px-0 text-sm text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-600 relative">
+                  <td key={date} onClick={() => setActiveCell({ date, habit: habit.key })} className="py-2 xs:py-3 px-2 xs:px-3 text-base xs:text-lg sm:text-xl md:text-2xl text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-600 relative">
                     {activeCell?.date === date && activeCell?.habit === habit.key ? (
                       <EditableCell
                         value={getHabitValue(habit.key, date)}
@@ -275,22 +277,22 @@ const WeeklySummaryPage = () => {
                         type={habit.type}
                       />
                     ) : (
-                      <div className="w-full h-full p-2">{String(getHabitValue(habit.key, date) || '-')}
+                      <div className="w-full h-full p-3 xs:p-4 sm:p-5 text-base xs:text-lg sm:text-xl md:text-2xl">{String(getHabitValue(habit.key, date) || '-')}
                       </div>
                     )}
                   </td>
                 ))}
-                <td className="py-2 px-4 text-sm text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-600">N/A</td>
-                <td className="py-2 px-4 text-sm text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-600">
+                <td className="py-3 xs:py-4 px-4 xs:px-5 text-base xs:text-lg sm:text-xl md:text-2xl text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-600">N/A</td>
+                <td className="py-3 xs:py-4 px-4 xs:px-5 text-base xs:text-lg sm:text-xl md:text-2xl text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-600">
                   {habit.type === 'number' || habit.type === 'scale' ? calculateAverage(habit.key) : calculateSum(habit.key)}
                 </td>
-                <td className="py-2 px-4 text-sm text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-600">N/A</td>
+                <td className="py-3 xs:py-4 px-4 xs:px-5 text-base xs:text-lg sm:text-xl md:text-2xl text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-600">N/A</td>
               </tr>
             ))}
             <tr>
-              <td className="py-2 px-4 text-sm text-gray-800 dark:text-gray-200 font-medium border border-gray-300 dark:border-gray-600">Comments</td>
+              <td className="py-3 xs:py-4 px-4 xs:px-5 text-base xs:text-lg sm:text-xl md:text-2xl text-gray-800 dark:text-gray-200 font-medium border border-gray-300 dark:border-gray-600">Comments</td>
               {daysOfWeek.map(date => (
-                <td key={date} onClick={() => setActiveCell({ date, habit: 'comments' })} className="py-0 px-0 text-sm text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-600 relative">
+                <td key={date} onClick={() => setActiveCell({ date, habit: 'comments' })} className="py-2 xs:py-3 px-2 xs:px-3 text-base xs:text-lg sm:text-xl md:text-2xl text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-600 relative">
                   {activeCell?.date === date && activeCell?.habit === 'comments' ? (
                     <EditableCell
                       value={getCommentValue(date)}
@@ -299,7 +301,7 @@ const WeeklySummaryPage = () => {
                       type="text"
                     />
                   ) : (
-                    <div className="w-full h-full p-2">{getCommentValue(date) || '-'}
+                    <div className="w-full h-full p-3 xs:p-4 sm:p-5 text-base xs:text-lg sm:text-xl md:text-2xl">{getCommentValue(date) || '-'}
                     </div>
                   )}
                 </td>

@@ -81,26 +81,26 @@ const JournalEntryItemDB: React.FC<JournalEntryItemProps> = ({ entry }) => {
   return (
     <div key={displayEntry.timestamp} className="p-4 bg-gray-700 rounded-md shadow-md">
       <div className="flex justify-between items-center mb-2">
-        <h3 className="text-md font-semibold text-gray-100">
+        <h3 className="text-base xs:text-lg sm:text-xl md:text-2xl font-semibold text-gray-100">
           Entry from {new Date(displayEntry.timestamp).toLocaleString()}
         </h3>
         <div className="flex space-x-2">
           <button
             onClick={copyPastEntryPromptToClipboard}
-            className="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
+            className="inline-flex items-center px-3 xs:px-4 py-2 xs:py-3 border border-transparent text-base xs:text-lg sm:text-xl md:text-2xl font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
           >
             {copyPastEntryPromptSuccess === displayEntry.timestamp ? 'Copied!' : 'Copy Prompt'}
           </button>
           <button
             onClick={copyPastEntryTextToClipboard}
-            className="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            className="inline-flex items-center px-3 xs:px-4 py-2 xs:py-3 border border-transparent text-base xs:text-lg sm:text-xl md:text-2xl font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
           >
             {copyPastEntryTextSuccess === displayEntry.timestamp ? 'Copied!' : 'Copy Text'}
           </button>
         </div>
       </div>
       {displayFields.map(field => (
-        <p key={field.key} className="text-sm text-gray-300">
+        <p key={field.key} className="text-base xs:text-lg sm:text-xl md:text-2xl text-gray-300">
           <span className="font-medium">{field.title}:</span> {field.value}
         </p>
       ))}

@@ -79,14 +79,14 @@ export default function EditableTitle({
           onFocus={onFocus}
           onBlur={handleBlur}
           onKeyDown={handleKeyDown}
-          className="bg-gray-700 text-gray-100 border border-gray-600 rounded-md p-1 text-sm font-medium w-full"
+          className="bg-gray-700 text-gray-100 border border-gray-600 rounded-md p-1 text-lg xs:text-xl sm:text-2xl md:text-3xl lg:text-4xl font-medium w-full"
           autoFocus
           aria-label={`Edit ${initialValue}`}
           placeholder={placeholder || "Write your question"}
         />
       ) : (
         <span className={`
-          block w-full p-1 rounded-md
+          block w-full p-1 rounded-md text-lg xs:text-xl sm:text-2xl md:text-3xl lg:text-4xl
           ${currentValue.trim() === '' ? 'text-gray-400 italic' : 'text-gray-100'}
           ${isHovered ? 'hover:text-indigo-400 transition-colors duration-200' : ''}
         `}>

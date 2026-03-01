@@ -100,7 +100,7 @@ function SortableTextareaItem({
             id={item.id}
             name={item.id}
             rows={4}
-            className={`shadow-sm focus:ring-indigo-500 focus:border-indigo-500 mt-1 block w-full sm:text-sm border border-gray-600 rounded-md p-2 bg-gray-700 text-gray-100 ${!isFocused ? 'cursor-grab' : ''}`}
+            className={`shadow-sm focus:ring-indigo-500 focus:border-indigo-500 mt-1 block w-full text-lg xs:text-xl sm:text-2xl md:text-3xl lg:text-4xl border border-gray-600 rounded-md p-4 xs:p-5 sm:p-6 bg-gray-700 text-gray-100 ${!isFocused ? 'cursor-grab' : ''}`}
             placeholder={item.placeholder}
             value={(journalEntries[item.id] as string) || ''}
             onChange={handleChange}
@@ -232,8 +232,8 @@ export default function JournalingForm({
         items={items.map(i => i.id)}
         strategy={verticalListSortingStrategy}
       >
-        <div className="mt-8">
-          <form className="space-y-6">
+        <div className="mt-6 xs:mt-7 sm:mt-8">
+          <form className="space-y-4 xs:space-y-5 sm:space-y-6">
             {items.map(item => (
               <SortableTextareaItem
                 key={item.id}

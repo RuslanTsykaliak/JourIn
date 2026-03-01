@@ -71,11 +71,11 @@ export default function StreakCounter() {
   return (
     <h1
       className="flex items-center justify-center gap-2 font-extrabold text-gray-100 text-center w-full px-2 relative group"
-      style={{ fontSize: "clamp(1rem, 4vw, 2.25rem)" }} // Scales with screen size
+      style={{ fontSize: "clamp(1.5rem, 6vw, 3.5rem)" }} // Much larger scaling
     >
       JourIn: Journal Your Way to Impact 🔥 {streak}
       {/* Tooltip */}
-      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1 bg-gray-700 text-gray-100 text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap pointer-events-none">
+      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1 bg-gray-700 text-gray-100 text-sm xs:text-base sm:text-lg md:text-xl lg:text-2xl rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap pointer-events-none">
         {tooltipText}
       </div>
     </h1>

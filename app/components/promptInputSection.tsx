@@ -313,7 +313,7 @@ export default function PromptInputSection({ onPromptGenerated }: PromptInputSec
               id="userGoal"
               name="userGoal"
               rows={3} // Or any other number of rows you prefer
-              className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 mt-1 block w-full sm:text-sm border border-gray-600 rounded-md p-2 bg-gray-700 text-gray-100"
+              className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 mt-1 block w-full text-lg xs:text-xl sm:text-2xl md:text-3xl lg:text-4xl border border-gray-600 rounded-md p-4 xs:p-5 sm:p-6 bg-gray-700 text-gray-100"
               placeholder="What's your goal? (e.g., 'Find a full-stack position', 'Build a following for my tech blog')"
               value={userGoal}
               onChange={handleGoalInputChange}
@@ -322,22 +322,22 @@ export default function PromptInputSection({ onPromptGenerated }: PromptInputSec
         </div>
       </div>
 
-      <div className="mt-6 flex flex-col items-center">
+      <div className="mt-6 xs:mt-7 sm:mt-8 flex flex-col items-center">
         <GeneratePostPromptButton
           onClick={handleGenerateClick}
           disabled={isGenerationDisabled}
         />
         {status === 'unauthenticated' && (
-          <a href="/auth" className="mt-4 w-full">
+          <a href="/auth" className="mt-3 xs:mt-4 sm:mt-5 w-full">
             <button
-              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-700 hover:bg-green-800  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+              className="w-full flex justify-center py-2 xs:py-3 sm:py-4 px-3 xs:px-4 sm:px-6 border border-transparent rounded-md shadow-sm text-base xs:text-lg sm:text-xl md:text-2xl font-medium text-white bg-green-700 hover:bg-green-800  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
             >
               Log in to Generate a Post
             </button>
           </a>
         )}
         {status === 'authenticated' && (
-          <div className="mt-4 w-full">
+          <div className="mt-3 xs:mt-4 sm:mt-5 w-full">
             <GeneratePostPromptButtonDB
               onClick={handleGeneratePostDB}
               disabled={isGenerationDisabled}
@@ -346,7 +346,7 @@ export default function PromptInputSection({ onPromptGenerated }: PromptInputSec
         )}
         <button
           onClick={() => setIsEditorOpen(true)}
-          className="mt-2 text-sm text-blue-500 hover:underline"
+          className="mt-2 text-xl xs:text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-blue-500 hover:underline"
         >
           Customize Prompt
         </button>
