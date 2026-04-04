@@ -8,7 +8,7 @@ jest.mock('next-auth/react', () => ({
   ...jest.requireActual('next-auth/react'), // Import and retain default behavior
   signIn: jest.fn(), // Mock signIn specifically
 }));
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 // Mock next-auth/react
 
@@ -16,10 +16,12 @@ import { useRouter } from 'next/navigation';
 // Mock next/navigation
 jest.mock('next/navigation', () => ({
   useRouter: jest.fn(),
+  useSearchParams: jest.fn(),
 }));
 
 const mockSignIn = signIn as jest.Mock;
 const mockUseRouter = useRouter as jest.Mock;
+const mockUseSearchParams = useSearchParams as jest.Mock;
 
 describe('AuthForm Component - Login Functionality', () => {
   let mockPush: jest.Mock;
@@ -28,6 +30,9 @@ describe('AuthForm Component - Login Functionality', () => {
     mockSignIn.mockReset();
     mockPush = jest.fn();
     mockUseRouter.mockReturnValue({ push: mockPush });
+    mockUseSearchParams.mockReturnValue({
+      get: jest.fn().mockReturnValue(null), // No token by default
+    });
   });
 
   afterEach(() => {

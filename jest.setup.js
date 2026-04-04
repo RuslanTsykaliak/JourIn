@@ -21,6 +21,12 @@ Object.defineProperty(window, 'localStorage', {
   value: localStorageMock,
 });
 
+// React 19 compatibility: Ensure DOM is properly set up
+Object.defineProperty(window, 'IS_REACT_ACT_ENVIRONMENT', {
+  writable: true,
+  value: true,
+});
+
 // Mock fetch
 beforeEach(() => {
   global.fetch = jest.fn(() =>

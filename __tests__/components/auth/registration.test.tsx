@@ -1,14 +1,16 @@
 import { render, screen, waitFor } from '../../test-utils';
 import userEvent from '@testing-library/user-event';
 import AuthForm from '@/app/auth/components/AuthForm';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 // Mock next/navigation
 jest.mock('next/navigation', () => ({
   useRouter: jest.fn(),
+  useSearchParams: jest.fn(),
 }));
 
 const mockUseRouter = useRouter as jest.Mock;
+const mockUseSearchParams = useSearchParams as jest.Mock;
 
 describe('AuthForm Component - Registration Functionality', () => {
   let mockPush: jest.Mock;
@@ -16,6 +18,9 @@ describe('AuthForm Component - Registration Functionality', () => {
   beforeEach(() => {
     mockPush = jest.fn();
     mockUseRouter.mockReturnValue({ push: mockPush });
+    mockUseSearchParams.mockReturnValue({
+      get: jest.fn().mockReturnValue(null), // No token by default
+    });
     global.fetch = jest.fn(() =>
       Promise.resolve({
         ok: true,
@@ -59,7 +64,8 @@ describe('AuthForm Component - Registration Functionality', () => {
           password: 'Password123!',
         }),
       });
-      expect(mockPush).toHaveBeenCalledWith('/auth');
+      expect(screen.getByText('Registration successful! Please login.')).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: /login/i })).toBeInTheDocument();
     });
   });
 });

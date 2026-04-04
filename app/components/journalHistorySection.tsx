@@ -8,6 +8,7 @@ import { useDbJournalEntries } from '../auth/useDbJournalEntries';
 import { getStartOfWeek, getEndOfWeek, generateWeeklySummary as generateWeeklySummaryUtil } from '../utils/weeklySummaryUtils';
 import DynamicJournalEntryItem from './DynamicJournalEntryItem';
 import { weeklyPromptTemplate } from '../lib/weeklyPromptTemplate';
+import DownloadHistoryButton from './DownloadHistoryButton';
 
 interface JournalHistorySectionProps {
   newEntryToHistory: JournalEntryWithTimestamp | null;
@@ -162,7 +163,10 @@ export default function JournalHistorySection({ newEntryToHistory }: JournalHist
           </button>
         </div>
 
-        <h2 className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl font-extrabold text-gray-100 mb-6">Your Past Entries</h2>
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl font-extrabold text-gray-100">Your Past Entries</h2>
+          <DownloadHistoryButton />
+        </div>
         <div className="space-y-6 xs:space-y-7 sm:space-y-8">
           {pastEntries.slice(0, displayCount).map((entry) => (
             <DynamicJournalEntryItem key={entry.timestamp} entry={entry} />
