@@ -103,7 +103,7 @@ export default function JournalHistorySection({ newEntryToHistory }: JournalHist
         })
         .join('\n\n');
 
-      return `--- Journal Entry (${new Date(entry.timestamp).toLocaleString()}) ---\n${entryContent}`;
+      return `--- Journal Entry ${new Date(entry.timestamp).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' })} ---\n${entryContent}`;
     }).join('\n\n');
 
     try {
@@ -212,34 +212,48 @@ export default function JournalHistorySection({ newEntryToHistory }: JournalHist
         {/* Summary Modal */}
         {showSummaryModal && (
           <div
-            className="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50"
+            className="fixed inset-0 bg-gray-900 bg-opacity-95 flex items-center justify-center z-50"
             role="dialog"
             aria-label="Weekly Summary"
           >
-            <div className="bg-gray-700 p-6 xs:p-7 sm:p-8 rounded-lg shadow-xl max-w-2xl xs:max-w-3xl sm:max-w-4xl md:max-w-5xl w-full m-4">
-              <h3 className="text-xl xs:text-2xl sm:text-3xl md:text-4xl font-bold text-gray-100 mb-6">Weekly Summary</h3>
-              <textarea
-                className="w-full h-64 xs:h-80 sm:h-96 md:h-112 p-4 xs:p-5 sm:p-6 bg-gray-800 text-base xs:text-lg sm:text-xl md:text-2xl text-gray-200 rounded-md border border-gray-600 focus:outline-none focus:border-blue-500"
-                value={weeklySummaryText}
-                onChange={(e) => setWeeklySummaryText(e.target.value)}
-              />
-              <div className="mt-6 flex justify-end space-x-3">
-                <button
-                  onClick={() => {
-                    navigator.clipboard.writeText(weeklySummaryText);
-                    setCopySummarySuccess(true);
-                    setTimeout(() => setCopySummarySuccess(false), 2000);
-                  }}
-                  className="px-4 xs:px-5 sm:px-6 py-2 xs:py-3 bg-blue-600 text-base xs:text-lg sm:text-xl md:text-2xl text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                >
-                  {copySummarySuccess ? 'Copied!' : 'Copy to Clipboard'}
-                </button>
-                <button
-                  onClick={() => setShowSummaryModal(false)}
-                  className="px-4 xs:px-5 sm:px-6 py-2 xs:py-3 bg-red-600 text-base xs:text-lg sm:text-xl md:text-2xl text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-                >
-                  Close
-                </button>
+            <div className="bg-gray-800 w-full h-full max-h-screen flex flex-col m-0">
+              {/* Combined Header with all controls */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between p-3 xs:p-4 sm:p-5 border-b border-gray-700 gap-4 sm:gap-0">
+                <h3 className="text-lg xs:text-xl sm:text-2xl md:text-3xl font-bold text-gray-100">Weekly Summary</h3>
+                <div className="flex items-center gap-3">
+                  <div className="text-xs text-gray-400">
+                    {weeklySummaryText.length} characters
+                  </div>
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(weeklySummaryText);
+                      setCopySummarySuccess(true);
+                      setTimeout(() => setCopySummarySuccess(false), 2000);
+                    }}
+                    className="px-3 xs:px-4 sm:px-5 py-1 xs:py-2 bg-blue-600 text-sm xs:text-base sm:text-lg md:text-xl text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+                  >
+                    {copySummarySuccess ? 'Copied!' : 'Copy to Clipboard'}
+                  </button>
+                  <button
+                    onClick={() => setShowSummaryModal(false)}
+                    className="p-1.5 text-gray-400 hover:text-gray-200 hover:bg-gray-700 rounded-md transition-colors"
+                    aria-label="Close modal"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              
+              {/* Content Area - Now takes full remaining space */}
+              <div className="flex-1 p-4 xs:p-5 sm:p-6 overflow-hidden">
+                <textarea
+                  className="w-full h-full p-4 xs:p-5 sm:p-6 bg-gray-900 text-base xs:text-lg sm:text-xl md:text-2xl text-gray-200 rounded-md border border-gray-600 focus:outline-none focus:border-blue-500 resize-none"
+                  value={weeklySummaryText}
+                  onChange={(e) => setWeeklySummaryText(e.target.value)}
+                  placeholder="Your weekly summary will appear here..."
+                />
               </div>
             </div>
           </div>

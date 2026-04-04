@@ -79,7 +79,7 @@ const JournalEntryItem: React.FC<JournalEntryItemProps> = ({ entry }) => {
       .map(field => `${field.title}:\n${field.value}`)
       .join('\n\n');
 
-    const textToCopy = `--- Journal Entry (${new Date(entry.timestamp).toLocaleString()}) ---\n${entryContent}`;
+    const textToCopy = `--- Journal Entry ${new Date(entry.timestamp).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' })} ---\n${entryContent}`;
 
     try {
       await navigator.clipboard.writeText(textToCopy);
@@ -96,7 +96,7 @@ const JournalEntryItem: React.FC<JournalEntryItemProps> = ({ entry }) => {
     <div key={entry.timestamp} className="p-4 bg-gray-700 rounded-md shadow-md">
       <div className="flex justify-between items-center mb-2">
         <h3 className="text-base xs:text-lg sm:text-xl md:text-2xl font-semibold text-gray-100">
-          Entry from {new Date(entry.timestamp).toLocaleString()}
+          Journal Entry {new Date(entry.timestamp).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' })}
         </h3>
         <div className="flex space-x-2">
           <button

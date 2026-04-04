@@ -28,14 +28,33 @@ export function generateWeeklySummary(pastEntries: JournalEntryWithTimestamp[], 
     return 'No journal entries found for this week.';
   } else {
     const summary = entriesInWeek.map(entry => {
-      const title = entry.customTitles || defaultTitles;
+      const titles = { ...defaultTitles, ...entry.customTitles };
+      const fields: string[] = [];
+      
+      // Add standard fields if they have content
+      const standardFields = ['whatWentWell', 'whatILearned', 'whatWouldDoDifferently', 'nextStep'];
+      standardFields.forEach(key => {
+        const value = entry[key];
+        if (value && typeof value === 'string' && value.trim() !== '') {
+          const title = titles[key] || key;
+          fields.push(`${title}: ${value}`);
+        }
+      });
+      
+      // Add dynamic fields if they have content
+      if (entry.dynamicFields && typeof entry.dynamicFields === 'object') {
+        Object.entries(entry.dynamicFields).forEach(([key, value]) => {
+          if (value && typeof value === 'string' && value.trim() !== '') {
+            const title = entry.customTitles?.[`${key}_title`] || key;
+            fields.push(`${title}: ${value}`);
+          }
+        });
+      }
+      
       return `
 ---
-Journal Entry (${new Date(entry.timestamp).toLocaleDateString()}) ---
-${title.whatWentWell}: ${entry.whatWentWell}
-${title.whatILearned}: ${entry.whatILearned}
-${title.whatWouldDoDifferently}: ${entry.whatWouldDoDifferently}
-${title.nextStep}: ${entry.nextStep}
+Journal Entry ${new Date(entry.timestamp).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' })} ---
+${fields.join('\n')}
 `;
     }).join('\n\n');
     return summary;
