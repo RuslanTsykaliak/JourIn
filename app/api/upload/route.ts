@@ -4,7 +4,6 @@ import { authOptions } from '../../auth/lib/auth';
 import prisma from '../../lib/prisma';
 
 function parseMarkdownFile(content: string): { timestamp: number; fields: { title: string; content: string }[] }[] {
-  console.log('Starting parseMarkdownFile with content length:', content.length);
   
   const entries: { timestamp: number; fields: { title: string; content: string }[] }[] = [];
   const lines = content.split('\n');
@@ -39,7 +38,6 @@ function parseMarkdownFile(content: string): { timestamp: number; fields: { titl
       const entryDate = new Date(year, month - 1, day, 12, 0, 0);
       currentEntry = { timestamp: entryDate.getTime(), fields: [] };
       currentField = null;
-      console.log('Found new entry with date:', dateStr);
       continue;
     }
     
@@ -52,7 +50,6 @@ function parseMarkdownFile(content: string): { timestamp: number; fields: { titl
       }
       // Start new field
       currentField = { title: fieldMatch[1].trim(), content: '' };
-      console.log('Found field:', currentField.title);
       continue;
     }
     
@@ -70,7 +67,6 @@ function parseMarkdownFile(content: string): { timestamp: number; fields: { titl
     entries.push(currentEntry);
   }
 
-  console.log(`Parsed ${entries.length} entries from ${lines.length} lines`);
   return entries;
 }
 
@@ -105,47 +101,36 @@ Think with the end in mind.
 
 export async function POST(request: NextRequest) {
   try {
-    console.log('Upload request received');
     
     const session = await getServerSession(authOptions);
     
     if (!session?.user?.id) {
-      console.log('No session found');
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const formData = await request.formData();
     const file = formData.get('file') as File;
 
-    console.log('File received:', file?.name, file?.size);
-
     if (!file) {
-      console.log('No file provided');
       return NextResponse.json({ error: 'No file provided' }, { status: 400 });
     }
 
     // Check file type
     if (!file.name.endsWith('.md') && !file.name.endsWith('.markdown')) {
-      console.log('Invalid file type:', file.name);
       return NextResponse.json({ error: 'Invalid file type. Only .md and .markdown files are allowed.' }, { status: 400 });
     }
 
     // Check file size (limit to 10MB)
     if (file.size > 10 * 1024 * 1024) {
-      console.log('File too large:', file.size);
       return NextResponse.json({ error: 'File too large. Maximum size is 10MB.' }, { status: 400 });
     }
 
-    console.log('Reading file content...');
     const content = await file.text();
-    console.log('Content length:', content.length);
     
     // Parse the markdown file
     const entries = parseMarkdownFile(content);
-    console.log('Parsed entries:', entries.length);
 
     if (entries.length === 0) {
-      console.log('No valid journal entries found');
       return NextResponse.json({ error: 'No valid journal entries found in file' }, { status: 400 });
     }
 
@@ -153,7 +138,6 @@ export async function POST(request: NextRequest) {
     const userId = session.user.id;
     const savedEntries = [];
 
-    console.log('Starting to save entries to database...');
     for (const entry of entries) {
       try {
         // Convert fields to dynamicFields object
@@ -163,10 +147,6 @@ export async function POST(request: NextRequest) {
         });
         
         const entryDate = new Date(entry.timestamp);
-        console.log('DEBUG: Raw timestamp:', entry.timestamp);
-        console.log('DEBUG: Parsed entry date:', entryDate.toISOString());
-        console.log('DEBUG: Entry date local string:', entryDate.toLocaleDateString());
-        console.log('DEBUG: Saving with createdAt:', entryDate);
         
         const savedEntry = await prisma.journalEntry.create({
           data: {
@@ -181,14 +161,11 @@ export async function POST(request: NextRequest) {
           },
         });
         savedEntries.push(savedEntry);
-        console.log('Entry saved successfully');
       } catch (error) {
         console.error('Error saving entry:', error);
         // Continue with other entries even if one fails
       }
     }
-
-    console.log(`Successfully saved ${savedEntries.length} entries to database`);
 
     return NextResponse.json({
       message: `Successfully uploaded ${savedEntries.length} journal entries`,

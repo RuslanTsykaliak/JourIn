@@ -33,7 +33,6 @@ export async function POST(req: NextRequest) {
   }
 
   const requestData = await req.json();
-  console.log('API received data:', requestData);
 
   const { whatWentWell, whatILearned, whatWouldDoDifferently, nextStep, customTitles } = requestData;
 
@@ -46,16 +45,11 @@ export async function POST(req: NextRequest) {
     if (key.startsWith('customField_')) {
       if (key.endsWith('_title')) {
         processedCustomTitles[key] = requestData[key];
-        console.log(`Adding ${key}: ${requestData[key]} to customTitles`);
       } else {
         dynamicFields[key] = requestData[key];
-        console.log(`Adding ${key}: ${requestData[key]} to dynamicFields`);
       }
     }
   });
-
-  console.log('Processed customTitles:', processedCustomTitles);
-  console.log('Processed dynamicFields:', dynamicFields);
 
   const newEntry = await prisma.journalEntry.create({
     data: {
@@ -69,6 +63,5 @@ export async function POST(req: NextRequest) {
     },
   });
 
-  console.log('Created entry in DB:', newEntry);
   return NextResponse.json(newEntry, { status: 201 });
 }

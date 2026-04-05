@@ -213,8 +213,6 @@ export default function PromptInputSection({ onPromptGenerated }: PromptInputSec
         }
       }
 
-      console.log('Final allCustomTitles being passed to onPromptGenerated:', allCustomTitles);
-
       onPromptGenerated(prompt, { ...journalEntries, userGoal }, allCustomTitles);
 
       const newEntries: JournalEntries = {

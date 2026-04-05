@@ -37,14 +37,10 @@ export default function UploadHistoryButton({ className = '' }: UploadHistoryBut
         throw new Error(`Upload failed: ${result.error || 'Unknown error'}`);
       }
       
-      console.log('Upload successful:', await response.json());
-      
       // Trigger a page refresh to show new entries
       // Use router reload instead of window.location.reload for better SSR compatibility
       if (typeof window !== 'undefined') {
         window.location.reload();
-      } else {
-        console.log('Upload successful, please refresh to see new entries');
       }
     } catch (error) {
       console.error('Upload error:', error);

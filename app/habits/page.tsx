@@ -122,7 +122,6 @@ const HabitsPage = () => {
       });
 
       if (response.ok) {
-        console.log('Data submitted successfully');
         // Optionally, clear the form or show a success message
       } else {
         console.error('Failed to submit data');

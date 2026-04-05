@@ -114,9 +114,14 @@ const JournalEntryItem: React.FC<JournalEntryItemProps> = ({ entry }) => {
         </div>
       </div>
       {displayFields.map(field => (
-        <p key={field.key} className="text-base xs:text-lg sm:text-xl md:text-2xl text-gray-300">
-          <span className="font-medium">{field.title}:</span> {field.value}
-        </p>
+        <div key={field.key} className="mb-4">
+          <h4 className="text-base xs:text-lg sm:text-xl md:text-2xl font-medium text-gray-200 mb-1">
+            {field.title}:
+          </h4>
+          <p className="text-base xs:text-lg sm:text-xl md:text-2xl text-gray-300 whitespace-pre-wrap">
+            {field.value}
+          </p>
+        </div>
       ))}
     </div>
   );
