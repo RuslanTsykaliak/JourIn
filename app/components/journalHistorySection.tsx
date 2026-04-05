@@ -9,6 +9,7 @@ import { getStartOfWeek, getEndOfWeek, generateWeeklySummary as generateWeeklySu
 import DynamicJournalEntryItem from './DynamicJournalEntryItem';
 import { weeklyPromptTemplate } from '../lib/weeklyPromptTemplate';
 import DownloadHistoryButton from './DownloadHistoryButton';
+import UploadHistoryButton from './UploadHistoryButton';
 
 interface JournalHistorySectionProps {
   newEntryToHistory: JournalEntryWithTimestamp | null;
@@ -127,7 +128,7 @@ export default function JournalHistorySection({ newEntryToHistory }: JournalHist
   };
 
   return (
-    pastEntries.length > 0 && (
+    // pastEntries.length > 0 && (
       <div className="mt-12 w-full max-w-none text-left">
         {/* Weekly Summary Section */}
         <div className="mb-8 p-6 xs:p-7 sm:p-8 bg-gray-800 rounded-md shadow-lg">
@@ -165,7 +166,10 @@ export default function JournalHistorySection({ newEntryToHistory }: JournalHist
 
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl font-extrabold text-gray-100">Your Past Entries</h2>
-          <DownloadHistoryButton />
+          <div className="flex gap-2">
+            <UploadHistoryButton />
+            <DownloadHistoryButton />
+          </div>
         </div>
         <div className="space-y-6 xs:space-y-7 sm:space-y-8">
           {pastEntries.slice(0, displayCount).map((entry) => (
@@ -259,6 +263,6 @@ export default function JournalHistorySection({ newEntryToHistory }: JournalHist
           </div>
         )}
       </div>
-    )
+    // )
   );
 }

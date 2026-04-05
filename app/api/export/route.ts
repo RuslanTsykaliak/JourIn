@@ -71,35 +71,31 @@ function convertPrismaEntry(prismaEntry: {
 // Generate Markdown format
 function generateMarkdown(entries: JournalEntryWithTimestamp[]): string {
   return entries.map(entry => {
-    const titles = { ...defaultTitles, ...entry.customTitles };
-    const date = new Date(entry.timestamp).toLocaleDateString();
-    
-    // Get standard fields
-    const standardFields = ['whatWentWell', 'whatILearned', 'whatWouldDoDifferently', 'nextStep'];
+    const date = new Date(entry.timestamp);
+    const dayOfWeek = date.toLocaleDateString('en-US', { weekday: 'long' });
+    const dateStr = date.toLocaleDateString();
+    const timeStr = date.toLocaleTimeString('en-US', { 
+      hour: 'numeric', 
+      minute: '2-digit', 
+      second: '2-digit',
+      hour12: true 
+    });
     
     let entryContent = '';
-    
-    // Add standard fields
-    standardFields.forEach(key => {
-      const value = entry[key];
-      if (value && typeof value === 'string' && value.trim() !== '') {
-        const title = entry[`${key}_title`] || titles[key] || key;
-        entryContent += `### ${title}\n${value}\n\n`;
-      }
-    });
     
     // Add dynamic fields
     if (entry.dynamicFields && Object.keys(entry.dynamicFields).length > 0) {
       Object.entries(entry.dynamicFields).forEach(([key, value]) => {
         if (value && typeof value === 'string' && value.trim() !== '') {
-          const title = entry.customTitles?.[`${key}_title`] || key;
-          entryContent += `### ${title}\n${value}\n\n`;
+          entryContent += `### ${key}\n${value}\n`;
         }
       });
     }
 
-    return `# Journal Entry - ${date}\n\n${entryContent}---\n`;
-  }).join('\n');
+    return `# Journal Entry ${dayOfWeek}, ${dateStr}, ${timeStr}
+
+${entryContent}---`;
+  }).join('\n\n');
 }
 
 export async function GET(request: NextRequest) {
