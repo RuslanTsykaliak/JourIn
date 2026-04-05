@@ -37,7 +37,7 @@ export default function JournalingForm({
   };
 
   const handleAddField = () => {
-    const newFieldName = `customField_${additionalFields.length}`;
+    const newFieldName = `customField_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     setAdditionalFields([...additionalFields, newFieldName]);
     showReward("New field added!");
   };
