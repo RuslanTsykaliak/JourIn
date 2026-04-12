@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '../../auth/lib/auth';
 import prisma from '../../lib/prisma';
 import { JournalEntryWithTimestamp, defaultTitles, CustomTitles } from '../../types';
+import { rateLimitMiddleware, securityHeadersMiddleware, logSecurityEvent, validateSession } from '../../lib/security';
 
 // Helper function to convert Prisma entry to JournalEntryWithTimestamp
 function convertPrismaEntry(prismaEntry: {
@@ -100,11 +101,20 @@ ${entryContent}---`;
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    // Apply rate limiting
+    const rateLimitResponse = rateLimitMiddleware(request);
+    if (rateLimitResponse) {
+      return securityHeadersMiddleware(rateLimitResponse);
     }
+
+    // Validate session
+    const session = await validateSession(request);
+    if (session instanceof NextResponse) {
+      return securityHeadersMiddleware(session);
+    }
+
+    // Log export access
+    logSecurityEvent('DATA_EXPORT', { format: 'markdown' }, request);
 
     // CSV export temporarily disabled - only Markdown export available
     // const { searchParams } = new URL(request.url);
@@ -138,18 +148,23 @@ export async function GET(request: NextRequest) {
       const markdownContent = generateMarkdown(entries);
       const filename = `journal-history-${new Date().toISOString().split('T')[0]}.md`;
       
-      return new NextResponse(markdownContent, {
+      const response = new NextResponse(markdownContent, {
         headers: {
           'Content-Type': 'text/markdown',
           'Content-Disposition': `attachment; filename="${filename}"`
         }
       });
+
+      return securityHeadersMiddleware(response);
     // }
   } catch (error) {
     console.error('Export error:', error);
-    return NextResponse.json(
+    logSecurityEvent('EXPORT_ERROR', { error: error instanceof Error ? error.message : 'Unknown error' }, request);
+    
+    const errorResponse = NextResponse.json(
       { error: 'Failed to export journal entries' },
       { status: 500 }
     );
+    return securityHeadersMiddleware(errorResponse);
   }
 }

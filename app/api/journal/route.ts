@@ -5,12 +5,20 @@ import { authOptions } from "@/app/auth/lib/auth";
 import prisma from "@/app/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 import { JsonObject } from "@prisma/client/runtime/library";
+import { rateLimitMiddleware, securityHeadersMiddleware, logSecurityEvent, validateSession } from "@/app/lib/security";
+import { validateJSONInput } from "@/app/lib/input-validation";
 
-export async function GET() {
-  const session = await getServerSession(authOptions);
+export async function GET(request: NextRequest) {
+  // Apply rate limiting
+  const rateLimitResponse = rateLimitMiddleware(request);
+  if (rateLimitResponse) {
+    return securityHeadersMiddleware(rateLimitResponse);
+  }
 
-  if (!session || !session.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  // Validate session
+  const session = await validateSession(request);
+  if (session instanceof NextResponse) {
+    return securityHeadersMiddleware(session);
   }
 
   const journalEntries = await prisma.journalEntry.findMany({
@@ -22,17 +30,36 @@ export async function GET() {
     },
   });
 
-  return NextResponse.json(journalEntries);
+  const response = NextResponse.json(journalEntries);
+  return securityHeadersMiddleware(response);
 }
 
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
+  // Apply rate limiting
+  const rateLimitResponse = rateLimitMiddleware(req);
+  if (rateLimitResponse) {
+    return securityHeadersMiddleware(rateLimitResponse);
+  }
 
-  if (!session || !session.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  // Validate session
+  const session = await validateSession(req);
+  if (session instanceof NextResponse) {
+    return securityHeadersMiddleware(session);
   }
 
   const requestData = await req.json();
+
+  // Validate input data
+  const validation = validateJSONInput(requestData);
+  if (!validation.valid) {
+    logSecurityEvent('INVALID_JOURNAL_DATA', { 
+      error: validation.error,
+      dataSize: JSON.stringify(requestData).length 
+    }, req);
+    
+    const errorResponse = NextResponse.json({ error: validation.error }, { status: 400 });
+    return securityHeadersMiddleware(errorResponse);
+  }
 
   const { whatWentWell, whatILearned, whatWouldDoDifferently, nextStep, customTitles } = requestData;
 
@@ -63,5 +90,6 @@ export async function POST(req: NextRequest) {
     },
   });
 
-  return NextResponse.json(newEntry, { status: 201 });
+  const response = NextResponse.json(newEntry, { status: 201 });
+  return securityHeadersMiddleware(response);
 }

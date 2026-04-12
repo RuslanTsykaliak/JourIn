@@ -31,6 +31,8 @@ model User {
   streakCount  Int       @default(0)
   lastCheckIn  DateTime?
   identityTag  String? // e.g., "Architect", "Seeker", "Alchemist"
+  customTitles Json?     // Store custom titles for user
+  additionalFields Json?   // Store additional fields for user
   milestones   Milestone[]
   journalEntries JournalEntry[]
   habitEntries  HabitEntry[]

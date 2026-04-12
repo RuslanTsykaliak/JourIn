@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '../../auth/lib/auth';
 import prisma from '../../lib/prisma';
+import { rateLimitMiddleware, securityHeadersMiddleware, logSecurityEvent, validateSession } from '../../lib/security';
+import { validateFileUpload, sanitizeMarkdownContent } from '../../lib/input-validation';
 
 function parseMarkdownFile(content: string): { timestamp: number; fields: { title: string; content: string }[] }[] {
   
@@ -101,37 +103,59 @@ Think with the end in mind.
 
 export async function POST(request: NextRequest) {
   try {
-    
-    const session = await getServerSession(authOptions);
-    
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    // Apply rate limiting
+    const rateLimitResponse = rateLimitMiddleware(request);
+    if (rateLimitResponse) {
+      return securityHeadersMiddleware(rateLimitResponse);
     }
 
+    // Validate session
+    const session = await validateSession(request);
+    if (session instanceof NextResponse) {
+      return securityHeadersMiddleware(session);
+    }
+    
     const formData = await request.formData();
     const file = formData.get('file') as File;
 
     if (!file) {
-      return NextResponse.json({ error: 'No file provided' }, { status: 400 });
+      const errorResponse = NextResponse.json({ error: 'No file provided' }, { status: 400 });
+      return securityHeadersMiddleware(errorResponse);
     }
 
-    // Check file type
-    if (!file.name.endsWith('.md') && !file.name.endsWith('.markdown')) {
-      return NextResponse.json({ error: 'Invalid file type. Only .md and .markdown files are allowed.' }, { status: 400 });
-    }
-
-    // Check file size (limit to 10MB)
-    if (file.size > 10 * 1024 * 1024) {
-      return NextResponse.json({ error: 'File too large. Maximum size is 10MB.' }, { status: 400 });
+    // Enhanced file validation
+    const fileValidation = validateFileUpload(file);
+    if (!fileValidation.valid) {
+      logSecurityEvent('INVALID_FILE_UPLOAD', { 
+        fileName: file.name, 
+        fileSize: file.size, 
+        error: fileValidation.error 
+      }, request);
+      
+      const errorResponse = NextResponse.json({ error: fileValidation.error }, { status: 400 });
+      return securityHeadersMiddleware(errorResponse);
     }
 
     const content = await file.text();
     
+    // Sanitize content
+    const sanitized = await sanitizeMarkdownContent(content);
+    if (!sanitized.safe) {
+      logSecurityEvent('DANGEROUS_CONTENT_DETECTED', { 
+        fileName: file.name, 
+        error: sanitized.error 
+      }, request as any);
+      
+      const errorResponse = NextResponse.json({ error: sanitized.error }, { status: 400 });
+      return securityHeadersMiddleware(errorResponse);
+    }
+    
     // Parse the markdown file
-    const entries = parseMarkdownFile(content);
+    const entries = parseMarkdownFile(sanitized.content!);
 
     if (entries.length === 0) {
-      return NextResponse.json({ error: 'No valid journal entries found in file' }, { status: 400 });
+      const errorResponse = NextResponse.json({ error: 'No valid journal entries found in file' }, { status: 400 });
+      return securityHeadersMiddleware(errorResponse);
     }
 
     // Save entries to database
@@ -142,8 +166,10 @@ export async function POST(request: NextRequest) {
       try {
         // Convert fields to dynamicFields object
         const dynamicFields: Record<string, string> = {};
-        entry.fields.forEach(field => {
-          dynamicFields[field.title] = field.content;
+        entry.fields.forEach((field: any) => {
+          if (field && typeof field === 'object' && field.title && field.content) {
+            dynamicFields[field.title] = field.content;
+          }
         });
         
         const entryDate = new Date(entry.timestamp);
@@ -167,14 +193,19 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    return NextResponse.json({
+    const successResponse = NextResponse.json({
       message: `Successfully uploaded ${savedEntries.length} journal entries`,
       entriesCount: savedEntries.length,
       entries: savedEntries
     });
 
+    return securityHeadersMiddleware(successResponse);
+
   } catch (error) {
     console.error('Upload error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    logSecurityEvent('UPLOAD_ERROR', { error: error instanceof Error ? error.message : 'Unknown error' }, request);
+    
+    const errorResponse = NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return securityHeadersMiddleware(errorResponse);
   }
 }

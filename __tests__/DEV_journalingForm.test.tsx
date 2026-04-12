@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import JournalingForm from '../app/components/DEV_journalingForm';
+import JournalingForm from '../app/components/journalingForm';
 import '@testing-library/jest-dom';
 
 const mockCustomTitles = {

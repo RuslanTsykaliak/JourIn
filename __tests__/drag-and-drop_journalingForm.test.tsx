@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { DragEndEvent } from '@dnd-kit/core';
-import JournalingForm from '../app/components/DEV_journalingForm';
+import JournalingForm from '../app/components/journalingForm';
 import { JournalEntries, CustomTitles } from '../app/types';
 
 // Mock the useReward hook

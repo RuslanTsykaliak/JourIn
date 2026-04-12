@@ -16,9 +16,9 @@ export interface JournalEntries {
   whatWouldDoDifferently: string;
   nextStep: string;
   userGoal?: string; // Optional user goal
-  customTitles?: CustomTitles; // Optional custom titles for the entries
+  customTitles?: CustomTitles; // Optional custom titles for entries
   promptTemplate?: string; // ✅ Optional custom prompt template
-  dynamicFields?: Record<string, string>;
+  dynamicFields?: Record<string, string>; // For backward compatibility
   // Index signature to allow dynamic fields
   [key: string]: string | CustomTitles | number | undefined | Record<string, string>;
 }
@@ -43,6 +43,126 @@ export interface PrismaJournalEntry {
 
 export interface CustomTitles {
   [key: string]: string;
+}
+
+// User model types matching Prisma schema
+export interface User {
+  id: string;
+  name: string | null;
+  email: string | null;
+  emailVerified: Date | null;
+  image: string | null;
+  password: string | null;
+  passwordResetToken: string | null;
+  passwordResetExpires: Date | null;
+  username: string | null;
+  role: Role;
+  joinedAt: Date;
+  streakCount: number;
+  lastCheckIn: Date | null;
+  identityTag: string | null;
+  customTitles: CustomTitles | null; // JSON field in database
+  additionalFields: string[] | null; // JSON field in database
+  milestones: Milestone[];
+  journalEntries: JournalEntry[];
+  habitEntries: HabitEntry[];
+  feedback: Feedback[];
+  posts: Post[];
+  accounts: Account[];
+  sessions: Session[];
+}
+
+export enum Role {
+  USER,
+  GUIDE,
+  ADMIN
+}
+
+// Placeholder types for relations (can be expanded as needed)
+export interface Milestone {
+  id: string;
+  title: string;
+  description?: string;
+  completedAt: Date;
+  userId: string;
+}
+
+export interface JournalEntry {
+  id: string;
+  createdAt: Date;
+  updatedAt: Date;
+  whatWentWell?: string;
+  whatILearned?: string;
+  whatWouldDoDifferently?: string;
+  nextStep?: string;
+  customTitles?: CustomTitles | null; // JSON field matching CustomTitles structure
+  dynamicFields?: Record<string, string> | null; // JSON field
+  userId: string;
+  user?: User;
+}
+
+export interface HabitEntry {
+  id: string;
+  createdAt: Date;
+  updatedAt: Date;
+  date: Date;
+  data: Record<string, unknown>; // JSON field
+  comments?: string;
+  userId: string;
+  user?: User;
+}
+
+export interface Feedback {
+  id: string;
+  createdAt: Date;
+  content: string;
+  userId?: string;
+  user?: User;
+}
+
+export interface Post {
+  id: string;
+  createdAt: Date;
+  content: string;
+  platform: string;
+  userId: string;
+  user?: User;
+  analytics: PostAnalytics[];
+}
+
+export interface PostAnalytics {
+  id: string;
+  createdAt: Date;
+  impressions?: number;
+  likes?: number;
+  comments?: number;
+  reposts?: number;
+  postId: string;
+  post: Post;
+}
+
+export interface Account {
+  id: string;
+  userId: string;
+  type: string;
+  provider: string;
+  providerAccountId: string;
+  refresh_token?: string;
+  access_token?: string;
+  expires_at?: number;
+  token_type?: string;
+  scope?: string;
+  id_token?: string;
+  session_state?: string;
+  user: User;
+}
+
+export interface Session {
+  id: string;
+  sessionToken: string;
+  userId: string;
+  expires: Date;
+  user: User;
 }
 
 export const defaultTitles: CustomTitles = {

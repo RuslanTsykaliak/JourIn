@@ -136,9 +136,9 @@ export default function AuthForm() {
   };
 
   return (
-    <div className="flex justify-center items-center h-screen">
-      <form onSubmit={handleSubmit} className="bg-gray-800 p-8 rounded-lg shadow-md w-96">
-        <h2 className="text-2xl font-bold mb-6 text-center">
+    <div className="flex justify-center items-center min-h-screen p-4 bg-gray-900">
+      <form onSubmit={handleSubmit} className="bg-gray-800 p-12 rounded-xl shadow-2xl w-full max-w-lg border border-gray-700">
+        <h2 className="text-4xl font-bold mb-10 text-center">
           {isRegister
             ? "Create Account"
             : isForgotPassword
@@ -147,12 +147,12 @@ export default function AuthForm() {
                 ? "Reset Password"
                 : "Login"}
         </h2>
-        {error && <p className="text-red-500 mb-4">{error}</p>}
-        {message && <p className="text-green-500 mb-4">{message}</p>}
+        {error && <p className="text-red-500 mb-8 text-center text-lg">{error}</p>}
+        {message && <p className="text-green-500 mb-8 text-center text-lg">{message}</p>}
 
         {isRegister && (
-          <div className="mb-4">
-            <label className="block text-sm font-medium mb-2" htmlFor="name">
+          <div className="mb-8">
+            <label className="block text-base font-medium mb-4" htmlFor="name">
               Name
             </label>
             <input
@@ -160,15 +160,16 @@ export default function AuthForm() {
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500"
+              className="w-full p-4 rounded-xl bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500 transition-colors text-lg"
               required={isRegister}
+              placeholder="Enter your full name"
             />
           </div>
         )}
 
         {!isResetPassword && (
-          <div className="mb-4">
-            <label className="block text-sm font-medium mb-2" htmlFor="email">
+          <div className="mb-8">
+            <label className="block text-base font-medium mb-4" htmlFor="email">
               Email
             </label>
             <input
@@ -179,15 +180,16 @@ export default function AuthForm() {
                 setEmail(e.target.value);
                 setError("");
               }}
-              className="w-full p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500"
+              className="w-full p-4 rounded-xl bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500 transition-colors text-lg"
               required
+              placeholder="your@email.com"
             />
           </div>
         )}
 
         {!isForgotPassword && !isResetPassword && (
-          <div className="mb-6">
-            <label className="block text-sm font-medium mb-2" htmlFor="password">
+          <div className="mb-8">
+            <label className="block text-base font-medium mb-4" htmlFor="password">
               Password
             </label>
             <div className="relative">
@@ -199,26 +201,28 @@ export default function AuthForm() {
                   setPassword(e.target.value);
                   setError("");
                 }}
-                className="w-full p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500 pr-10"
+                className="w-full p-4 rounded-xl bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500 pr-14 transition-colors text-lg"
                 required={!isForgotPassword && !isResetPassword}
+                placeholder="Enter your password"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5 text-gray-400"
+                className="absolute inset-y-0 right-0 pr-5 flex items-center text-gray-400 hover:text-gray-300 transition-colors"
               >
-                {showPassword ? <EyeOff /> : <Eye />}
+                {showPassword ? <EyeOff size={24} /> : <Eye size={24} />}
               </button>
             </div>
             {isRegister && password && (
-              <div className="mt-2 text-xs text-gray-400">
-                <p>The password must:</p>
-                <ul className="list-disc list-inside">
+              <div className="mt-4 p-4 bg-gray-700 rounded-xl">
+                <p className="text-sm text-gray-400 mb-3 font-medium">Password requirements:</p>
+                <ul className="space-y-2">
                   {passwordRequirements.map((req, index) => (
                     <li
                       key={index}
-                      className={req.regex.test(password) ? "text-green-400" : "text-red-400"}
+                      className={`text-sm flex items-center ${req.regex.test(password) ? "text-green-400" : "text-red-400"}`}
                     >
+                      <span className="mr-3 text-base">{req.regex.test(password) ? "✓" : "○"}</span>
                       {req.text}
                     </li>
                   ))}
@@ -230,8 +234,8 @@ export default function AuthForm() {
 
         {isResetPassword && (
           <>
-            <div className="mb-6">
-              <label className="block text-sm font-medium mb-2" htmlFor="password">
+            <div className="mb-8">
+              <label className="block text-base font-medium mb-4" htmlFor="password">
                 New Password
               </label>
               <input
@@ -239,13 +243,14 @@ export default function AuthForm() {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500"
+                className="w-full p-4 rounded-xl bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500 transition-colors text-lg"
                 required
+                placeholder="Enter new password"
               />
             </div>
 
-            <div className="mb-6">
-              <label className="block text-sm font-medium mb-2" htmlFor="confirmPassword">
+            <div className="mb-8">
+              <label className="block text-base font-medium mb-4" htmlFor="confirmPassword">
                 Confirm New Password
               </label>
               <input
@@ -253,31 +258,32 @@ export default function AuthForm() {
                 type="password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500"
+                className="w-full p-4 rounded-xl bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500 transition-colors text-lg"
                 required
+                placeholder="Confirm new password"
               />
             </div>
           </>
         )}
 
         {!isRegister && !isForgotPassword && !isResetPassword && (
-          <div className="flex justify-between items-center mb-6">
+          <div className="flex justify-between items-center mb-10">
             <div className="flex items-center">
               <input
                 id="rememberMe"
                 type="checkbox"
                 checked={rememberMe}
                 onChange={(e) => setRememberMe(e.target.checked)}
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
               />
-              <label htmlFor="rememberMe" className="ml-2 block text-sm text-gray-300">
+              <label htmlFor="rememberMe" className="ml-3 block text-sm text-gray-300">
                 Remember me on this device
               </label>
             </div>
             <button
               type="button"
               onClick={handleToggleForgotPassword}
-              className="text-sm text-blue-500 hover:underline"
+              className="text-sm text-blue-500 hover:underline transition-colors font-medium"
             >
               Forgot your password?
             </button>
@@ -286,10 +292,10 @@ export default function AuthForm() {
 
         <button
           type="submit"
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-6 rounded-xl focus:outline-none focus:shadow-outline transition-colors text-lg"
         >
           {isRegister
-            ? "Register"
+            ? "Create Account"
             : isForgotPassword
               ? "Send Reset Link"
               : isResetPassword
@@ -297,8 +303,8 @@ export default function AuthForm() {
                 : "Login"}
         </button>
 
-        <div className="mt-6 text-center">
-          <p className="text-sm text-gray-400">
+        <div className="mt-10 text-center">
+          <p className="text-base text-gray-400">
             {isRegister
               ? "Do you already have an account?"
               : isForgotPassword
@@ -310,7 +316,7 @@ export default function AuthForm() {
               <button
                 type="button"
                 onClick={isForgotPassword ? handleToggleForgotPassword : handleToggleRegister}
-                className="text-blue-500 hover:underline"
+                className="text-blue-500 hover:underline transition-colors font-semibold text-base"
               >
                 {isRegister ? "Login" : isForgotPassword ? "Login" : "Register"}
               </button>

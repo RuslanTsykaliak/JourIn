@@ -2,9 +2,9 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from 'react';
+import { useSession } from 'next-auth/react';
 
-// import JournalingForm from './journalingForm';
-import JournalingForm from './DEV_journalingForm';
+import JournalingForm from './journalingForm';
 
 import GeneratePostPromptButton from './generatePostPromptButton';
 import PromptTemplateEditor from './promptTemplateEditor';
@@ -13,7 +13,6 @@ import { debounce } from '../utils/debounce';
 import { generatePromptText } from '../utils/generatePromptText';
 import { defaultPromptTemplate } from '../lib/promptTemplate';
 
-import { useSession } from 'next-auth/react';
 import GeneratePostPromptButtonDB from './generatePostPromptButtonDB';
 import GeneratedPostDisplayDB from './generatedPostDisplayDB';
 
@@ -45,51 +44,74 @@ export default function PromptInputSection({ onPromptGenerated }: PromptInputSec
   const [additionalFields, setAdditionalFields] = useState<string[]>([]);
   const [generatedPostDB, setGeneratedPostDB] = useState<string>("");
 
-  // --- Local Storage: Load on Mount ---
+  // --- Data Source: Load on Mount ---
   useEffect(() => {
-    const savedDraft = localStorage.getItem('jourin_current_draft');
-    if (savedDraft) {
-      try {
-        setJournalEntries(JSON.parse(savedDraft));
-      } catch (e) {
-        console.error("Failed to parse saved draft from localStorage", e);
+    const loadData = async () => {
+      if (status === 'authenticated') {
+        // Load from database for authenticated users
+        try {
+          const response = await fetch('/api/custom-titles');
+          if (response.ok) {
+            const data = await response.json();
+            if (data.customTitles) {
+              setCustomTitles(data.customTitles);
+            }
+            if (data.additionalFields && data.additionalFields.length > 0) {
+              setAdditionalFields(data.additionalFields);
+            }
+          }
+        } catch (error) {
+          console.error('Failed to load custom titles from database:', error);
+        }
+      } else {
+        // Load from localStorage for guest users
+        const savedCustomTitles = localStorage.getItem('jourin_custom_titles');
+        if (savedCustomTitles) {
+          try {
+            setCustomTitles(JSON.parse(savedCustomTitles));
+          } catch (e) {
+            console.error("Failed to parse saved custom titles from localStorage", e);
+          }
+        }
+
+        const savedAdditionalFields = localStorage.getItem('jourin_additional_fields');
+        if (savedAdditionalFields) {
+          try {
+            setAdditionalFields(JSON.parse(savedAdditionalFields));
+          } catch (e) {
+            console.error("Failed to parse saved additional fields from localStorage", e);
+          }
+        }
       }
-    }
 
-    const savedGoal = localStorage.getItem('jourin_user_goal');
-    if (savedGoal) {
-      try {
-        setUserGoal(JSON.parse(savedGoal));
-      } catch (e) {
-        console.error("Failed to parse saved user goal from localStorage", e);
+      // Load journal entries and goal from localStorage (always from localStorage)
+      const savedDraft = localStorage.getItem('jourin_current_draft');
+      if (savedDraft) {
+        try {
+          setJournalEntries(JSON.parse(savedDraft));
+        } catch (e) {
+          console.error("Failed to parse saved draft from localStorage", e);
+        }
       }
-    }
 
-    const savedCustomTitles = localStorage.getItem('jourin_custom_titles');
-    if (savedCustomTitles) {
-      try {
-        setCustomTitles(JSON.parse(savedCustomTitles));
-      } catch (e) {
-        console.error("Failed to parse saved custom titles from localStorage", e);
+      const savedGoal = localStorage.getItem('jourin_user_goal');
+      if (savedGoal) {
+        try {
+          setUserGoal(JSON.parse(savedGoal));
+        } catch (e) {
+          console.error("Failed to parse saved user goal from localStorage", e);
+        }
       }
-    }
 
-    const savedTemplate = localStorage.getItem('jourin_prompt_template');
-    if (savedTemplate) {
-      setPromptTemplate(savedTemplate);
-    }
-
-    const savedAdditionalFields = localStorage.getItem('jourin_additional_fields');
-    if (savedAdditionalFields) {
-      try {
-        setAdditionalFields(JSON.parse(savedAdditionalFields));
-      } catch (e) {
-        console.error("Failed to parse saved additional fields from localStorage", e);
+      const savedTemplate = localStorage.getItem('jourin_prompt_template');
+      if (savedTemplate) {
+        setPromptTemplate(savedTemplate);
       }
-    }
+    };
 
+    loadData();
     setHasHydrated(true);
-  }, []);
+  }, [status]);
 
   // // Add back any additional fields that are still active and have content
   // additionalFields.forEach(fieldName => {
@@ -113,18 +135,53 @@ export default function PromptInputSection({ onPromptGenerated }: PromptInputSec
     localStorage.setItem('jourin_user_goal', JSON.stringify(goal));
   }, 500);
 
+  // --- Database: Debounced Save for Authenticated Users ---
+  const debouncedSaveToDatabase = useCallback(
+    debounce(async (titles: CustomTitles, fields: string[]) => {
+      if (status === 'authenticated') {
+        try {
+          const response = await fetch('/api/custom-titles', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              customTitles: titles,
+              additionalFields: fields,
+            }),
+          });
+          
+          if (!response.ok) {
+            console.error('Failed to save custom titles to database');
+          }
+        } catch (error) {
+          console.error('Error saving custom titles to database:', error);
+        }
+      }
+    }, 500), // Restore proper debounce time
+    [status]
+  );
+
   const saveCustomTitles = useCallback(
     (titles: CustomTitles) => {
-      localStorage.setItem('jourin_custom_titles', JSON.stringify(titles));
+      if (status === 'authenticated') {
+        debouncedSaveToDatabase(titles, additionalFields);
+      } else {
+        localStorage.setItem('jourin_custom_titles', JSON.stringify(titles));
+      }
     },
-    []
+    [status, debouncedSaveToDatabase, additionalFields]
   );
 
   const saveAdditionalFields = useCallback(
     (fields: string[]) => {
-      localStorage.setItem('jourin_additional_fields', JSON.stringify(fields));
+      if (status === 'authenticated') {
+        debouncedSaveToDatabase(customTitles, fields);
+      } else {
+        localStorage.setItem('jourin_additional_fields', JSON.stringify(fields));
+      }
     },
-    []
+    [status, debouncedSaveToDatabase, customTitles]
   );
 
   useEffect(() => {
