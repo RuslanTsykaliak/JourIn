@@ -137,28 +137,32 @@ export default function PromptInputSection({ onPromptGenerated }: PromptInputSec
 
   // --- Database: Debounced Save for Authenticated Users ---
   const debouncedSaveToDatabase = useCallback(
-    debounce(async (titles: CustomTitles, fields: string[]) => {
-      if (status === 'authenticated') {
-        try {
-          const response = await fetch('/api/custom-titles', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              customTitles: titles,
-              additionalFields: fields,
-            }),
-          });
-          
-          if (!response.ok) {
-            console.error('Failed to save custom titles to database');
+    async (titles: CustomTitles, fields: string[]) => {
+      const debouncedFn = debounce(async () => {
+        if (status === 'authenticated') {
+          try {
+            const response = await fetch('/api/custom-titles', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                customTitles: titles,
+                additionalFields: fields,
+              }),
+            });
+            
+            if (!response.ok) {
+              console.error('Failed to save custom titles to database');
+            }
+          } catch (error) {
+            console.error('Error saving custom titles to database:', error);
           }
-        } catch (error) {
-          console.error('Error saving custom titles to database:', error);
         }
-      }
-    }, 500), // Restore proper debounce time
+      }, 500);
+      
+      return debouncedFn();
+    },
     [status]
   );
 

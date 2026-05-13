@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useSession } from "next-auth/react";
-import { JournalEntryWithTimestamp, CustomTitles, defaultTitles } from '../types';
+import { JournalEntryWithTimestamp, defaultTitles } from '../types';
 import { useJournalEntriesStorage } from '../hooks/useJournalEntriesStorage';
 import { useDbJournalEntries } from '../auth/useDbJournalEntries';
 import { getStartOfWeek, getEndOfWeek, generateWeeklySummary as generateWeeklySummaryUtil } from '../utils/weeklySummaryUtils';
@@ -71,7 +71,7 @@ export default function JournalHistorySection({ newEntryToHistory }: JournalHist
     if (newEntryToHistory) {
       addJournalEntry(newEntryToHistory);
     }
-  }, [newEntryToHistory]);
+  }, [newEntryToHistory, addJournalEntry]);
   // useEffect(() => {
   //   if (newEntryToHistory) {
   //     if (session) {

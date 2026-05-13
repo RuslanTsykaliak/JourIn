@@ -5,17 +5,14 @@ import { CustomTitles } from "@/app/types";
 import prisma from "@/app/lib/prisma";
 
 export async function GET() {
-  console.log('GET /api/custom-titles called');
   
   const session = await getServerSession(authOptions);
 
   if (!session || !session.user?.id) {
-    console.log('Unauthorized access attempt');
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   try {
-    console.log('Fetching custom titles for user:', session.user.id);
     const user = await prisma.user.findUnique({
       where: {
         id: session.user.id,
@@ -27,12 +24,9 @@ export async function GET() {
     });
 
     if (!user) {
-      console.log('User not found');
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    console.log('Found custom titles:', user.customTitles);
-    console.log('Found additional fields:', user.additionalFields);
     return NextResponse.json({ 
       customTitles: user.customTitles || null,
       additionalFields: user.additionalFields || []
@@ -44,22 +38,17 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  console.log('POST /api/custom-titles called');
   
   const session = await getServerSession(authOptions);
 
   if (!session || !session.user?.id) {
-    console.log('Unauthorized POST access attempt');
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   try {
     const { customTitles, additionalFields } = await req.json();
-    console.log('Saving custom titles for user:', session.user.id, customTitles);
-    console.log('Saving additional fields for user:', session.user.id, additionalFields);
 
     if (!customTitles || typeof customTitles !== 'object') {
-      console.log('Invalid custom titles data:', customTitles);
       return NextResponse.json({ error: "Invalid custom titles data" }, { status: 400 });
     }
 
@@ -86,8 +75,6 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    console.log('Successfully saved custom titles:', updatedUser.customTitles);
-    console.log('Successfully saved additional fields:', updatedUser.additionalFields);
     return NextResponse.json({ 
       message: "Custom titles saved successfully",
       customTitles: updatedUser.customTitles,

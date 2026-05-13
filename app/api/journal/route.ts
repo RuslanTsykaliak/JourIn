@@ -1,7 +1,5 @@
 // Never use type any or unknown in this file
 
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/auth/lib/auth";
 import prisma from "@/app/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 import { JsonObject } from "@prisma/client/runtime/library";

@@ -1,6 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '../../auth/lib/auth';
 import prisma from '../../lib/prisma';
 import { rateLimitMiddleware, securityHeadersMiddleware, logSecurityEvent, validateSession } from '../../lib/security';
 import { validateFileUpload, sanitizeMarkdownContent } from '../../lib/input-validation';
@@ -72,7 +70,7 @@ function parseMarkdownFile(content: string): { timestamp: number; fields: { titl
   return entries;
 }
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   // Test the parser with sample content
   const testContent = `# Journal Entry - 4/3/2026
 ### What went well today
@@ -144,7 +142,7 @@ export async function POST(request: NextRequest) {
       logSecurityEvent('DANGEROUS_CONTENT_DETECTED', { 
         fileName: file.name, 
         error: sanitized.error 
-      }, request as any);
+      }, request);
       
       const errorResponse = NextResponse.json({ error: sanitized.error }, { status: 400 });
       return securityHeadersMiddleware(errorResponse);
@@ -159,14 +157,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Save entries to database
-    const userId = session.user.id;
     const savedEntries = [];
 
     for (const entry of entries) {
       try {
         // Convert fields to dynamicFields object
         const dynamicFields: Record<string, string> = {};
-        entry.fields.forEach((field: any) => {
+        entry.fields.forEach((field: { title?: string; content?: string }) => {
           if (field && typeof field === 'object' && field.title && field.content) {
             dynamicFields[field.title] = field.content;
           }

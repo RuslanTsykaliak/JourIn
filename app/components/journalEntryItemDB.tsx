@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { JournalEntryWithTimestamp, CustomTitles, JournalCoreFields, JournalEntryForDisplay, defaultTitles } from '../types';
+import { JournalEntryWithTimestamp, JournalCoreFields, JournalEntryForDisplay, defaultTitles } from '../types';
 import { generatePromptTextDB } from '../utils/generatePromptTextDB';
 
 interface JournalEntryItemProps {
@@ -14,7 +14,6 @@ const JournalEntryItemDB: React.FC<JournalEntryItemProps> = ({ entry }) => {
 
   const getAllDisplayFields = () => {
     const fields: { key: string; value: string; title: string }[] = [];
-    const titles = { ...defaultTitles, ...(displayEntry.customTitles || {}) };
     const addedKeys = new Set<string>();
 
     const keysToDisplay: (keyof JournalCoreFields)[] = [

@@ -11,28 +11,54 @@ interface DownloadHistoryButtonProps {
 export default function DownloadHistoryButton({ className = '' }: DownloadHistoryButtonProps) {
   const { data: session } = useSession();
   const [isDownloading, setIsDownloading] = useState(false);
+  const [showDateRange, setShowDateRange] = useState(false);
+  const [fromDate, setFromDate] = useState('');
+  const [toDate, setToDate] = useState('');
 
   const handleDownload = async (format: 'markdown') => {
     if (!session?.user) return;
     
     setIsDownloading(true);
     try {
-      const response = await fetch(`/api/export?format=${format}`);
+      let url = `/api/export?format=${format}`;
+      if (fromDate) {
+        url += `&fromDate=${fromDate}`;
+      }
+      if (toDate) {
+        url += `&toDate=${toDate}`;
+      }
+      
+      const response = await fetch(url);
       
       if (!response.ok) {
         throw new Error('Failed to export journal entries');
       }
       
       const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
+      const urlObj = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.style.display = 'none';
-      a.href = url;
-      a.download = `journal-history.${format}`;
+      a.href = urlObj;
+      
+      // Extract filename from Content-Disposition header
+      const contentDisposition = response.headers.get('Content-Disposition');
+      let filename = `journal-history.${format}`;
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename="?(.+?)"?$/);
+        if (filenameMatch) {
+          filename = filenameMatch[1];
+        }
+      }
+      a.download = filename;
+      
       document.body.appendChild(a);
       a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
+      
+      // Delay cleanup to ensure download starts
+      setTimeout(() => {
+        window.URL.revokeObjectURL(urlObj);
+        document.body.removeChild(a);
+      }, 100);
     } catch (error) {
       console.error('Download error:', error);
     } finally {
@@ -45,7 +71,7 @@ export default function DownloadHistoryButton({ className = '' }: DownloadHistor
   }
 
   return (
-    <div className={`relative ${className}`}>
+    <div className={`flex flex-wrap items-center gap-2 ${className}`}>
       <SharedButton onClick={() => handleDownload('markdown')} disabled={isDownloading}>
         {isDownloading ? (
           <>
@@ -66,12 +92,46 @@ export default function DownloadHistoryButton({ className = '' }: DownloadHistor
               <path
                 className="opacity-75"
                 fill="currentColor"
-                d="M4 12a8 8 018-8V0C5.373 0 12-1.135 5.824 3.242 5.291A7.962 7.962 7.962 8 018 12H0c0 3.242 8 018 12h4zm2 5.291 0 014 12H0c0 3.242 8 018 12h4zm2 5.291 0 014 12H0c0 3.242 8 018 12h4zm2 5.291 0 014 12h4zm0 5.824 3.242 5.824 7.962 7.962 8 018 12H0c0 3.242 8 018 12h4z"
+                d="M4 12a8 8 018-8V0C5.373 0 12-1.135 5.824 3.242 5.291A7.962 7.962 8 018 12H0c0 3.242 8 018 12h4zm2 5.291 0 014 12H0c0 3.242 8 018 12h4zm2 5.291 0 014 12H0c0 3.242 8 018 12h4zm2 5.291 0 014 12h4zm0 5.824 3.242 5.824 7.962 7.962 8 018 12H0c0 3.242 8 018 12h4z"
               />
             </svg>
           </>
         ) : 'Download'}
       </SharedButton>
+      
+      <button
+        onClick={() => setShowDateRange(!showDateRange)}
+        className="text-sm text-blue-600 hover:text-blue-800 underline px-1"
+      >
+        {showDateRange ? 'Hide' : 'Filter'}
+      </button>
+      
+      {showDateRange && (
+        <div className="flex flex-wrap items-center gap-2">
+          <input
+            type="date"
+            value={fromDate}
+            onChange={(e) => setFromDate(e.target.value)}
+            className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm border p-1"
+          />
+          <span className="text-gray-500">to</span>
+          <input
+            type="date"
+            value={toDate}
+            onChange={(e) => setToDate(e.target.value)}
+            className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm border p-1"
+          />
+          <button
+            onClick={() => {
+              setFromDate('');
+              setToDate('');
+            }}
+            className="text-sm text-gray-600 hover:text-gray-800 underline px-1"
+          >
+            Clear
+          </button>
+        </div>
+      )}
     </div>
   );
 }

@@ -28,9 +28,6 @@ function SortableTextareaItem({
   journalEntries,
   onJournalEntriesChange,
   onCustomTitleChange,
-  customTitles,
-  additionalFields,
-  setAdditionalFields,
   handleRemoveField,
   handleAddField,
   isRemovable
@@ -39,9 +36,6 @@ function SortableTextareaItem({
   journalEntries: JournalEntries;
   onJournalEntriesChange: (entries: JournalEntries) => void;
   onCustomTitleChange: (key: string, value: string) => void;
-  customTitles: CustomTitles;
-  additionalFields: string[];
-  setAdditionalFields: React.Dispatch<React.SetStateAction<string[]>>;
   handleRemoveField: (fieldName: string) => void;
   handleAddField: () => void;
   isRemovable: boolean;
@@ -246,9 +240,6 @@ export default function JournalingForm({
                     onJournalEntriesChange({ ...journalEntries, [`${id}_title`]: newTitle });
                   }
                 }}
-                customTitles={customTitles}
-                additionalFields={additionalFields}
-                setAdditionalFields={setAdditionalFields}
                 handleRemoveField={handleRemoveField}
                 handleAddField={handleAddField}
                 isRemovable={!defaultFieldIds.includes(item.id)}

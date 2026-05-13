@@ -1,14 +1,15 @@
 
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import prisma from "../../lib/prisma";
 import bcrypt from "bcrypt";
-import { rateLimitMiddleware, securityHeadersMiddleware, logSecurityEvent, getClientIP } from "../../lib/security";
+import { rateLimitMiddleware, securityHeadersMiddleware, logSecurityEvent } from "../../lib/security";
 import { validateJSONInput } from "../../lib/input-validation";
 
 export async function POST(req: Request) {
+  // Convert Request to NextRequest for security middleware
+  const nextReq = req as NextRequest;
+  
   try {
-    // Convert Request to NextRequest for security middleware
-    const nextReq = req as any;
     
     // Apply rate limiting (stricter for registration)
     const rateLimitResponse = rateLimitMiddleware(nextReq, true);
@@ -99,7 +100,7 @@ export async function POST(req: Request) {
     }, nextReq);
 
     // Remove password from response
-    const { password: _, ...userWithoutPassword } = user;
+    const { password: _userPassword, ...userWithoutPassword } = user;
 
     const successResponse = NextResponse.json(userWithoutPassword);
     return securityHeadersMiddleware(successResponse);
@@ -108,7 +109,7 @@ export async function POST(req: Request) {
     console.error('Registration error:', error);
     logSecurityEvent('REGISTRATION_ERROR', { 
       error: error instanceof Error ? error.message : 'Unknown error' 
-    }, request as any);
+    }, nextReq);
     
     const errorResponse = NextResponse.json({ message: "Something went wrong" }, { status: 500 });
     return securityHeadersMiddleware(errorResponse);

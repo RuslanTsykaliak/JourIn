@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { JournalEntryWithTimestamp, CustomTitles, defaultTitles } from '../types';
+import { JournalEntryWithTimestamp, defaultTitles } from '../types';
 import { generatePromptText } from '../utils/generatePromptText';
 
 interface JournalEntryItemProps {
