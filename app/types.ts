@@ -19,6 +19,7 @@ export interface JournalEntries {
   customTitles?: CustomTitles; // Optional custom titles for entries
   promptTemplate?: string; // ✅ Optional custom prompt template
   dynamicFields?: Record<string, string>; // For backward compatibility
+  timeJournaling?: string; // Time-based journaling with timeline blocks
   // Index signature to allow dynamic fields
   [key: string]: string | CustomTitles | number | undefined | Record<string, string>;
 }
@@ -38,6 +39,7 @@ export interface PrismaJournalEntry {
   nextStep: string;
   customTitles: CustomTitles; // Assuming it's stored as JSON and matches CustomTitles structure
   dynamicFields?: Record<string, string>;
+  timeJournaling?: string; // Time-based journaling with timeline blocks
   // Add any other fields that might be in your Prisma JournalEntry model
 }
 
@@ -46,6 +48,31 @@ export interface CustomTitles {
 }
 
 // User model types matching Prisma schema
+export interface UserWithoutPassword {
+  id: string;
+  name: string | null;
+  email: string | null;
+  username: string | null;
+  role: Role;
+  joinedAt: Date;
+  streakCount: number;
+  lastCheckIn: Date | null;
+  identityTag: string | null;
+  customTitles: CustomTitles | null;
+  additionalFields: string[] | null;
+  milestones: Milestone[];
+  journalEntries: JournalEntry[];
+  habitEntries: HabitEntry[];
+  feedback: Feedback[];
+  posts: Post[];
+  accounts: Account[];
+  sessions: Session[];
+  emailVerified: Date | null;
+  image: string | null;
+  passwordResetToken: string | null;
+  passwordResetExpires: Date | null;
+}
+
 export interface User {
   id: string;
   name: string | null;
@@ -97,6 +124,7 @@ export interface JournalEntry {
   nextStep?: string;
   customTitles?: CustomTitles | null; // JSON field matching CustomTitles structure
   dynamicFields?: Record<string, string> | null; // JSON field
+  timeJournaling?: string | null; // Time-based journaling with timeline blocks
   userId: string;
   user?: User;
 }
@@ -170,6 +198,7 @@ export const defaultTitles: CustomTitles = {
   whatILearned: "What I learned today",
   whatWouldDoDifferently: "What I would do differently",
   nextStep: "What's my next step?",
+  timeJournaling: "Time Journaling",
 };
 
 export interface JournalingTextareaProps {

@@ -100,7 +100,12 @@ export async function POST(req: Request) {
     }, nextReq);
 
     // Remove password from response
-    const { password: _userPassword, ...userWithoutPassword } = user;
+    const userWithoutPassword = {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      username: user.username
+    };
 
     const successResponse = NextResponse.json(userWithoutPassword);
     return securityHeadersMiddleware(successResponse);

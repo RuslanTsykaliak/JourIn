@@ -34,7 +34,6 @@ export async function POST(req: Request) {
 
     // In a real application, you would send an email with the reset link.
     // For this example, we'll just log it to the console.
-    const resetUrl = `${process.env.NEXTAUTH_URL}/auth/reset-password?token=${resetToken}`;
 
     return NextResponse.json({ message: 'Password reset link sent to your email.' });
   } catch (error) {

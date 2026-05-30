@@ -5,6 +5,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 
 import JournalingForm from './journalingForm';
+import TimeJournalingSection from './timeJournalingSection';
 
 import GeneratePostPromptButton from './generatePostPromptButton';
 import PromptTemplateEditor from './promptTemplateEditor';
@@ -21,6 +22,7 @@ const DEFAULT_CUSTOM_TITLES: CustomTitles = {
   whatILearned: 'What did I learn today?',
   whatWouldDoDifferently: 'What would I do differently?',
   nextStep: 'What’s my next step?',
+  timeJournaling: 'Time Journaling',
 };
 
 interface PromptInputSectionProps {
@@ -34,6 +36,7 @@ export default function PromptInputSection({ onPromptGenerated }: PromptInputSec
     whatILearned: '',
     whatWouldDoDifferently: '',
     nextStep: '',
+    timeJournaling: '',
   });
 
   const [userGoal, setUserGoal] = useState<string>('');
@@ -54,7 +57,8 @@ export default function PromptInputSection({ onPromptGenerated }: PromptInputSec
           if (response.ok) {
             const data = await response.json();
             if (data.customTitles) {
-              setCustomTitles(data.customTitles);
+              // Merge with DEFAULT_CUSTOM_TITLES to ensure all default keys have titles
+              setCustomTitles({ ...DEFAULT_CUSTOM_TITLES, ...data.customTitles });
             }
             if (data.additionalFields && data.additionalFields.length > 0) {
               setAdditionalFields(data.additionalFields);
@@ -68,7 +72,8 @@ export default function PromptInputSection({ onPromptGenerated }: PromptInputSec
         const savedCustomTitles = localStorage.getItem('jourin_custom_titles');
         if (savedCustomTitles) {
           try {
-            setCustomTitles(JSON.parse(savedCustomTitles));
+            // Merge with DEFAULT_CUSTOM_TITLES to ensure all default keys have titles
+            setCustomTitles({ ...DEFAULT_CUSTOM_TITLES, ...JSON.parse(savedCustomTitles) });
           } catch (e) {
             console.error("Failed to parse saved custom titles from localStorage", e);
           }
@@ -223,7 +228,7 @@ export default function PromptInputSection({ onPromptGenerated }: PromptInputSec
   };
 
   const handleGenerateClick = () => {
-    const defaultKeys = new Set(['whatWentWell', 'whatILearned', 'whatWouldDoDifferently', 'nextStep']);
+    const defaultKeys = new Set(['whatWentWell', 'whatILearned', 'whatWouldDoDifferently', 'nextStep', 'timeJournaling']);
 
     for (const key in journalEntries) {
       if (Object.prototype.hasOwnProperty.call(journalEntries, key)) {
@@ -237,7 +242,7 @@ export default function PromptInputSection({ onPromptGenerated }: PromptInputSec
         // Get the title for the current entry
         let entryTitle = '';
         if (defaultKeys.has(key)) {
-          entryTitle = customTitles[key] || '';
+          entryTitle = customTitles[key] || DEFAULT_CUSTOM_TITLES[key] || '';
         } else {
           // This is an additional field, its title is stored in journalEntries itself
           entryTitle = (journalEntries[`${key}_title`] as string) || '';
@@ -281,6 +286,7 @@ export default function PromptInputSection({ onPromptGenerated }: PromptInputSec
         whatILearned: '',
         whatWouldDoDifferently: '',
         nextStep: '',
+        timeJournaling: '',
       };
 
       additionalFields.forEach(field => {
@@ -330,6 +336,7 @@ export default function PromptInputSection({ onPromptGenerated }: PromptInputSec
         whatILearned: '',
         whatWouldDoDifferently: '',
         nextStep: '',
+        timeJournaling: '',
       };
 
       additionalFields.forEach(field => {
@@ -356,6 +363,11 @@ export default function PromptInputSection({ onPromptGenerated }: PromptInputSec
 
   return (
     <>
+      <TimeJournalingSection
+        value={journalEntries.timeJournaling || ''}
+        onChange={(value) => handleJournalEntriesChange({ ...journalEntries, timeJournaling: value })}
+      />
+
       <JournalingForm
         journalEntries={journalEntries}
         onJournalEntriesChange={handleJournalEntriesChange}
