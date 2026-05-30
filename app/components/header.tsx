@@ -10,7 +10,7 @@ export default function Header() {
   const { data: session } = useSession();
   const router = useRouter();
   const [headerText, setHeaderText] = useState(
-    'FOCUS: Stress reduction\n\nSTRATEGY: Designing work around your natural energy\n\nACCOUNTABILITY ACTION: Review my priorities three times per day and identify the most natural, lowest-friction approach for my important tasks, and I\'ll do it after breakfast, after lunch, and after dinner.'
+    'Transform your personal reflections into powerful, shareable insights for your professional network.\nReflect, refine, and connect with your community.'
   );
 
   return (
@@ -48,8 +48,7 @@ export default function Header() {
         onChange={(e) => setHeaderText(e.target.value)}
         className="mt-2 w-full max-w-4xl mx-auto text-lg xs:text-xl sm:text-2xl md:text-3xl lg:text-4xl text-gray-300 bg-transparent border-none resize-none focus:outline-none text-center leading-relaxed"
         rows={6}
-        placeholder="Transform your personal reflections into powerful, shareable insights for your professional network.
-        Reflect, refine, and connect with your community."
+        placeholder="Write your most important sentence here"
       />
     </div>
   );

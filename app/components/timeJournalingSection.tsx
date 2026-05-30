@@ -196,9 +196,6 @@ export default function TimeJournalingSection({ value, onChange }: TimeJournalin
     setIsSidebarOpen(true);
   };
 
-  const handleMouseLeaveSidebar = () => {
-    setIsSidebarOpen(false);
-  };
 
   return (
     <div className="relative mb-8 mt-4">
