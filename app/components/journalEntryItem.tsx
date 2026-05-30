@@ -118,9 +118,9 @@ const JournalEntryItem: React.FC<JournalEntryItemProps> = ({ entry }) => {
           <h4 className="text-base xs:text-lg sm:text-xl md:text-2xl font-medium text-gray-200 mb-1">
             {field.title}:
           </h4>
-          <p className="text-base xs:text-lg sm:text-xl md:text-2xl text-gray-300 whitespace-pre-wrap">
+          <div className="text-base xs:text-lg sm:text-xl md:text-2xl text-gray-300 whitespace-pre-wrap break-words">
             {field.value}
-          </p>
+          </div>
         </div>
       ))}
     </div>
