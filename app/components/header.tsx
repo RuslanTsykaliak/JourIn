@@ -1,7 +1,7 @@
 // app/components/header.tsx
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import StreakCounter from './streakCounter'; // Import StreakCounter
@@ -9,9 +9,17 @@ import StreakCounter from './streakCounter'; // Import StreakCounter
 export default function Header() {
   const { data: session } = useSession();
   const router = useRouter();
-  const [headerText, setHeaderText] = useState(
-    'Transform your personal reflections into powerful, shareable insights for your professional network.\nReflect, refine, and connect with your community.'
-  );
+  const [headerText, setHeaderText] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('headerText');
+      return saved || 'Transform your personal reflections into powerful, shareable insights for your professional network.\nReflect, refine, and connect with your community.';
+    }
+    return 'Transform your personal reflections into powerful, shareable insights for your professional network.\nReflect, refine, and connect with your community.';
+  });
+
+  useEffect(() => {
+    localStorage.setItem('headerText', headerText);
+  }, [headerText]);
 
   return (
 
@@ -46,7 +54,7 @@ export default function Header() {
       <textarea
         value={headerText}
         onChange={(e) => setHeaderText(e.target.value)}
-        className="mt-2 w-full max-w-4xl mx-auto text-lg xs:text-xl sm:text-2xl md:text-3xl lg:text-4xl text-gray-300 bg-transparent border-none resize-none focus:outline-none text-center leading-relaxed"
+        className="mt-2 w-full text-lg xs:text-xl sm:text-2xl md:text-3xl lg:text-4xl text-gray-300 bg-transparent border-none resize-none focus:outline-none text-center leading-relaxed"
         rows={6}
         placeholder="Write your most important sentence here"
       />
