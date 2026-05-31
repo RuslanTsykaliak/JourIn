@@ -20,7 +20,8 @@ const JournalEntryItemDB: React.FC<JournalEntryItemProps> = ({ entry }) => {
       'whatWentWell',
       'whatILearned',
       'whatWouldDoDifferently',
-      'nextStep'
+      'nextStep',
+      'timeJournaling'
     ];
 
     keysToDisplay.forEach(key => {

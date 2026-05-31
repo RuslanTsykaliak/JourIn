@@ -32,7 +32,7 @@ export function generateWeeklySummary(pastEntries: JournalEntryWithTimestamp[], 
       const fields: string[] = [];
       
       // Add standard fields if they have content
-      const standardFields = ['whatWentWell', 'whatILearned', 'whatWouldDoDifferently', 'nextStep'];
+      const standardFields = ['whatWentWell', 'whatILearned', 'whatWouldDoDifferently', 'nextStep', 'timeJournaling'];
       standardFields.forEach(key => {
         const value = entry[key];
         if (value && typeof value === 'string' && value.trim() !== '') {

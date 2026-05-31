@@ -59,7 +59,7 @@ export async function POST(req: NextRequest) {
     return securityHeadersMiddleware(errorResponse);
   }
 
-  const { whatWentWell, whatILearned, whatWouldDoDifferently, nextStep, customTitles } = requestData;
+  const { whatWentWell, whatILearned, whatWouldDoDifferently, nextStep, customTitles, timeJournaling } = requestData;
 
   // Process the customTitles to include any custom field titles from the top level
   const processedCustomTitles: Record<string, unknown> = { ...(customTitles || {}) };
@@ -82,6 +82,7 @@ export async function POST(req: NextRequest) {
       whatILearned,
       whatWouldDoDifferently,
       nextStep,
+      timeJournaling,
       customTitles: processedCustomTitles as JsonObject,
       dynamicFields: dynamicFields as JsonObject,
       userId: session.user.id,

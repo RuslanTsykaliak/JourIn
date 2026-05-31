@@ -12,6 +12,7 @@ function convertPrismaEntry(prismaEntry: {
   whatILearned: string | null;
   whatWouldDoDifferently: string | null;
   nextStep: string | null;
+  timeJournaling: string | null;
   customTitles: unknown;
   dynamicFields: unknown;
   userId: string;
@@ -22,6 +23,7 @@ function convertPrismaEntry(prismaEntry: {
     whatILearned: prismaEntry.whatILearned || '',
     whatWouldDoDifferently: prismaEntry.whatWouldDoDifferently || '',
     nextStep: prismaEntry.nextStep || '',
+    timeJournaling: prismaEntry.timeJournaling || '',
     customTitles: (prismaEntry.customTitles as CustomTitles) || defaultTitles,
     dynamicFields: (prismaEntry.dynamicFields as Record<string, string>) || {},
   };
@@ -88,6 +90,7 @@ function generateMarkdown(entries: JournalEntryWithTimestamp[]): string {
       { key: 'whatILearned', value: entry.whatILearned },
       { key: 'whatWouldDoDifferently', value: entry.whatWouldDoDifferently },
       { key: 'nextStep', value: entry.nextStep },
+      { key: 'timeJournaling', value: entry.timeJournaling },
     ];
     
     standardFields.forEach(({ key, value }) => {

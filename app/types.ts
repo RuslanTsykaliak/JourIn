@@ -239,6 +239,7 @@ export interface JournalCoreFields {
   whatILearned: string;
   whatWouldDoDifferently: string;
   nextStep: string;
+  timeJournaling?: string;
 }
 
 export interface JournalEntryForDisplay {
@@ -246,6 +247,7 @@ export interface JournalEntryForDisplay {
   whatILearned: string;
   whatWouldDoDifferently: string;
   nextStep: string;
+  timeJournaling?: string;
   userGoal?: string;
   customTitles?: CustomTitles;
   promptTemplate?: string;

@@ -179,6 +179,7 @@ export async function POST(request: NextRequest) {
             whatILearned: '',
             whatWouldDoDifferently: '',
             nextStep: '',
+            timeJournaling: '',
             customTitles: {},
             dynamicFields: dynamicFields,
           },

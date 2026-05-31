@@ -24,6 +24,7 @@ export function useDbJournalEntries() {
               whatILearned: entry.whatILearned || '',
               whatWouldDoDifferently: entry.whatWouldDoDifferently || '',
               nextStep: entry.nextStep || '',
+              timeJournaling: entry.timeJournaling || '',
               customTitles: entry.customTitles || {},
               timestamp: new Date(entry.createdAt).getTime(), // Convert ISO string to Unix timestamp
             };
@@ -82,6 +83,7 @@ export function useDbJournalEntries() {
           whatILearned: createdEntry.whatILearned || '',
           whatWouldDoDifferently: createdEntry.whatWouldDoDifferently || '',
           nextStep: createdEntry.nextStep || '',
+          timeJournaling: createdEntry.timeJournaling || '',
           customTitles: createdEntry.customTitles || {},
           timestamp: new Date(createdEntry.createdAt).getTime(),
         };
