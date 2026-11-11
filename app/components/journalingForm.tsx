@@ -237,6 +237,7 @@ export default function JournalingForm({
                   if (defaultFieldIds.includes(id)) {
                     onCustomTitleChange(id, newTitle);
                   } else {
+                    onCustomTitleChange(`${id}_title`, newTitle);
                     onJournalEntriesChange({ ...journalEntries, [`${id}_title`]: newTitle });
                   }
                 }}

@@ -1,7 +1,7 @@
 // app/components/promptInputSection.tsx
 "use client";
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useSession } from 'next-auth/react';
 
 import JournalingForm from './journalingForm';
@@ -50,6 +50,7 @@ export default function PromptInputSection({ onPromptGenerated }: PromptInputSec
   // --- Data Source: Load on Mount ---
   useEffect(() => {
     const loadData = async () => {
+      let titlesForSeed: CustomTitles = {};
       if (status === 'authenticated') {
         // Load from database for authenticated users
         try {
@@ -58,7 +59,8 @@ export default function PromptInputSection({ onPromptGenerated }: PromptInputSec
             const data = await response.json();
             if (data.customTitles) {
               // Merge with DEFAULT_CUSTOM_TITLES to ensure all default keys have titles
-              setCustomTitles({ ...DEFAULT_CUSTOM_TITLES, ...data.customTitles });
+              titlesForSeed = { ...DEFAULT_CUSTOM_TITLES, ...data.customTitles };
+              setCustomTitles(titlesForSeed);
             }
             if (data.additionalFields && data.additionalFields.length > 0) {
               setAdditionalFields(data.additionalFields);
@@ -73,7 +75,8 @@ export default function PromptInputSection({ onPromptGenerated }: PromptInputSec
         if (savedCustomTitles) {
           try {
             // Merge with DEFAULT_CUSTOM_TITLES to ensure all default keys have titles
-            setCustomTitles({ ...DEFAULT_CUSTOM_TITLES, ...JSON.parse(savedCustomTitles) });
+            titlesForSeed = { ...DEFAULT_CUSTOM_TITLES, ...JSON.parse(savedCustomTitles) };
+            setCustomTitles(titlesForSeed);
           } catch (e) {
             console.error("Failed to parse saved custom titles from localStorage", e);
           }
@@ -90,14 +93,30 @@ export default function PromptInputSection({ onPromptGenerated }: PromptInputSec
       }
 
       // Load journal entries and goal from localStorage (always from localStorage)
+      let draftEntries: JournalEntries = {
+        whatWentWell: '',
+        whatILearned: '',
+        whatWouldDoDifferently: '',
+        nextStep: '',
+        timeJournaling: '',
+      };
       const savedDraft = localStorage.getItem('jourin_current_draft');
       if (savedDraft) {
         try {
-          setJournalEntries(JSON.parse(savedDraft));
+          draftEntries = JSON.parse(savedDraft);
         } catch (e) {
           console.error("Failed to parse saved draft from localStorage", e);
         }
       }
+
+      // Seed custom field titles from customTitles (DB for auth users, localStorage for guests)
+      // so fields created on another device/browser still render their titles.
+      Object.keys(titlesForSeed).forEach(key => {
+        if (key.endsWith('_title') && typeof titlesForSeed[key] === 'string') {
+          draftEntries[key] = titlesForSeed[key] as string;
+        }
+      });
+      setJournalEntries(draftEntries);
 
       const savedGoal = localStorage.getItem('jourin_user_goal');
       if (savedGoal) {
@@ -112,10 +131,12 @@ export default function PromptInputSection({ onPromptGenerated }: PromptInputSec
       if (savedTemplate) {
         setPromptTemplate(savedTemplate);
       }
+
+      fieldsLoadedRef.current = true;
+      setHasHydrated(true);
     };
 
     loadData();
-    setHasHydrated(true);
   }, [status]);
 
   // // Add back any additional fields that are still active and have content
@@ -141,56 +162,63 @@ export default function PromptInputSection({ onPromptGenerated }: PromptInputSec
   }, 500);
 
   // --- Database: Debounced Save for Authenticated Users ---
-  const debouncedSaveToDatabase = useCallback(
-    async (titles: CustomTitles, fields: string[]) => {
-      const debouncedFn = debounce(async () => {
-        if (status === 'authenticated') {
-          try {
-            const response = await fetch('/api/custom-titles', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                customTitles: titles,
-                additionalFields: fields,
-              }),
-            });
-            
-            if (!response.ok) {
-              console.error('Failed to save custom titles to database');
-            }
-          } catch (error) {
-            console.error('Error saving custom titles to database:', error);
-          }
+  // Keep the latest titles/fields/status in a ref so the single debounced
+  // request always sends the most recent state and pending saves are cancelled.
+  const dbSaveRef = useRef({ titles: customTitles, fields: additionalFields, status });
+  const fieldsLoadedRef = useRef(false);
+  useEffect(() => {
+    dbSaveRef.current = { titles: customTitles, fields: additionalFields, status };
+  });
+
+  const debouncedSaveToDatabase = useMemo(
+    () =>
+      debounce(async () => {
+        const { titles, fields, status: currentStatus } = dbSaveRef.current;
+        if (currentStatus !== 'authenticated') {
+          return;
         }
-      }, 500);
-      
-      return debouncedFn();
-    },
-    [status]
+        try {
+          const response = await fetch('/api/custom-titles', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              customTitles: titles,
+              additionalFields: fields,
+            }),
+          });
+
+          if (!response.ok) {
+            console.error('Failed to save custom titles to database');
+          }
+        } catch (error) {
+          console.error('Error saving custom titles to database:', error);
+        }
+      }, 500),
+    []
   );
 
   const saveCustomTitles = useCallback(
     (titles: CustomTitles) => {
       if (status === 'authenticated') {
-        debouncedSaveToDatabase(titles, additionalFields);
+        debouncedSaveToDatabase();
       } else {
         localStorage.setItem('jourin_custom_titles', JSON.stringify(titles));
       }
     },
-    [status, debouncedSaveToDatabase, additionalFields]
+    [status, debouncedSaveToDatabase]
   );
 
   const saveAdditionalFields = useCallback(
     (fields: string[]) => {
       if (status === 'authenticated') {
-        debouncedSaveToDatabase(customTitles, fields);
+        debouncedSaveToDatabase();
       } else {
         localStorage.setItem('jourin_additional_fields', JSON.stringify(fields));
       }
     },
-    [status, debouncedSaveToDatabase, customTitles]
+    [status, debouncedSaveToDatabase]
   );
 
   useEffect(() => {
@@ -204,6 +232,24 @@ export default function PromptInputSection({ onPromptGenerated }: PromptInputSec
       saveAdditionalFields(additionalFields);
     }
   }, [additionalFields, saveAdditionalFields, hasHydrated]);
+
+  // Remove orphaned custom field titles when their field is deleted
+  useEffect(() => {
+    if (!fieldsLoadedRef.current) {
+      return;
+    }
+    setCustomTitles(prevTitles => {
+      const next = { ...prevTitles };
+      let changed = false;
+      Object.keys(next).forEach(key => {
+        if (key.endsWith('_title') && !additionalFields.includes(key.slice(0, -'_title'.length))) {
+          delete next[key];
+          changed = true;
+        }
+      });
+      return changed ? next : prevTitles;
+    });
+  }, [additionalFields]);
 
   // --- Event Handlers ---
   const handleJournalEntriesChange = (entries: JournalEntries) => {
